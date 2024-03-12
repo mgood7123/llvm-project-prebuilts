@@ -284,13 +284,14 @@ jobs:
             #
             # in non-0 it is an error and we cannot continue
             #
-          #./try_get_release_or.sh mgood7123 llvm-project-prebuilts storage--llvm-stage-1--windows cmake_build_dir.tar storage--dep--windows cmake_build_dir.tar
+            # we need the previous job's deps
+          ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--windows   cmake_build_dir.tar   storage--dep--windows   cmake_build_dir.tar
 
             # ./try_get_release.sh   user   repo   file   tag
             #
             # response=$? # 0=match, -1=corrupt, -2=missing
             #
-          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--windows   cmake_build_dir.tar
+          #./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--windows   cmake_build_dir.tar
 
       - name: clone llvm-project
         run: |
