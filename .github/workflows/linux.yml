@@ -148,12 +148,14 @@ jobs:
 
       - name: SYSTEMD - archive build directory
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; tar -cf cmake_build_dir.tar BUILD_DEBUG ; sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512 \""
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; tar -cf cmake_build_dir.tar BUILD_DEBUG ; sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512 ; mv BUILD_DEBUG/BUILD_ROOT/ROOTFS . ; rm -rf BUILD_DEBUG ; mkdir BUILD_DEBUG ; mkdir BUILD_DEBUG/BUILD_ROOT ; mv ROOTFS BUILD_DEBUG/BUILD_ROOT ; tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG ; sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512\""
 
       - name: pull archive build directory
         run: |
           sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir.tar $GITHUB_WORKSPACE
           sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir.tar.sha512 $GITHUB_WORKSPACE
+          sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir_root_fs.tar $GITHUB_WORKSPACE
+          sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir_root_fs.tar.sha512 $GITHUB_WORKSPACE
 
       - name: list files
         run: |
@@ -174,6 +176,8 @@ jobs:
           artifacts: |
             cmake_build_dir.tar
             cmake_build_dir.tar.sha512
+            cmake_build_dir_root_fs.tar
+            cmake_build_dir_root_fs.tar.sha512
 
       # - name: SYSTEMD - cmake build - Debug - Build
       #   run: |

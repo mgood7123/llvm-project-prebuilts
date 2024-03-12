@@ -90,6 +90,15 @@ jobs:
         run: |
           tar -cf cmake_build_dir.tar BUILD_DEBUG
           sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512
+          # we need only the rootfs in the next stage
+          mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
+          rm -rf BUILD_DEBUG
+          # preserve the directory structure
+          mkdir BUILD_DEBUG
+          mkdir BUILD_DEBUG/BUILD_ROOT
+          mv ROOTFS BUILD_DEBUG/BUILD_ROOT
+          tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG
+          sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512
 
       - name: list files
         run: |
@@ -110,6 +119,8 @@ jobs:
           artifacts: |
             cmake_build_dir.tar
             cmake_build_dir.tar.sha512
+            cmake_build_dir_root_fs.tar
+            cmake_build_dir_root_fs.tar.sha512
 
       # - name: cmake build - Debug - Build
       #   run: |

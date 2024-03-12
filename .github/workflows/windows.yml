@@ -158,6 +158,15 @@ jobs:
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           tar -cf cmake_build_dir.tar BUILD_DEBUG
           sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512
+          # we need only the rootfs in the next stage
+          mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
+          rm -rf BUILD_DEBUG
+          # preserve the directory structure
+          mkdir BUILD_DEBUG
+          mkdir BUILD_DEBUG/BUILD_ROOT
+          mv ROOTFS BUILD_DEBUG/BUILD_ROOT
+          tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG
+          sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512
 
       - name: list files
         run: |
@@ -178,6 +187,8 @@ jobs:
           artifacts: |
             cmake_build_dir.tar
             cmake_build_dir.tar.sha512
+            cmake_build_dir_root_fs.tar
+            cmake_build_dir_root_fs.tar.sha512
 
 
 
@@ -269,14 +280,8 @@ jobs:
             #
             # in non-0 it is an error and we cannot continue
             #
-            # we need the previous job's deps
-          ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--windows   cmake_build_dir.tar   storage--deps--windows   cmake_build_dir.tar
-
-            # ./try_get_release.sh   user   repo   file   tag
-            #
-            # response=$? # 0=match, -1=corrupt, -2=missing
-            #
-          #./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--windows   cmake_build_dir.tar
+            # we need the previous job's rootfs
+          ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--windows   cmake_build_dir.tar   storage--deps--windows   cmake_build_dir_root_fs.tar
 
       - name: clone llvm-project
         run: |
@@ -285,12 +290,17 @@ jobs:
       - name: cmake LLVM STAGE 1 - Debug - Configure
         run: |
           export MSYS=winsymlinks:native
-          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project -B BUILD_DEBUG
+          cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
 
       - name: cmake LLVM STAGE 1 - Debug - Build
         run: |
           export MSYS=winsymlinks:native
           cmake --build BUILD_DEBUG
+
+      - name: cmake LLVM STAGE 1 - Debug - Install
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install BUILD_DEBUG
 
       - name: archive build directory
         run: |
@@ -298,6 +308,15 @@ jobs:
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           tar -cf cmake_build_dir.tar BUILD_DEBUG
           sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512
+          # we need only the rootfs in the next stage
+          mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
+          rm -rf BUILD_DEBUG
+          # preserve the directory structure
+          mkdir BUILD_DEBUG
+          mkdir BUILD_DEBUG/BUILD_ROOT
+          mv ROOTFS BUILD_DEBUG/BUILD_ROOT
+          tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG
+          sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512
 
       - name: list files
         run: |
@@ -318,8 +337,5 @@ jobs:
           artifacts: |
             cmake_build_dir.tar
             cmake_build_dir.tar.sha512
-
-      # - name: cmake build - Debug - Install
-      #   run: |
-      #     export MSYS=winsymlinks:native
-      #     cmake --install BUILD_DEBUG
+            cmake_build_dir_root_fs.tar
+            cmake_build_dir_root_fs.tar.sha512
