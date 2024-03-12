@@ -94,7 +94,7 @@ jobs:
             else
                 echo 'build directory does not exist in cache'
                 mkdir BUILD_DEBUG
-        fi
+          fi
 
       - name: cmake build deps - Debug
         run: |
