@@ -1,3 +1,7 @@
+# NOTE:
+#  there is little value to use caching past stage1
+#   the runtime build and stage2+ will be built from a fresh from source compiler and it will always result in cache miss.
+
 cmake_minimum_required(VERSION 3.12)
 
 project(llvm_project_prebuilt_deps C CXX)
