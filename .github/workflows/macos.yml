@@ -175,7 +175,7 @@ jobs:
       - name: cmake LLVM STAGE 1 - Debug - Configure
         run: |
           export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
-          cmake -G "Unix Makefiles" -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
+          cmake -G "Unix Makefiles" -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
 
       - name: cmake LLVM STAGE 1 - Debug - Build
         run: |
