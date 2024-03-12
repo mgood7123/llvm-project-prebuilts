@@ -32,6 +32,9 @@ jobs:
   
   build:
     needs: should_run
+    # so we can upload releases
+    permissions:
+      contents: write
     strategy:
       matrix:
         include:
