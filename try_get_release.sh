@@ -3,6 +3,9 @@
 # response=$? # 0=match, -1=corrupt, -2=missing
 #
 
+set -v
+set -x
+
 FILE=$4
 TAG=$3
 URL=https://github.com/$1/$2/releases/download/$TAG/$FILE
