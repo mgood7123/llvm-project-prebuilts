@@ -346,7 +346,7 @@ macro(build_root_add_cmake_package src relative_path_to_cmake_dir build_dir new_
     "${BUILD_ROOT_BUILD_DIRECTORY}/BUILD/${build_dir}"
   )
   build_root_message("-------- BUILDING CMAKE PROJECT: '${build_dir}' -- INSTALLED")
-  build_root_exec_working_directory("${BUILD_ROOT_BUILD_DIRECTORY}" sh -c "/usr/bin/find ROOTFS")
+  #build_root_exec_working_directory("${BUILD_ROOT_BUILD_DIRECTORY}" sh -c "/usr/bin/find ROOTFS")
   build_root_message("-------- BUILT CMAKE PROJECT: '${build_dir}'")
 endmacro()
 
@@ -510,7 +510,7 @@ macro(build_root_add_makefile_package src relative_path_to_makefile_dir build_di
         ${BUILD_ROOT_____________BASH_PROGRAM} -c "${BUILD_ROOT_____________FLAGS} make install"
       )
       build_root_message("-------- BUILDING MAKEFILE PROJECT: '${build_dir}' -- INSTALLED")
-      build_root_exec_working_directory("${BUILD_ROOT_BUILD_DIRECTORY}" sh -c "/usr/bin/find ROOTFS")
+      #build_root_exec_working_directory("${BUILD_ROOT_BUILD_DIRECTORY}" sh -c "/usr/bin/find ROOTFS")
   endif()
   build_root_message("-------- BUILT MAKEFILE PROJECT: '${build_dir}'")
 endmacro()
