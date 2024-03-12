@@ -153,6 +153,7 @@ jobs:
       - name: pull archive build directory
         run: |
           sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_debug_linux__job__deps.tar $GITHUB_WORKSPACE
+          sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_debug_linux__job__deps.tar.sha512 $GITHUB_WORKSPACE
 
       - name: list files
         run: |
