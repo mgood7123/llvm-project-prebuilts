@@ -1,0 +1,96 @@
+# Job execution time - Each job in a workflow can run for up to 6 hours of execution time.
+# Workflow run time - Each workflow run is limited to 35 days
+
+name: macos
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  should_run:
+    runs-on: ubuntu-latest
+    name: should_i_run
+    outputs:
+      output1: ${{ steps.check.outputs.target_commit_id }}
+    steps:
+     - name: check
+       run: |
+         wget https://gist.github.com/mgood7123/47957c59a4b0cbda11875632ee0b8f15/raw/7e876a60f2735cf7e60150a9a29edf6ddaad20a8/check.cpp -O check.cpp
+         cat << EOF > data.json
+         ${{toJSON(github.event.commits.*)}}
+         EOF
+         cat -n data.json
+         git clone https://github.com/danielaparker/jsoncons --depth=1
+         g++ --std=c++17 -I jsoncons/include check.cpp -o check
+         ./check 4 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] macos [4]
+  
+  build:
+    needs: should_run
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            name: macos
+
+    runs-on: ${{ matrix.os }}
+
+    name: ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+
+      - name: install autotools
+        run: |
+          brew install automake
+
+      - name: clone libiconv
+        run: |
+          cd deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1
+
+      - name: libiconv autopull.sh
+        run: |
+          cd deps ; cd libiconv ; ./autopull.sh --one-time
+
+      - name: install coreutils
+        run: |
+          brew install coreutils
+
+      - name: install ccache
+        run: |
+          brew install ccache
+
+      - name: cmake build deps - Debug
+        run: |
+          export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+          mkdir BUILD_DEBUG
+          mkdir ROOTFS_DEBUG
+          mkdir DEBUG_CCACHE
+          export CCACHE_DIR="$(pwd)/DEBUG_CCACHE"
+          cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER_LAUNCHER="ccache -v -v -v -v --show-log-stats --show-stats -X 5 -F 0 -M 0 --recompress-threads 2 debug=true" -DCMAKE_CXX_COMPILER_LAUNCHER="ccache -v -v -v -v --show-log-stats --show-stats -X 5 -F 0 -M 0 --recompress-threads 2 debug=true" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
+
+      # - name: cmake build - Debug - Build
+      #   run: |
+      #     cmake --build BUILD_DEBUG
+
+      # - name: cmake build - Debug - Install
+      #   run: |
+      #     cmake --install BUILD_DEBUG
+
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: program-windows.exe
+      #     path: ./program-windows.exe
+      #     retention-days: 1

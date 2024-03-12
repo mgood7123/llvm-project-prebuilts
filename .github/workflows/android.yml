@@ -1,0 +1,223 @@
+# Job execution time - Each job in a workflow can run for up to 6 hours of execution time.
+# Workflow run time - Each workflow run is limited to 35 days
+
+name: android
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  should_run:
+    runs-on: ubuntu-latest
+    name: should_i_run
+    outputs:
+      output1: ${{ steps.check.outputs.target_commit_id }}
+    steps:
+     - name: check
+       run: |
+         wget https://gist.github.com/mgood7123/47957c59a4b0cbda11875632ee0b8f15/raw/7e876a60f2735cf7e60150a9a29edf6ddaad20a8/check.cpp -O check.cpp
+         cat << EOF > data.json
+         ${{toJSON(github.event.commits.*)}}
+         EOF
+         cat -n data.json
+         git clone https://github.com/danielaparker/jsoncons --depth=1
+         g++ --std=c++17 -I jsoncons/include check.cpp -o check
+         ./check 1 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] macos [4]
+  
+  build:
+    needs: should_run
+    strategy:
+      matrix:
+        include:
+    # android api 19 is kitkat 4.4
+    # android api 21 is lollipop 5.0
+    # additionally https://github.com/android/ndk/issues/1108
+# The pre-L libc functions I looked at seem to treat wchar_t as being one byte in size, whereas it's always 4 bytes in the NDK. e.g.:
+#
+#     printf("%ls\n", L"hello") ==> prints "h" in JB (prints "hello" in L)
+#     printf("%ls\n", (const wchar_t*)"hello") ==> prints "hello" in JB (prints nothing or crashes in L)
+#     mbstowcs(NULL, "\xce\x91" "\xce\x91" "\xce\x91", 256) ==> returns 7 in JB (returns 3 in L)
+#     wcstombs(NULL, L"123456789", 256) ==> returns 2 in JB (returns 9 in L)
+#
+# The last example shows another problem -- pre-L mbstowcs/wcstombs return the size of their input strings plus 1. (I guess they're counting the NUL terminator?)
+
+          - os: ubuntu-latest
+            name: android 21
+            android_abi: armeabi-v7a
+            android_arm_neon: TRUE
+            android_arm_mode: thumb
+            android_platform: 21
+            android_stl: c++_static
+            arch: armv7a
+            clang_prefix: armv7a-linux-androideabi
+          - os: ubuntu-latest
+            name: android 21
+            android_abi: arm64-v8a
+            android_arm_neon: TRUE
+            android_arm_mode: thumb
+            android_platform: 21
+            android_stl: c++_static
+            arch: aarch64
+            clang_prefix: aarch64-linux-android
+          - os: ubuntu-latest
+            name: android 21
+            android_abi: x86
+            # disabling neon is no longer supported even if we do not target it
+            android_arm_neon: TRUE
+            android_arm_mode: thumb
+            android_platform: 21
+            android_stl: c++_static
+            arch: 1686
+            clang_prefix: i686-linux-android
+          - os: ubuntu-latest
+            name: android 21
+            android_abi: x86_64
+            # disabling neon is no longer supported even if we do not target it
+            android_arm_neon: TRUE
+            android_arm_mode: thumb
+            android_platform: 21
+            android_stl: c++_static
+            arch: x86_64
+            clang_prefix: x86_64-linux-android
+
+    runs-on: ${{ matrix.os }}
+
+    name: ${{ matrix.name }} @ ${{ matrix.arch }}
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-android-${{ matrix.android_platform }}-${{ matrix.arch }}
+      cancel-in-progress: true
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+
+      - name: load docker image
+        run: |
+          sudo sh -c 'curl -L https://github.com/mgood7123/SystemD-docker/releases/download/1.0/ubuntu_systemd.tar | docker image load'
+
+      # THIS ONLY NEED TO BE DONE ONCE
+      #
+      - name: boot systemd - host remount cgroup
+        run: |
+          sudo mount -o remount,rw,nosuid,nodev,noexec,relatime /sys/fs/cgroup
+
+      - name: boot systemd - create systemd container
+        run: |
+          sudo docker container create --user root --workdir /home/root --tmpfs /tmp --tty --cap-add SYS_ADMIN --cap-add NET_ADMIN --cgroup-parent docker.slice --security-opt apparmor:unconfined --security-opt seccomp=unconfined --ulimit nofile=262144:262144 -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns host --name git_local_ubuntu git_local_ubuntu:23.10 /sbin/init
+      
+      - name: boot systemd - start systemd container
+        run: |
+          sudo docker container start git_local_ubuntu
+          sudo docker container exec git_local_ubuntu bash -c "sleep 5 ; systemctl --wait is-system-running || sysctl --failed"
+      
+      - name: boot systemd - verify
+        run: |
+          sudo docker container exec git_local_ubuntu bash -c "systemctl status"
+      
+      - name: boot systemd - create user session
+        run: |
+          sudo docker container exec git_local_ubuntu bash -c "mkdir -p /run/user/\$(id -u ubuntu)"
+          sudo docker container exec git_local_ubuntu bash -c "chown ubuntu:ubuntu /run/user/\$(id -u ubuntu)"
+          sudo docker container exec git_local_ubuntu bash -c "systemctl start user@\$(id -u ubuntu)"
+
+      - name: copy GITHUB_WORKSPACE directory to docker
+        run: |
+          echo "copying $GITHUB_WORKSPACE to docker"
+          sudo docker cp $GITHUB_WORKSPACE git_local_ubuntu:/home/ubuntu/git_repo
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo chown -R ubuntu:ubuntu git_repo\""
+
+      - name: SYSTEMD - install clang-17
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y clang-17 clang-format-17 lldb-17 lld-17 clang-tidy-17 clang-tools-17 flang-17 llvm-17-linker-tools llvm-17-tools llvm-17-runtime llvm-17-tools mlir-17-tools libmlir-17\""
+      
+      - name: SYSTEMD - make clang-17 default
+        run: |
+          sudo docker cp ./update_alternatives_clang.sh git_local_ubuntu:/home/ubuntu/update_alternatives_clang.sh
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "sudo chmod +x update_alternatives_clang.sh"
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "sudo chown ubuntu:ubuntu update_alternatives_clang.sh"
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo ./update_alternatives_clang.sh 17\""
+
+      - name: SYSTEMD - install cmake
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y cmake\""
+
+      - name: SYSTEMD - install NDK 25c
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y google-android-ndk-r25c-installer\""
+
+      - name: SYSTEMD - install automake
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y automake\""
+
+      - name: SYSTEMD - install patch
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y patch\""
+
+      - name: SYSTEMD - install gperf
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y gperf\""
+
+      - name: SYSTEMD - install groff
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y groff\""
+
+      - name: SYSTEMD - install git
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y git\""
+
+      - name: SYSTEMD - install gettext
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y gettext\""
+
+      - name: SYSTEMD - install ccache
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y ccache\""
+
+      - name: copy GITHUB_WORKSPACE directory to docker
+        run: |
+          echo "copying $GITHUB_WORKSPACE to docker"
+          sudo docker cp $GITHUB_WORKSPACE git_local_ubuntu:/home/ubuntu/git_repo
+
+      - name: SYSTEMD - chown docker GITHUB_WORKSPACE directory
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo chown -R ubuntu:ubuntu git_repo\""
+
+      - name: SYSTEMD - clone libiconv
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1\""
+
+      - name: SYSTEMD - libiconv autopull.sh
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; cd libiconv ; ./autopull.sh --one-time\""
+
+      - name: SYSTEMD - clone ncurses
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; git clone https://github.com/mirror/ncurses ncurses --recursive --depth=1\""
+
+      - name: SYSTEMD - cmake build deps - Debug
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; mkdir BUILD_DEBUG ; mkdir ROOTFS_DEBUG ; mkdir DEBUG_CCACHE ; export CCACHE_DIR=\\\"$(pwd)/DEBUG_CCACHE\\\" ; cmake -G \\\"Unix Makefiles\\\" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER_LAUNCHER=\\\"ccache -v -v -v -v --show-log-stats --show-stats -X 5 -F 0 -M 0 --recompress-threads 2 debug=true\\\" -DCMAKE_CXX_COMPILER_LAUNCHER=\\\"ccache -v -v -v -v --show-log-stats --show-stats -X 5 -F 0 -M 0 --recompress-threads 2 debug=true\\\" -DCMAKE_TOOLCHAIN_FILE=\\\$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=${{ matrix.android_abi }} -DANDROID_ARM_MODE=${{ matrix.android_arm_mode }} -DANDROID_ARM_NEON=${{ matrix.android_arm_neon }} -DANDROID_PLATFORM=${{ matrix.android_platform }} -DANDROID_STL=${{ matrix.android_stl }} -DCMAKE_C_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_CXX_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=ON -S . -B BUILD_DEBUG\""
+
+      # - name: SYSTEMD - cmake build - Debug - Build
+      #   run: |
+      #     sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; cmake --build BUILD_DEBUG\""
+
+      # - name: SYSTEMD - cmake build - Debug - Install
+      #   run: |
+      #     sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; cmake --install BUILD_DEBUG\""
+
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: program-android-${{ matrix.android }}-${{ matrix.arch }}
+      #     path: ./program-android-${{ matrix.android }}-${{ matrix.arch }}
+      #     retention-days: 1
