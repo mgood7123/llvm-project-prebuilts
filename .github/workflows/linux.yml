@@ -160,10 +160,11 @@ jobs:
           ls -l
       
       - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "cmake_debug_linux__job__deps"
-          tag: "storage"
+          tag: "storage-linux"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
