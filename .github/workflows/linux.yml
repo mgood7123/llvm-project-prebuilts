@@ -167,7 +167,7 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./cmake_debug_linux__job__deps.tar
+            cmake_debug_linux__job__deps.tar
 
       # - name: SYSTEMD - cmake build - Debug - Build
       #   run: |
