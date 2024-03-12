@@ -182,7 +182,7 @@ jobs:
         uses: "ncipollo/release-action@v1"
         with:
           name: "cmake_debug_windows__job__deps"
-          tag: "storage"
+          tag: "storage--deps--windows"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
