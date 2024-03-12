@@ -24,7 +24,7 @@ if [[ ("$R" = "200" || "$R" = "302") && ("$RSHA" == "200" || "$RSHA" == "302") ]
                 echo 'extracted build directory'
                 rm $FILE
                 rm $FILE.sha512
-                return 0
+                exit 0
             else
                 echo 'build directory corrupted, using previous cache'
                 TAG=$5
@@ -44,16 +44,16 @@ if [[ ("$R" = "200" || "$R" = "302") && ("$RSHA" == "200" || "$RSHA" == "302") ]
                                 echo 'extracted previous cache build directory'
                                 rm $FILE
                                 rm $FILE.sha512
-                                return 0
+                                exit 0
                             else
                                 echo 'previous cache build directory cache corrupted, cannot continue'
                                 rm $FILE
                                 rm $FILE.sha512
-                                return -1
+                                exit -1
                         fi
                     else
                         echo 'previous cache build directory does not exist in cache, cannot continue'
-                        return -2
+                        exit -2
                 fi
         fi
     else
@@ -75,15 +75,15 @@ if [[ ("$R" = "200" || "$R" = "302") && ("$RSHA" == "200" || "$RSHA" == "302") ]
                         echo 'extracted previous cache build directory'
                         rm $FILE
                         rm $FILE.sha512
-                        return 0
+                        exit 0
                     else
                         echo 'previous cache build directory cache corrupted, cannot continue'
                         rm $FILE
                         rm $FILE.sha512
-                        return -1
+                        exit -1
                 fi
             else
                 echo 'previous cache build directory does not exist in cache, cannot continue'
-                return -2
+                exit -2
         fi
 fi

@@ -20,16 +20,16 @@ if [[ ("$R" = "200" || "$R" = "302") && ("$RSHA" == "200" || "$RSHA" == "302") ]
                 echo 'extracted build directory'
                 rm $FILE
                 rm $FILE.sha512
-                return 0
+                exit 0
             else
                 echo 'build directory cache corrupted, rebuilding'
                 mkdir BUILD_DEBUG
                 rm $FILE
                 rm $FILE.sha512
-                return -1
+                exit -1
         fi
     else
         echo 'build directory does not exist in cache'
         mkdir BUILD_DEBUG
-        return -2
+        exit -2
 fi
