@@ -137,28 +137,13 @@ jobs:
 
       - name: check if build directory is cached
         run: |
-          R=$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--dep--windows/cmake_build_dir.tar | grep -E "^HTTP" | awk -F " " '{print $2}')
-          RSHA=$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--dep--windows/cmake_build_dir.tar.sha512 | grep -E "^HTTP" | awk -F " " '{print $2}')
-          if [[ ("$R" = "200" || "$R" = "302") && ("$RSHA" == "200" || "$RSHA" == "302") ]]
-            then
-                echo 'build directory exists in cache'
-                curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--dep--windows/cmake_build_dir.tar.sha512 > cmake_build_dir.tar.sha512
-                curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--dep--windows/cmake_build_dir.tar > cmake_build_dir.tar
-                if sha512sum -c cmake_build_dir.tar.sha512
-                    then
-                        echo 'extracting build directory...'
-                        tar -xf cmake_build_dir.tar
-                        echo 'extracted build directory'
-                    else
-                        echo 'build directory cache corrupted, rebuilding'
-                        mkdir BUILD_DEBUG
-                fi
-                rm cmake_build_dir.tar
-                rm cmake_build_dir.tar.sha512
-            else
-                echo 'build directory does not exist in cache'
-                mkdir BUILD_DEBUG
-          fi
+          chmod +x try_get_release.sh
+          chmod +x try_get_release_or.sh
+            # ./try_get_release.sh   user   repo   file   tag
+            #
+            # response=$? # 0=match, -1=corrupt, -2=missing
+            #
+          ./try_get_release.sh   mgood7123   storage--dep--windows   cmake_build_dir.tar
 
       - name: cmake build deps - Debug
         run: |
@@ -274,8 +259,6 @@ jobs:
 
       - name: check if build directory is cached
         run: |
-          # we do not need previous build's object files since we are building llvm now
-          # however in a multi-job build we will need the build of the previous job in order to resume building
           chmod +x try_get_release.sh
           chmod +x try_get_release_or.sh
             # ./try_get_release_or.sh   user   repo   tag1   file1   or_tag2   or_file2
