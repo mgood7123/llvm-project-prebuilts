@@ -1,0 +1,155 @@
+2024-03-10T07:52:45.4450335Z 'ls' '-l' '/lib/android-sdk/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin'
+2024-03-10T07:52:45.4451455Z total 534504
+2024-03-10T07:52:45.4452441Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android21-clang
+2024-03-10T07:52:45.4453908Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android21-clang++
+2024-03-10T07:52:45.4455475Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android22-clang
+2024-03-10T07:52:45.4456927Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android22-clang++
+2024-03-10T07:52:45.4458408Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android23-clang
+2024-03-10T07:52:45.4459597Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android23-clang++
+2024-03-10T07:52:45.4460743Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android24-clang
+2024-03-10T07:52:45.4461883Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android24-clang++
+2024-03-10T07:52:45.4463014Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android26-clang
+2024-03-10T07:52:45.4464113Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android26-clang++
+2024-03-10T07:52:45.4464755Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android27-clang
+2024-03-10T07:52:45.4465371Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android27-clang++
+2024-03-10T07:52:45.4466009Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android28-clang
+2024-03-10T07:52:45.4466665Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android28-clang++
+2024-03-10T07:52:45.4467309Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android29-clang
+2024-03-10T07:52:45.4468505Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android29-clang++
+2024-03-10T07:52:45.4469153Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android30-clang
+2024-03-10T07:52:45.4469779Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android30-clang++
+2024-03-10T07:52:45.4470653Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android31-clang
+2024-03-10T07:52:45.4471282Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android31-clang++
+2024-03-10T07:52:45.4471909Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android32-clang
+2024-03-10T07:52:45.4472522Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android32-clang++
+2024-03-10T07:52:45.4473143Z -rwxr-xr-x 1 root root       193 Jan 24  2023 aarch64-linux-android33-clang
+2024-03-10T07:52:45.4473801Z -rwxr-xr-x 1 root root       197 Jan 24  2023 aarch64-linux-android33-clang++
+2024-03-10T07:52:45.4474478Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi19-clang
+2024-03-10T07:52:45.4475346Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi19-clang++
+2024-03-10T07:52:45.4476019Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi21-clang
+2024-03-10T07:52:45.4476673Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi21-clang++
+2024-03-10T07:52:45.4477619Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi22-clang
+2024-03-10T07:52:45.4478870Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi22-clang++
+2024-03-10T07:52:45.4481428Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi23-clang
+2024-03-10T07:52:45.4482701Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi23-clang++
+2024-03-10T07:52:45.4483981Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi24-clang
+2024-03-10T07:52:45.4485238Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi24-clang++
+2024-03-10T07:52:45.4486465Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi26-clang
+2024-03-10T07:52:45.4487642Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi26-clang++
+2024-03-10T07:52:45.4488870Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi27-clang
+2024-03-10T07:52:45.4490014Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi27-clang++
+2024-03-10T07:52:45.4490677Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi28-clang
+2024-03-10T07:52:45.4491342Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi28-clang++
+2024-03-10T07:52:45.4491996Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi29-clang
+2024-03-10T07:52:45.4492635Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi29-clang++
+2024-03-10T07:52:45.4493279Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi30-clang
+2024-03-10T07:52:45.4493933Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi30-clang++
+2024-03-10T07:52:45.4494597Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi31-clang
+2024-03-10T07:52:45.4495252Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi31-clang++
+2024-03-10T07:52:45.4495903Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi32-clang
+2024-03-10T07:52:45.4496549Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi32-clang++
+2024-03-10T07:52:45.4497181Z -rwxr-xr-x 1 root root       196 Jan 24  2023 armv7a-linux-androideabi33-clang
+2024-03-10T07:52:45.4497829Z -rwxr-xr-x 1 root root       200 Jan 24  2023 armv7a-linux-androideabi33-clang++
+2024-03-10T07:52:45.4498429Z -rw-r--r-- 1 root root     10450 Jan 24  2023 bisect_driver.py
+2024-03-10T07:52:45.4498974Z lrwxrwxrwx 1 root root         8 Mar 10 17:52 clang -> clang-14
+2024-03-10T07:52:45.4499733Z lrwxrwxrwx 1 root root         5 Mar 10 17:52 clang++ -> clang
+2024-03-10T07:52:45.4500241Z -rwxr-xr-x 1 root root 130242688 Jan 24  2023 clang-14
+2024-03-10T07:52:45.4500719Z -rwxr-xr-x 1 root root  62340888 Jan 24  2023 clang-check
+2024-03-10T07:52:45.4501211Z -rwxr-xr-x 1 root root   2182320 Jan 24  2023 clang-format
+2024-03-10T07:52:45.4501697Z -rwxr-xr-x 1 root root  43202616 Jan 24  2023 clang-tidy
+2024-03-10T07:52:45.4502157Z -rwxr-xr-x 1 root root  36579008 Jan 24  2023 clangd
+2024-03-10T07:52:45.4502726Z -rwxr-xr-x 1 root root  32177376 Jan 24  2023 dsymutil
+2024-03-10T07:52:45.4503652Z -rwxr-xr-x 1 root root     23071 Jan 24  2023 git-clang-format
+2024-03-10T07:52:45.4504404Z -rwxr-xr-x 1 root root       205 Jan 24  2023 i686-linux-android19-clang
+2024-03-10T07:52:45.4505016Z -rwxr-xr-x 1 root root       209 Jan 24  2023 i686-linux-android19-clang++
+2024-03-10T07:52:45.4505625Z -rwxr-xr-x 1 root root       205 Jan 24  2023 i686-linux-android21-clang
+2024-03-10T07:52:45.4506225Z -rwxr-xr-x 1 root root       209 Jan 24  2023 i686-linux-android21-clang++
+2024-03-10T07:52:45.4506993Z -rwxr-xr-x 1 root root       205 Jan 24  2023 i686-linux-android22-clang
+2024-03-10T07:52:45.4507600Z -rwxr-xr-x 1 root root       209 Jan 24  2023 i686-linux-android22-clang++
+2024-03-10T07:52:45.4508197Z -rwxr-xr-x 1 root root       205 Jan 24  2023 i686-linux-android23-clang
+2024-03-10T07:52:45.4508791Z -rwxr-xr-x 1 root root       209 Jan 24  2023 i686-linux-android23-clang++
+2024-03-10T07:52:45.4509397Z -rwxr-xr-x 1 root root       190 Jan 24  2023 i686-linux-android24-clang
+2024-03-10T07:52:45.4509994Z -rwxr-xr-x 1 root root       194 Jan 24  2023 i686-linux-android24-clang++
+2024-03-10T07:52:45.4510587Z -rwxr-xr-x 1 root root       190 Jan 24  2023 i686-linux-android26-clang
+2024-03-10T07:52:45.4511177Z -rwxr-xr-x 1 root root       194 Jan 24  2023 i686-linux-android26-clang++
+2024-03-10T07:52:45.4511766Z -rwxr-xr-x 1 root root       190 Jan 24  2023 i686-linux-android27-clang
+2024-03-10T07:52:45.4512361Z -rwxr-xr-x 1 root root       194 Jan 24  2023 i686-linux-android27-clang++
+2024-03-10T07:52:45.4512957Z -rwxr-xr-x 1 root root       190 Jan 24  2023 i686-linux-android28-clang
+2024-03-10T07:52:45.4513544Z -rwxr-xr-x 1 root root       194 Jan 24  2023 i686-linux-android28-clang++
+2024-03-10T07:52:45.4514131Z -rwxr-xr-x 1 root root       190 Jan 24  2023 i686-linux-android29-clang
+2024-03-10T07:52:45.4514784Z -rwxr-xr-x 1 root root       194 Jan 24  2023 i686-linux-android29-clang++
+2024-03-10T07:52:45.4515890Z -rwxr-xr-x 1 root root       190 Jan 24  2023 i686-linux-android30-clang
+2024-03-10T07:52:45.4517047Z -rwxr-xr-x 1 root root       194 Jan 24  2023 i686-linux-android30-clang++
+2024-03-10T07:52:45.4518284Z -rwxr-xr-x 1 root root       190 Jan 24  2023 i686-linux-android31-clang
+2024-03-10T07:52:45.4519441Z -rwxr-xr-x 1 root root       194 Jan 24  2023 i686-linux-android31-clang++
+2024-03-10T07:52:45.4520650Z -rwxr-xr-x 1 root root       190 Jan 24  2023 i686-linux-android32-clang
+2024-03-10T07:52:45.4521798Z -rwxr-xr-x 1 root root       194 Jan 24  2023 i686-linux-android32-clang++
+2024-03-10T07:52:45.4522913Z -rwxr-xr-x 1 root root       190 Jan 24  2023 i686-linux-android33-clang
+2024-03-10T07:52:45.4524046Z -rwxr-xr-x 1 root root       194 Jan 24  2023 i686-linux-android33-clang++
+2024-03-10T07:52:45.4525100Z lrwxrwxrwx 1 root root         6 Mar 10 17:52 ld -> ld.lld
+2024-03-10T07:52:45.4526030Z lrwxrwxrwx 1 root root         3 Mar 10 17:52 ld.lld -> lld
+2024-03-10T07:52:45.4526898Z lrwxrwxrwx 1 root root         3 Mar 10 17:52 ld64.lld -> lld
+2024-03-10T07:52:45.4527385Z -rwxr-xr-x 1 root root  56832240 Jan 24  2023 lld
+2024-03-10T07:52:45.4527862Z lrwxrwxrwx 1 root root         3 Mar 10 17:52 lld-link -> lld
+2024-03-10T07:52:45.4528340Z -rwxr-xr-x 1 root root    183808 Jan 24  2023 lldb
+2024-03-10T07:52:45.4528818Z -rwxr-xr-x 1 root root     55040 Jan 24  2023 lldb-argdumper
+2024-03-10T07:52:45.4529308Z -rwxr-xr-x 1 root root       170 Jan 24  2023 lldb.sh
+2024-03-10T07:52:45.4532835Z lrwxrwxrwx 1 root root        15 Mar 10 17:52 llvm-addr2line -> llvm-symbolizer
+2024-03-10T07:52:45.4533995Z -rwxr-xr-x 1 root root  10178504 Jan 24  2023 llvm-ar
+2024-03-10T07:52:45.4534865Z -rwxr-xr-x 1 root root   3122784 Jan 24  2023 llvm-as
+2024-03-10T07:52:45.4535728Z -rwxr-xr-x 1 root root  38890552 Jan 24  2023 llvm-bolt
+2024-03-10T07:52:45.4536683Z -rwxr-xr-x 1 root root  13723280 Jan 24  2023 llvm-cfi-verify
+2024-03-10T07:52:45.4537617Z -rwxr-xr-x 1 root root    207888 Jan 24  2023 llvm-config
+2024-03-10T07:52:45.4538487Z -rwxr-xr-x 1 root root   3888648 Jan 24  2023 llvm-cov
+2024-03-10T07:52:45.4539378Z -rwxr-xr-x 1 root root    341872 Jan 24  2023 llvm-cxxfilt
+2024-03-10T07:52:45.4540270Z -rwxr-xr-x 1 root root   2297936 Jan 24  2023 llvm-dis
+2024-03-10T07:52:45.4541153Z -rwxr-xr-x 1 root root   8603384 Jan 24  2023 llvm-dwarfdump
+2024-03-10T07:52:45.4541991Z -rwxr-xr-x 1 root root  31293368 Jan 24  2023 llvm-dwp
+2024-03-10T07:52:45.4542513Z lrwxrwxrwx 1 root root         7 Mar 10 17:52 llvm-lib -> llvm-ar
+2024-03-10T07:52:45.4543031Z -rwxr-xr-x 1 root root   3623888 Jan 24  2023 llvm-link
+2024-03-10T07:52:45.4543682Z -rwxr-xr-x 1 root root   3235200 Jan 24  2023 llvm-lipo
+2024-03-10T07:52:45.4544182Z -rwxr-xr-x 1 root root   2956520 Jan 24  2023 llvm-modextract
+2024-03-10T07:52:45.4544666Z -rwxr-xr-x 1 root root  10491480 Jan 24  2023 llvm-nm
+2024-03-10T07:52:45.4545136Z -rwxr-xr-x 1 root root   3693968 Jan 24  2023 llvm-objcopy
+2024-03-10T07:52:45.4545628Z -rwxr-xr-x 1 root root  11726904 Jan 24  2023 llvm-objdump
+2024-03-10T07:52:45.4546126Z -rwxr-xr-x 1 root root   4221096 Jan 24  2023 llvm-profdata
+2024-03-10T07:52:45.4546675Z lrwxrwxrwx 1 root root         7 Mar 10 17:52 llvm-ranlib -> llvm-ar
+2024-03-10T07:52:45.4547212Z -rwxr-xr-x 1 root root    436200 Jan 24  2023 llvm-rc
+2024-03-10T07:52:45.4547778Z lrwxrwxrwx 1 root root        12 Mar 10 17:52 llvm-readelf -> llvm-readobj
+2024-03-10T07:52:45.4548356Z -rwxr-xr-x 1 root root   5349016 Jan 24  2023 llvm-readobj
+2024-03-10T07:52:45.4548844Z -rwxr-xr-x 1 root root   3210768 Jan 24  2023 llvm-size
+2024-03-10T07:52:45.4549332Z -rwxr-xr-x 1 root root    236840 Jan 24  2023 llvm-strings
+2024-03-10T07:52:45.4549885Z lrwxrwxrwx 1 root root        12 Mar 10 17:52 llvm-strip -> llvm-objcopy
+2024-03-10T07:52:45.4550456Z -rwxr-xr-x 1 root root   4286440 Jan 24  2023 llvm-symbolizer
+2024-03-10T07:52:45.4551011Z lrwxrwxrwx 1 root root         7 Mar 10 17:52 llvm-windres -> llvm-rc
+2024-03-10T07:52:45.4551550Z -rwxr-xr-x 1 root root    362712 Jan 24  2023 merge-fdata
+2024-03-10T07:52:45.4552098Z -rw-r--r-- 1 root root       223 Jan 24  2023 remote_toolchain_inputs
+2024-03-10T07:52:45.4552613Z -rwxr-xr-x 1 root root  11677864 Jan 24  2023 sancov
+2024-03-10T07:52:45.4553074Z -rwxr-xr-x 1 root root   4220512 Jan 24  2023 sanstats
+2024-03-10T07:52:45.4553545Z -rwxr-xr-x 1 root root     56911 Jan 24  2023 scan-build
+2024-03-10T07:52:45.4554013Z -rwxr-xr-x 1 root root      4702 Jan 24  2023 scan-view
+2024-03-10T07:52:45.4554562Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android21-clang
+2024-03-10T07:52:45.4555196Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android21-clang++
+2024-03-10T07:52:45.4555813Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android22-clang
+2024-03-10T07:52:45.4556436Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android22-clang++
+2024-03-10T07:52:45.4557054Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android23-clang
+2024-03-10T07:52:45.4557671Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android23-clang++
+2024-03-10T07:52:45.4558330Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android24-clang
+2024-03-10T07:52:45.4559490Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android24-clang++
+2024-03-10T07:52:45.4560289Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android26-clang
+2024-03-10T07:52:45.4560924Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android26-clang++
+2024-03-10T07:52:45.4561768Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android27-clang
+2024-03-10T07:52:45.4562411Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android27-clang++
+2024-03-10T07:52:45.4563022Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android28-clang
+2024-03-10T07:52:45.4563637Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android28-clang++
+2024-03-10T07:52:45.4564257Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android29-clang
+2024-03-10T07:52:45.4564870Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android29-clang++
+2024-03-10T07:52:45.4565491Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android30-clang
+2024-03-10T07:52:45.4566103Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android30-clang++
+2024-03-10T07:52:45.4566717Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android31-clang
+2024-03-10T07:52:45.4567326Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android31-clang++
+2024-03-10T07:52:45.4567941Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android32-clang
+2024-03-10T07:52:45.4568695Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android32-clang++
+2024-03-10T07:52:45.4569309Z -rwxr-xr-x 1 root root       192 Jan 24  2023 x86_64-linux-android33-clang
+2024-03-10T07:52:45.4570199Z -rwxr-xr-x 1 root root       196 Jan 24  2023 x86_64-linux-android33-clang++
+2024-03-10T07:52:45.4570960Z -rwxr-xr-x 1 root root    678264 Jan 24  2023 yasm
