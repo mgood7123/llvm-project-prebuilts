@@ -140,7 +140,7 @@ jobs:
 
       - name: SYSTEMD - check if build directory is cached
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; R=\\\$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_linux__job__deps.tar | grep -E \\\"^HTTP\\\" | awk -F \\\" \\\" '{print \\\$2}') ; if [[ \\\$R == 200 || \\\$R == 302 ]] ; then echo \\\"build directory exists in cache\\\" ; curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_linux__job__deps.tar > cmake_debug_linux__job__deps.tar ; echo 'extracting build directory...' ; tar -xf cmake_debug_linux__job__deps.tar ; echo 'extracted build directory' ; rm cmake_debug_linux__job__deps.tar ; else echo \\\"build directory does not exist in cache\\\" ; mkdir BUILD_DEBUG ; fi\""
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; R=\\\$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_linux__job__deps.tar | grep -E \\\"^HTTP\\\" | awk -F \\\" \\\" '{print \\\$2}') ; RSHA=\\\$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_linux__job__deps.tar | grep -E \\\"^HTTP\\\" | awk -F \\\" \\\" '{print \\\$2}') ; if [[ (\\\$R == 200 || \\\$R == 302) && (\\\$RSHA == 200 || \\\$RSHA == 302) ]] ; then echo \\\"build directory exists in cache\\\" ; curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_linux__job__deps.tar.sha512 > cmake_debug_linux__job__deps.tar.sha512 ; curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_linux__job__deps.tar > cmake_debug_linux__job__deps.tar ; sha512 -c cmake_debug_linux__job__deps.tar.sha512 ; if [[ $? == 0 ]] then ; echo 'extracting build directory...' ; tar -xf cmake_debug_linux__job__deps.tar ; echo 'extracted build directory' ; else echo 'build directory cache corrupted, rebuilding' ; mkdir BUILD_DEBUG ; fi ; rm cmake_debug_linux__job__deps.tar ; else echo \\\"build directory does not exist in cache\\\" ; mkdir BUILD_DEBUG ; fi\""
 
       - name: SYSTEMD - cmake build deps - Debug
         run: |
@@ -148,7 +148,7 @@ jobs:
 
       - name: SYSTEMD - archive build directory
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; tar -cf cmake_debug_linux__job__deps.tar BUILD_DEBUG\""
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; tar -cf cmake_debug_linux__job__deps.tar BUILD_DEBUG ; sha512sum cmake_debug_linux__job__deps.tar > cmake_debug_linux__job__deps.tar.sha512 \""
 
       - name: pull archive build directory
         run: |
@@ -171,6 +171,7 @@ jobs:
           removeArtifacts: true
           artifacts: |
             cmake_debug_linux__job__deps.tar
+            cmake_debug_linux__job__deps.tar.sha512
 
       # - name: SYSTEMD - cmake build - Debug - Build
       #   run: |
