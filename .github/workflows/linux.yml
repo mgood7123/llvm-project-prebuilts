@@ -140,7 +140,7 @@ jobs:
 
       - name: SYSTEMD - check if build directory is cached
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; chmod +x try_get_release.sh ; chmod +x try_get_release_or.sh ; ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--deps--linux   cmake_build_dir.tar\""
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; chmod +x try_get_release.sh ; chmod +x try_get_release_or.sh ; ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--deps--linux   cmake_build_dir.tar || true\""
 
       - name: SYSTEMD - cmake build deps - Debug
         run: |
