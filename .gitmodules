@@ -1,9 +1,0 @@
-[submodule "deps/xz"]
-	path = deps/xz
-	url = https://github.com/tukaani-project/xz
-[submodule "deps/wineditline"]
-	path = deps/wineditline
-	url = https://github.com/mgood7123/wineditline-llvm
-[submodule "deps/libzip"]
-	path = deps/libzip
-	url = https://github.com/nih-at/libzip
