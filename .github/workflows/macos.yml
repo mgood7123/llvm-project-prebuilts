@@ -73,24 +73,24 @@ jobs:
 
       - name: check if build directory is cached
         run: |
-          R=$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_macos__job__deps.tar | grep -E "^HTTP" | awk -F " " '{print $2}')
-          RSHA=$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_macos__job__deps.tar.sha512 | grep -E "^HTTP" | awk -F " " '{print $2}')
+          R=$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--dep--macos/cmake_build_dir.tar | grep -E "^HTTP" | awk -F " " '{print $2}')
+          RSHA=$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--dep--macos/cmake_build_dir.tar.sha512 | grep -E "^HTTP" | awk -F " " '{print $2}')
           if [[ ("$R" = "200" || "$R" = "302") && ("$RSHA" == "200" || "$RSHA" == "302") ]]
             then
                 echo 'build directory exists in cache'
-                curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_macos__job__deps.tar.sha512 > cmake_debug_macos__job__deps.tar.sha512
-                curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_macos__job__deps.tar > cmake_debug_macos__job__deps.tar
-                if sha512sum -c cmake_debug_macos__job__deps.tar.sha512
+                curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--dep--macos/cmake_build_dir.tar.sha512 > cmake_build_dir.tar.sha512
+                curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--dep--macos/cmake_build_dir.tar > cmake_build_dir.tar
+                if sha512sum -c cmake_build_dir.tar.sha512
                     then
                         echo 'extracting build directory...'
-                        tar -xf cmake_debug_macos__job__deps.tar
+                        tar -xf cmake_build_dir.tar
                         echo 'extracted build directory'
                     else
                         echo 'build directory cache corrupted, rebuilding'
                         mkdir BUILD_DEBUG
                 fi
-                rm cmake_debug_macos__job__deps.tar
-                rm cmake_debug_macos__job__deps.tar.sha512
+                rm cmake_build_dir.tar
+                rm cmake_build_dir.tar.sha512
             else
                 echo 'build directory does not exist in cache'
                 mkdir BUILD_DEBUG
@@ -103,8 +103,8 @@ jobs:
 
       - name: archive build directory
         run: |
-          tar -cf cmake_debug_macos__job__deps.tar BUILD_DEBUG
-          sha512sum cmake_debug_macos__job__deps.tar > cmake_debug_macos__job__deps.tar.sha512
+          tar -cf cmake_build_dir.tar BUILD_DEBUG
+          sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512
 
       - name: list files
         run: |
@@ -114,7 +114,7 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "cmake_debug_macos__job__deps"
+          name: "cmake_build_dir"
           tag: "storage--deps--macos"
           makeLatest: true
           generateReleaseNotes: false
@@ -123,8 +123,8 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            cmake_debug_macos__job__deps.tar
-            cmake_debug_macos__job__deps.tar.sha512
+            cmake_build_dir.tar
+            cmake_build_dir.tar.sha512
 
       # - name: cmake build - Debug - Build
       #   run: |
