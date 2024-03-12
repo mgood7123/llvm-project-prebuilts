@@ -29,7 +29,7 @@ jobs:
          cat -n data.json
          git clone https://github.com/danielaparker/jsoncons --depth=1
          g++ --std=c++17 -I jsoncons/include check.cpp -o check
-         ./check 2 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] macos [4]
+         ./check 2 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] windows [4]
        shell: bash
   
   build:
@@ -135,29 +135,43 @@ jobs:
           export MSYS=winsymlinks:native
           cd deps ; cd libiconv ; ./autopull.sh --one-time
 
-      # - name: check if build directory is cached
-      #   run: |
-      #     if [[ $(curl --silent -I https://example.com/my.remote.tarball.gz | grep -E "^HTTP" | awk -F " " '{print $2}') == 200 ]]
-      #       then
-      #         echo "build directory exists"
-      #       else
-      #         echo "build directory does not exists"
-      #         mkdir BUILD_DEBUG
-      #     fi
+      - name: check if build directory is cached
+        run: |
+          R=$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_windows__job__deps.tar | grep -E "^HTTP" | awk -F " " '{print $2}')
+          RSHA=$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_windows__job__deps.tar.sha512 | grep -E "^HTTP" | awk -F " " '{print $2}')
+          if [[ ("$R" = "200" || "$R" = "302") && ("$RSHA" == "200" || "$RSHA" == "302") ]]
+            then
+                echo 'build directory exists in cache'
+                curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_windows__job__deps.tar.sha512 > cmake_debug_windows__job__deps.tar.sha512
+                curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_windows__job__deps.tar > cmake_debug_windows__job__deps.tar
+                if sha512sum -c cmake_debug_windows__job__deps.tar.sha512
+                    then
+                        echo 'extracting build directory...'
+                        tar -xf cmake_debug_windows__job__deps.tar
+                        echo 'extracted build directory'
+                    else
+                        echo 'build directory cache corrupted, rebuilding'
+                        mkdir BUILD_DEBUG
+                fi
+                rm cmake_debug_windows__job__deps.tar
+                rm cmake_debug_windows__job__deps.tar.sha512
+            else
+                echo 'build directory does not exist in cache'
+                mkdir BUILD_DEBUG
+          fi
 
       - name: cmake build deps - Debug
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          mkdir BUILD_DEBUG
-          mkdir ROOTFS_DEBUG
-          cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
 
       - name: archive build directory
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           tar -cf cmake_debug_windows__job__deps.tar BUILD_DEBUG
+          sha512sum cmake_debug_windows__job__deps.tar > cmake_debug_windows__job__deps.tar.sha512
 
       - name: list files
         run: |
@@ -175,7 +189,8 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./cmake_debug_windows__job__deps.tar
+            cmake_debug_windows__job__deps.tar
+            cmake_debug_windows__job__deps.tar.sha512
 
       # - name: clone llvm-project
       #   run: |
@@ -190,9 +205,3 @@ jobs:
       #   run: |
       #     export MSYS=winsymlinks:native
       #     cmake --install BUILD_DEBUG
-
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: program-windows.exe
-      #     path: ./program-windows.exe
-      #     retention-days: 1
