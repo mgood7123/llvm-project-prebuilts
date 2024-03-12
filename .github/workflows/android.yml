@@ -121,66 +121,66 @@ jobs:
       - name: boot systemd - start systemd container
         run: |
           sudo docker container start git_local_ubuntu
-          sudo docker container exec git_local_ubuntu bash -c "sleep 5 ; systemctl --wait is-system-running || sysctl --failed"
+          sudo docker container exec --tty git_local_ubuntu bash -c "sleep 5 ; systemctl --wait is-system-running || sysctl --failed"
       
       - name: boot systemd - verify
         run: |
-          sudo docker container exec git_local_ubuntu bash -c "systemctl status"
+          sudo docker container exec --tty git_local_ubuntu bash -c "systemctl status"
       
       - name: boot systemd - create user session
         run: |
-          sudo docker container exec git_local_ubuntu bash -c "mkdir -p /run/user/\$(id -u ubuntu)"
-          sudo docker container exec git_local_ubuntu bash -c "chown ubuntu:ubuntu /run/user/\$(id -u ubuntu)"
-          sudo docker container exec git_local_ubuntu bash -c "systemctl start user@\$(id -u ubuntu)"
+          sudo docker container exec --tty git_local_ubuntu bash -c "mkdir -p /run/user/\$(id -u ubuntu)"
+          sudo docker container exec --tty git_local_ubuntu bash -c "chown ubuntu:ubuntu /run/user/\$(id -u ubuntu)"
+          sudo docker container exec --tty git_local_ubuntu bash -c "systemctl start user@\$(id -u ubuntu)"
 
       - name: copy GITHUB_WORKSPACE directory to docker
         run: |
           echo "copying $GITHUB_WORKSPACE to docker"
           sudo docker cp $GITHUB_WORKSPACE git_local_ubuntu:/home/ubuntu/git_repo
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo chown -R ubuntu:ubuntu git_repo\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo chown -R ubuntu:ubuntu git_repo\""
 
       - name: SYSTEMD - install clang-17
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y clang-17 clang-format-17 lldb-17 lld-17 clang-tidy-17 clang-tools-17 flang-17 llvm-17-linker-tools llvm-17-tools llvm-17-runtime llvm-17-tools mlir-17-tools libmlir-17\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y clang-17 clang-format-17 lldb-17 lld-17 clang-tidy-17 clang-tools-17 flang-17 llvm-17-linker-tools llvm-17-tools llvm-17-runtime llvm-17-tools mlir-17-tools libmlir-17\""
       
       - name: SYSTEMD - make clang-17 default
         run: |
           sudo docker cp ./update_alternatives_clang.sh git_local_ubuntu:/home/ubuntu/update_alternatives_clang.sh
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "sudo chmod +x update_alternatives_clang.sh"
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "sudo chown ubuntu:ubuntu update_alternatives_clang.sh"
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo ./update_alternatives_clang.sh 17\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "sudo chmod +x update_alternatives_clang.sh"
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "sudo chown ubuntu:ubuntu update_alternatives_clang.sh"
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo ./update_alternatives_clang.sh 17\""
 
       - name: SYSTEMD - install cmake
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y cmake\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y cmake\""
 
       - name: SYSTEMD - install NDK 25c
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y google-android-ndk-r25c-installer\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y google-android-ndk-r25c-installer\""
 
       - name: SYSTEMD - install automake
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y automake\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y automake\""
 
       - name: SYSTEMD - install patch
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y patch\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y patch\""
 
       - name: SYSTEMD - install gperf
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y gperf\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y gperf\""
 
       - name: SYSTEMD - install groff
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y groff\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y groff\""
 
       - name: SYSTEMD - install git
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y git\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y git\""
 
       - name: SYSTEMD - install gettext
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y gettext\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y gettext\""
 
       - name: copy GITHUB_WORKSPACE directory to docker
         run: |
@@ -189,31 +189,31 @@ jobs:
 
       - name: SYSTEMD - chown docker GITHUB_WORKSPACE directory
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo chown -R ubuntu:ubuntu git_repo\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo chown -R ubuntu:ubuntu git_repo\""
 
       - name: SYSTEMD - clone libiconv
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1\""
 
       - name: SYSTEMD - libiconv autopull.sh
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; cd libiconv ; ./autopull.sh --one-time\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; cd libiconv ; ./autopull.sh --one-time\""
 
       - name: SYSTEMD - clone ncurses
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; git clone https://github.com/mirror/ncurses ncurses --recursive --depth=1\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; git clone https://github.com/mirror/ncurses ncurses --recursive --depth=1\""
 
       - name: SYSTEMD - check if build directory is cached
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; R=\\\$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar | grep -E \\\"^HTTP\\\" | awk -F \\\" \\\" '{print \\\$2}') ; RSHA=\\\$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512 | grep -E \\\"^HTTP\\\" | awk -F \\\" \\\" '{print \\\$2}') ; if [[ (\\\"\\\$R\\\" = \\\"200\\\" || \\\"\\\$R\\\" = \\\"302\\\") && (\\\"\\\$RSHA\\\" == \\\"200\\\" || \\\"\\\$RSHA\\\" == \\\"302\\\") ]] ; then echo 'build directory exists in cache' ; curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512 > cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512 ; curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar > cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar ; if sha512sum -c cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512 ; then echo 'extracting build directory...' ; tar -xf cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar ; echo 'extracted build directory' ; else echo 'build directory cache corrupted, rebuilding' ; mkdir BUILD_DEBUG ; fi ; rm cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar ; rm cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512 ; else echo 'build directory does not exist in cache' ; mkdir BUILD_DEBUG ; fi\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; R=\\\$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar | grep -E \\\"^HTTP\\\" | awk -F \\\" \\\" '{print \\\$2}') ; RSHA=\\\$(curl --silent -I https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512 | grep -E \\\"^HTTP\\\" | awk -F \\\" \\\" '{print \\\$2}') ; if [[ (\\\"\\\$R\\\" = \\\"200\\\" || \\\"\\\$R\\\" = \\\"302\\\") && (\\\"\\\$RSHA\\\" == \\\"200\\\" || \\\"\\\$RSHA\\\" == \\\"302\\\") ]] ; then echo 'build directory exists in cache' ; curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512 > cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512 ; curl -L https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage/cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar > cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar ; if sha512sum -c cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512 ; then echo 'extracting build directory...' ; tar -xf cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar ; echo 'extracted build directory' ; else echo 'build directory cache corrupted, rebuilding' ; mkdir BUILD_DEBUG ; fi ; rm cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar ; rm cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512 ; else echo 'build directory does not exist in cache' ; mkdir BUILD_DEBUG ; fi\""
 
       - name: SYSTEMD - cmake build deps - Debug
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; cmake -G \\\"Unix Makefiles\\\" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=\\\$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=${{ matrix.android_abi }} -DANDROID_ARM_MODE=${{ matrix.android_arm_mode }} -DANDROID_ARM_NEON=${{ matrix.android_arm_neon }} -DANDROID_PLATFORM=${{ matrix.android_platform }} -DANDROID_STL=${{ matrix.android_stl }} -DCMAKE_C_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_CXX_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=ON -S . -B BUILD_DEBUG\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; cmake -G \\\"Unix Makefiles\\\" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=\\\$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=${{ matrix.android_abi }} -DANDROID_ARM_MODE=${{ matrix.android_arm_mode }} -DANDROID_ARM_NEON=${{ matrix.android_arm_neon }} -DANDROID_PLATFORM=${{ matrix.android_platform }} -DANDROID_STL=${{ matrix.android_stl }} -DCMAKE_C_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_CXX_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=ON -S . -B BUILD_DEBUG\""
 
       - name: SYSTEMD - archive build directory
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; tar -cf cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar BUILD_DEBUG ; sha512sum cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar > cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512\""
+          sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; tar -cf cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar BUILD_DEBUG ; sha512sum cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar > cmake_debug_android_${{ matrix.android_platform }}_${{ matrix.arch }}__job__deps.tar.sha512\""
 
       - name: pull archive build directory
         run: |
@@ -241,11 +241,11 @@ jobs:
 
       # - name: SYSTEMD - cmake build - Debug - Build
       #   run: |
-      #     sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; cmake --build BUILD_DEBUG\""
+      #     sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; cmake --build BUILD_DEBUG\""
 
       # - name: SYSTEMD - cmake build - Debug - Install
       #   run: |
-      #     sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; cmake --install BUILD_DEBUG\""
+      #     sudo docker container exec --tty --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; cmake --install BUILD_DEBUG\""
 
       # - uses: actions/upload-artifact@v3
       #   with:
