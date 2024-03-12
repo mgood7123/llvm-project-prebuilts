@@ -43,7 +43,6 @@ jobs:
         include:
           - os: ubuntu-latest
             name: linux
-            flatpak_id: com.smallville7123.Hello
 
     runs-on: ${{ matrix.os }}
 
@@ -178,6 +177,165 @@ jobs:
             cmake_build_dir.tar.sha512
             cmake_build_dir_root_fs.tar
             cmake_build_dir_root_fs.tar.sha512
+
+
+
+
+
+
+
+  build_llvm_stage_1:
+    needs: build_deps
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux
+
+    runs-on: ${{ matrix.os }}
+
+    name: deps - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+      - name: load docker image
+        run: |
+          sudo sh -c 'curl -L https://github.com/mgood7123/SystemD-docker/releases/download/1.0/ubuntu_systemd.tar | docker image load'
+
+      # THIS ONLY NEED TO BE DONE ONCE
+      #
+      - name: boot systemd - host remount cgroup
+        run: |
+          sudo mount -o remount,rw,nosuid,nodev,noexec,relatime /sys/fs/cgroup
+
+      - name: boot systemd - create systemd container
+        run: |
+          sudo docker container create --user root --workdir /home/root --tmpfs /tmp --cap-add SYS_ADMIN --cap-add NET_ADMIN --cgroup-parent docker.slice --security-opt apparmor:unconfined --security-opt seccomp=unconfined --ulimit nofile=262144:262144 -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns host --name git_local_ubuntu git_local_ubuntu:23.10 /sbin/init
+      
+      - name: boot systemd - start systemd container
+        run: |
+          sudo docker container start git_local_ubuntu
+          sudo docker container exec git_local_ubuntu bash -c "sleep 5 ; systemctl --wait is-system-running || sysctl --failed"
+      
+      - name: boot systemd - verify
+        run: |
+          sudo docker container exec git_local_ubuntu bash -c "systemctl status"
+      
+      - name: boot systemd - create user session
+        run: |
+          sudo docker container exec git_local_ubuntu bash -c "mkdir -p /run/user/\$(id -u ubuntu)"
+          sudo docker container exec git_local_ubuntu bash -c "chown ubuntu:ubuntu /run/user/\$(id -u ubuntu)"
+          sudo docker container exec git_local_ubuntu bash -c "systemctl start user@\$(id -u ubuntu)"
+
+      - name: copy GITHUB_WORKSPACE directory to docker
+        run: |
+          echo "copying $GITHUB_WORKSPACE to docker"
+          sudo docker cp $GITHUB_WORKSPACE git_local_ubuntu:/home/ubuntu/git_repo
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo chown -R ubuntu:ubuntu git_repo\""
+
+      - name: SYSTEMD - install clang-17
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y clang-17 clang-format-17 lldb-17 lld-17 clang-tidy-17 clang-tools-17 flang-17 llvm-17-linker-tools llvm-17-tools llvm-17-runtime llvm-17-tools mlir-17-tools libmlir-17\""
+
+      - name: SYSTEMD - make clang-17 default
+        run: |
+          sudo docker cp ./update_alternatives_clang.sh git_local_ubuntu:/home/ubuntu/update_alternatives_clang.sh
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "sudo chmod +x update_alternatives_clang.sh"
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "sudo chown ubuntu:ubuntu update_alternatives_clang.sh"
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo ./update_alternatives_clang.sh 17\""
+
+      - name: SYSTEMD - install cmake
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y cmake\""
+
+      - name: SYSTEMD - install git
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y git\""
+
+      - name: SYSTEMD - install curl
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y curl\""
+
+      - name: SYSTEMD - check if build directory is cached
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; chmod +x try_get_release.sh ; chmod +x try_get_release_or.sh ; ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--linux   cmake_build_dir.tar   storage--deps--linux   cmake_build_dir_root_fs.tar || true\""
+
+      - name: SYSTEMD - clone llvm-project
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; git clone --depth=1 --recursive https://github.com/llvm/llvm-project\""
+
+      - name: SYSTEMD - cmake build deps - Debug
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; cmake -G \\\"Unix Makefiles\\\" -DCMAKE_MODULE_PATH=\\\"\\\$(pwd)/cmake/packages\\\" -DCMAKE_INSTALL_PREFIX=\\\"\\\$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS\\\" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_CXX_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG\""
+
+      - name: cmake LLVM STAGE 1 - Debug - Build
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; cmake --build BUILD_DEBUG\""
+
+      - name: cmake LLVM STAGE 1 - Debug - Install
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; cmake --install BUILD_DEBUG\""
+
+      - name: SYSTEMD - archive build directory
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; tar -cf cmake_build_dir.tar BUILD_DEBUG ; sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512 ; mv BUILD_DEBUG/BUILD_ROOT/ROOTFS . ; rm -rf BUILD_DEBUG ; mkdir BUILD_DEBUG ; mkdir BUILD_DEBUG/BUILD_ROOT ; mv ROOTFS BUILD_DEBUG/BUILD_ROOT ; tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG ; sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512\""
+
+      - name: pull archive build directory
+        run: |
+          sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir.tar $GITHUB_WORKSPACE
+          sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir.tar.sha512 $GITHUB_WORKSPACE
+          sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir_root_fs.tar $GITHUB_WORKSPACE
+          sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir_root_fs.tar.sha512 $GITHUB_WORKSPACE
+
+      - name: list files
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "cmake_build_dir"
+          tag: "storage--llvm-stage-1--linux"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            cmake_build_dir.tar
+            cmake_build_dir.tar.sha512
+            cmake_build_dir_root_fs.tar
+            cmake_build_dir_root_fs.tar.sha512
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       # - name: SYSTEMD - cmake build - Debug - Build
       #   run: |

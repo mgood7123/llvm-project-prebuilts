@@ -122,16 +122,101 @@ jobs:
             cmake_build_dir_root_fs.tar
             cmake_build_dir_root_fs.tar.sha512
 
-      # - name: cmake build - Debug - Build
-      #   run: |
-      #     cmake --build BUILD_DEBUG
 
-      # - name: cmake build - Debug - Install
-      #   run: |
-      #     cmake --install BUILD_DEBUG
 
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: program-windows.exe
-      #     path: ./program-windows.exe
-      #     retention-days: 1
+
+
+  build_llvm_stage_1:
+    needs: build_deps
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            name: macos
+
+    runs-on: ${{ matrix.os }}
+
+    name: deps - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+      - name: install coreutils
+        run: |
+          brew install coreutils
+
+      - name: check if build directory is cached
+        run: |
+          chmod +x try_get_release.sh
+          chmod +x try_get_release_or.sh
+            # ./try_get_release_or.sh   user   repo   tag1   file1   or_tag2   or_file2
+            #
+            # response=$? # 0=match, -1=corrupt, -2=missing
+            #
+            # in non-0 it is an error and we cannot continue
+            #
+            # we need the previous job's rootfs
+          ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--macos   cmake_build_dir.tar   storage--deps--macos   cmake_build_dir_root_fs.tar
+
+      - name: clone llvm-project
+        run: |
+          git clone --depth=1 --recursive https://github.com/llvm/llvm-project
+
+      - name: cmake LLVM STAGE 1 - Debug - Configure
+        run: |
+          export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+          cmake -G "Unix Makefiles" -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
+
+      - name: cmake LLVM STAGE 1 - Debug - Build
+        run: |
+          cmake --build BUILD_DEBUG
+
+      - name: cmake LLVM STAGE 1 - Debug - Install
+        run: |
+          cmake --install BUILD_DEBUG
+
+      - name: archive build directory
+        run: |
+          tar -cf cmake_build_dir.tar BUILD_DEBUG
+          sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512
+          # we need only the rootfs in the next stage
+          mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
+          rm -rf BUILD_DEBUG
+          # preserve the directory structure
+          mkdir BUILD_DEBUG
+          mkdir BUILD_DEBUG/BUILD_ROOT
+          mv ROOTFS BUILD_DEBUG/BUILD_ROOT
+          tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG
+          sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512
+
+      - name: list files
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "cmake_build_dir"
+          tag: "storage--llvm-stage-1--macos"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            cmake_build_dir.tar
+            cmake_build_dir.tar.sha512
+            cmake_build_dir_root_fs.tar
+            cmake_build_dir_root_fs.tar.sha512
