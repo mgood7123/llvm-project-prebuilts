@@ -75,6 +75,24 @@ jobs:
           mkdir ROOTFS_DEBUG
           cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
 
+      - name: archive build directory
+        run: |
+          tar -cf cmake_debug_macos__job__deps.tar BUILD_DEBUG
+
+      - name: upload build directory
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "cmake_macos_windows__job__deps"
+          tag: "storage"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./cmake_debug_macos__job__deps.tar
+
       # - name: cmake build - Debug - Build
       #   run: |
       #     cmake --build BUILD_DEBUG

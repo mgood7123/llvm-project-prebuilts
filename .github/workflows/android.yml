@@ -204,6 +204,28 @@ jobs:
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; mkdir BUILD_DEBUG ; mkdir ROOTFS_DEBUG ; cmake -G \\\"Unix Makefiles\\\" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=\\\$NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI=${{ matrix.android_abi }} -DANDROID_ARM_MODE=${{ matrix.android_arm_mode }} -DANDROID_ARM_NEON=${{ matrix.android_arm_neon }} -DANDROID_PLATFORM=${{ matrix.android_platform }} -DANDROID_STL=${{ matrix.android_stl }} -DCMAKE_C_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_CXX_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=ON -S . -B BUILD_DEBUG\""
 
+      - name: SYSTEMD - archive build directory
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; tar -cf cmake_debug_android__job__deps.tar BUILD_DEBUG\""
+
+      - name: pull archive build directory
+        run: |
+          sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_debug_android__job__deps.tar $GITHUB_WORKSPACE
+
+      - name: upload build directory
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "cmake_debug_android__job__deps"
+          tag: "storage"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./cmake_debug_android__job__deps.tar
+
       # - name: SYSTEMD - cmake build - Debug - Build
       #   run: |
       #     sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; export NDK=/lib/android-sdk/ndk/25.2.9519653; export NDK_LINUX=\\\$NDK/toolchains/llvm/prebuilt/linux-x86_64; cmake --build BUILD_DEBUG\""
