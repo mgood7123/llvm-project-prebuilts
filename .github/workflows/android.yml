@@ -91,7 +91,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: ${{ matrix.name }} @ ${{ matrix.arch }}
+    name: deps - ${{ matrix.name }} @ ${{ matrix.arch }}
 
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-android-${{ matrix.android_platform }}-${{ matrix.arch }}
