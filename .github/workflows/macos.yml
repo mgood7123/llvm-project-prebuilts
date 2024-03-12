@@ -79,6 +79,10 @@ jobs:
         run: |
           tar -cf cmake_debug_macos__job__deps.tar BUILD_DEBUG
 
+      - name: list files
+        run: |
+          ls -l
+      
       - name: upload build directory
         uses: "ncipollo/release-action@v1"
         with:

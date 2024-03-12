@@ -132,6 +132,15 @@ jobs:
           export MSYS=winsymlinks:native
           cd deps ; cd libiconv ; ./autopull.sh --one-time
 
+      # - name: check if build directory is cached
+      #   run: |
+      #     if [[ $(curl --silent -I https://example.com/my.remote.tarball.gz | grep -E "^HTTP" | awk -F " " '{print $2}') == 200 ]]
+      #       then
+      #         echo "build directory exists"
+      #       else
+      #         echo "build directory does not exists"
+      #     fi
+
       - name: cmake build deps - Debug
         run: |
           export MSYS=winsymlinks:native
@@ -146,6 +155,10 @@ jobs:
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           tar -cf cmake_debug_windows__job__deps.tar BUILD_DEBUG
 
+      - name: list files
+        run: |
+          ls -l
+      
       - name: upload build directory
         uses: "ncipollo/release-action@v1"
         with:

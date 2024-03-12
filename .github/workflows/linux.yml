@@ -135,6 +135,10 @@ jobs:
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; cd libiconv ; ./autopull.sh --one-time\""
 
+      - name: SYSTEMD - check if build directory is cached
+        run: |
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; if [[ \\\$(curl --silent -I https://example.com/my.remote.tarball.gz | grep -E \\\"^HTTP\\\" | awk -F \\\" \\\" '{print \\\$2}') == 200 ]] ; then echo \\\"build directory exists in cache\\\" ; else echo \\\"build directory does not exist in cache\\\" ; fi\""
+
       - name: SYSTEMD - cmake build deps - Debug
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; mkdir BUILD_DEBUG ; mkdir ROOTFS_DEBUG ; cmake -G \\\"Unix Makefiles\\\" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_CXX_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG\""
@@ -147,6 +151,10 @@ jobs:
         run: |
           sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_debug_linux__job__deps.tar $GITHUB_WORKSPACE
 
+      - name: list files
+        run: |
+          ls -l
+      
       - name: upload build directory
         uses: "ncipollo/release-action@v1"
         with:
