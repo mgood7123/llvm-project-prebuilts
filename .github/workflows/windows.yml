@@ -139,6 +139,7 @@ jobs:
       #         echo "build directory exists"
       #       else
       #         echo "build directory does not exists"
+      #         mkdir BUILD_DEBUG
       #     fi
 
       - name: cmake build deps - Debug

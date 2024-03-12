@@ -137,11 +137,11 @@ jobs:
 
       - name: SYSTEMD - check if build directory is cached
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; if [[ \\\$(curl --silent -I https://example.com/my.remote.tarball.gz | grep -E \\\"^HTTP\\\" | awk -F \\\" \\\" '{print \\\$2}') == 200 ]] ; then echo \\\"build directory exists in cache\\\" ; else echo \\\"build directory does not exist in cache\\\" ; fi\""
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; if [[ \\\$(curl --silent -I https://example.com/my.remote.tarball.gz | grep -E \\\"^HTTP\\\" | awk -F \\\" \\\" '{print \\\$2}') == 200 ]] ; then echo \\\"build directory exists in cache\\\" ; mkdir BUILD_DEBUG ; else echo \\\"build directory does not exist in cache\\\" ; mkdir BUILD_DEBUG ; fi\""
 
       - name: SYSTEMD - cmake build deps - Debug
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; mkdir BUILD_DEBUG ; mkdir ROOTFS_DEBUG ; cmake -G \\\"Unix Makefiles\\\" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_CXX_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG\""
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color; mkdir ROOTFS_DEBUG ; cmake -G \\\"Unix Makefiles\\\" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_CXX_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG\""
 
       - name: SYSTEMD - archive build directory
         run: |
