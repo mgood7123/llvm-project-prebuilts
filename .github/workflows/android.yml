@@ -30,7 +30,7 @@ jobs:
          g++ --std=c++17 -I jsoncons/include check.cpp -o check
          ./check 1 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] macos [4]
   
-  build:
+  build_deps:
     needs: should_run
     # so we can upload releases
     permissions:

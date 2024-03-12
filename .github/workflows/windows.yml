@@ -32,7 +32,7 @@ jobs:
          ./check 2 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] windows [4]
        shell: bash
   
-  build:
+  build_deps:
     needs: should_run
     # so we can upload releases
     permissions:
@@ -193,14 +193,145 @@ jobs:
             cmake_build_dir.tar
             cmake_build_dir.tar.sha512
 
-      # - name: clone llvm-project
-      #   run: |
-      #     git clone --depth=1 --recursive https://github.com/llvm/llvm-project
 
-      # - name: cmake build - Debug - Build
-      #   run: |
-      #     export MSYS=winsymlinks:native
-      #     cmake --build BUILD_DEBUG
+
+
+
+
+
+  build_llvm_stage_1:
+    needs: build_deps
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: clang64
+
+    runs-on: ${{ matrix.os }}
+
+    name: ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: test symlink support
+        run: |
+          export MSYS=winsymlinks:native
+          touch a
+          ln -s a b
+          cp -v -r deps/zstd/tests/cli-tests/bin .
+          rm -f a
+          rm -f b
+          rm -rf bin
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install pacboy
+        run: |
+          pacman -Syu --noconfirm --needed pactoys
+
+      - name: update packages
+        run: |
+          pacboy -Sy
+
+      - name: install findutils
+        run: |
+          pacboy -S --noconfirm --needed findutils
+          which find
+          ls -l /usr/bin/find.exe
+
+      - name: install clang 17
+        run: |
+          pacboy -S --noconfirm --needed clang:p
+
+      - name: install cmake
+        run: |
+          pacboy -S --noconfirm --needed make:p cmake:p
+
+      - name: install git
+        run: |
+          pacboy -S --noconfirm --needed git
+
+      - name: check if build directory is cached
+        run: |
+          # we do not need previous build's object files since we are building llvm now
+          # however in a multi-job build we will need the build of the previous job in order to resume building
+          chmod +x try_get_release.sh
+          chmod +x try_get_release_or.sh
+            # ./try_get_release_or.sh   user   repo   tag1   file1   or_tag2   or_file2
+            #
+            # response=$? # 0=match, -1=corrupt, -2=missing
+            #
+            # in non-0 it is an error and we cannot continue
+            #
+          #./try_get_release_or.sh mgood7123 llvm-project-prebuilts storage--llvm-stage-1--windows cmake_build_dir.tar storage--dep--windows cmake_build_dir.tar
+
+            # ./try_get_release.sh   user   repo   file   tag
+            #
+            # response=$? # 0=match, -1=corrupt, -2=missing
+            #
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--windows   cmake_build_dir.tar
+
+      - name: clone llvm-project
+        run: |
+          git clone --depth=1 --recursive https://github.com/llvm/llvm-project
+
+      - name: cmake LLVM STAGE 1 - Debug - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project -B BUILD_DEBUG
+
+      - name: cmake LLVM STAGE 1 - Debug - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build BUILD_DEBUG
+
+      - name: archive build directory
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          tar -cf cmake_build_dir.tar BUILD_DEBUG
+          sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512
+
+      - name: list files
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "cmake_build_dir"
+          tag: "storage--llvm-stage-1--windows"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            cmake_build_dir.tar
+            cmake_build_dir.tar.sha512
 
       # - name: cmake build - Debug - Install
       #   run: |
