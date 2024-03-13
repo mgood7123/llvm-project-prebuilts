@@ -41,9 +41,17 @@ jobs:
     strategy:
       matrix:
         include:
+          # macos-12 has groff however it also has 63 GB storage, this does not meet our needs so upgrade to 13 and 14
+          # 
+          # Filesystem       Size   Used  Avail Capacity iused      ifree %iused  Mounted on
+          # /dev/disk1s5s1  380Gi   14Gi  154Gi     9%  553830 3981986570    0%   /   # macos 11 (Intel)
+          # /dev/disk1s5s1  300Gi   14Gi   63Gi    19%  502376  665033400    0%   /   # macos 12 (Intel)
+          # /dev/disk1s5s1  300Gi  8.7Gi  152Gi     6%  356810 1590762200    0%   /   # macos 13 (Intel)
+          # /dev/disk3s1s1  295Gi  9.4Gi  153Gi     6%    394k       1.6G    0%   /   # macos 14 (M1)
+
           - os: macos-13
             name: macos-intel
-            install_groff: HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install groff || true; brew link --overwrite python@3.12 || true
+            install_groff: export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1; brew list -1 | grep python | while read formula; do brew unlink $formula; brew link --overwrite $formula; done; brew install groff
           - os: macos-14
             name: macos-m1
             install_groff: HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install groff
