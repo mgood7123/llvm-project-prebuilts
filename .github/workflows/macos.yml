@@ -77,6 +77,18 @@ jobs:
         run: |
           df -h /
 
+      - name: install groff
+        run: |
+          brew install groff
+
+      - name: check free memory
+        run: |
+          python3 free.py
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: clone libiconv
         run: |
           cd deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1
