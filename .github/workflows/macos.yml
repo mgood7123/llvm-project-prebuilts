@@ -43,8 +43,10 @@ jobs:
         include:
           - os: macos-13
             name: macos-intel
+            install_groff: brew install groff || (brew link --overwrite python@3.11 && brew link --overwrite python@3.12)
           - os: macos-14
             name: macos-m1
+            install_groff: brew install groff || brew link --overwrite python@3.12
 
     runs-on: ${{ matrix.os }}
 
@@ -79,9 +81,7 @@ jobs:
 
       - name: install groff
         run: |
-          brew link --overwrite python@3.11
-          brew link --overwrite python@3.12
-          brew install groff
+          ${{ matrix.install_groff }}
 
       - name: check free memory
         run: |
