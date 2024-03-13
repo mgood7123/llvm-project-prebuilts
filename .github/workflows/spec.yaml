@@ -127,8 +127,7 @@ jobs:
 
       - name: check free memory
         run: |
-          brew install python
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
