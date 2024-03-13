@@ -57,7 +57,7 @@ jobs:
         shell: msys2 {0}
         run: |
           export MSYS=winsymlinks:native
-          free -h
+          free -g
 
       - name: check free space
         shell: msys2 {0}
