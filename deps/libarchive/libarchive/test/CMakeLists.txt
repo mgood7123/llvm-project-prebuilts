@@ -291,22 +291,22 @@ IF(ENABLE_TEST)
     test_zip_filename_encoding.c
   )
 
-  if (NOT APPLE)
+  #if (NOT APPLE)
     unset(BUILD_ROOT_LINK_GROUP_START)
     unset(BUILD_ROOT_LINK_GROUP_START CACHE)
     set(BUILD_ROOT_LINK_GROUP_START "-Wl,--start-group")
     unset(BUILD_ROOT_LINK_GROUP_END)
     unset(BUILD_ROOT_LINK_GROUP_END)
     set(BUILD_ROOT_LINK_GROUP_END "-Wl,--end-group")
-  else()
-    # apple's linker automatically behaves as-if start-group and end-group, and it does not accept such options
-    unset(BUILD_ROOT_LINK_GROUP_START)
-    unset(BUILD_ROOT_LINK_GROUP_START CACHE)
-    set(BUILD_ROOT_LINK_GROUP_START "")
-    unset(BUILD_ROOT_LINK_GROUP_END)
-    unset(BUILD_ROOT_LINK_GROUP_END)
-    set(BUILD_ROOT_LINK_GROUP_END "")
-  endif()
+  #else()
+  #  # apple's linker automatically behaves as-if start-group and end-group, and it does not accept such options
+  #  unset(BUILD_ROOT_LINK_GROUP_START)
+  #  unset(BUILD_ROOT_LINK_GROUP_START CACHE)
+  #  set(BUILD_ROOT_LINK_GROUP_START "")
+  #  unset(BUILD_ROOT_LINK_GROUP_END)
+  #  unset(BUILD_ROOT_LINK_GROUP_END)
+  #  set(BUILD_ROOT_LINK_GROUP_END "")
+  #endif()
 
   # ALWAYS see what libarchive is linking against and the link order to debug possible link errors on multiple platforms
   # DO NOT REMOVE THIS

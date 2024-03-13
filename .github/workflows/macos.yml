@@ -89,6 +89,18 @@ jobs:
         run: |
           df -h /
 
+      - name: install clang 17
+        run: |
+          brew install llvm@17
+
+      - name: check free memory
+        run: |
+          python3 free.py
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: clone libiconv
         run: |
           cd deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1
@@ -146,6 +158,7 @@ jobs:
       - name: cmake build deps - Debug
         run: |
           export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+          export PATH="$HOMEBREW_PREFIX/opt/llvm/bin:$PATH"
           cmake -G "Unix Makefiles" -DLLVM_OPTIMIZED_TABLEGEN=true -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
 
       - name: check free memory
@@ -247,6 +260,18 @@ jobs:
         run: |
           df -h /
 
+      - name: install clang 17
+        run: |
+          brew install llvm@17
+
+      - name: check free memory
+        run: |
+          python3 free.py
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install coreutils
         run: |
           brew install coreutils
@@ -295,6 +320,7 @@ jobs:
       - name: cmake LLVM STAGE 1 - Debug - Configure
         run: |
           export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+          export PATH="$HOMEBREW_PREFIX/opt/llvm/bin:$PATH"
           cmake -G "Unix Makefiles" -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
 
       - name: check free memory
