@@ -41,8 +41,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-latest
-            name: macos
+          - os: macos-13
+            name: macos-intel
+          - os: macos-14
+            name: macos-m1
 
     runs-on: ${{ matrix.os }}
 
@@ -57,7 +59,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -69,7 +71,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -81,7 +83,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -93,7 +95,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -105,7 +107,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -119,11 +121,11 @@ jobs:
             #
             # response=$? # 0=match, -1=corrupt, -2=missing
             #
-          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--deps--macos   cmake_build_dir.tar || true
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--deps--${{ matrix.os }}   cmake_build_dir.tar || true
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -136,7 +138,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -158,7 +160,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -170,7 +172,7 @@ jobs:
       
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -181,7 +183,7 @@ jobs:
         uses: "ncipollo/release-action@v1"
         with:
           name: "cmake_build_dir"
-          tag: "storage--deps--macos"
+          tag: "storage--deps--${{ matrix.os }}"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -209,8 +211,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-latest
-            name: macos
+          - os: macos-13
+            name: macos-intel
+          - os: macos-14
+            name: macos-m1
 
     runs-on: ${{ matrix.os }}
 
@@ -225,7 +229,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -237,7 +241,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -254,11 +258,11 @@ jobs:
             # in non-0 it is an error and we cannot continue
             #
             # we need the previous job's rootfs
-          ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--macos   cmake_build_dir.tar   storage--deps--macos   cmake_build_dir_root_fs.tar
+          ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--macos   cmake_build_dir.tar   storage--deps--${{ matrix.os }}   cmake_build_dir_root_fs.tar
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -270,7 +274,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -283,7 +287,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -295,7 +299,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -307,7 +311,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -327,7 +331,7 @@ jobs:
 
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
@@ -339,7 +343,7 @@ jobs:
       
       - name: check free memory
         run: |
-          python free.py
+          python3 free.py
 
       - name: check free space
         run: |
