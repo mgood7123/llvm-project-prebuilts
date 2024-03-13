@@ -57,7 +57,7 @@ jobs:
 
       - name: install procps
         run: |
-          pacboy -S --noconfirm --needed procps
+          brew install procps
 
       - name: check free memory
         run: |
@@ -229,7 +229,7 @@ jobs:
 
       - name: install procps
         run: |
-          pacboy -S --noconfirm --needed procps
+          brew install procps
 
       - name: check free memory
         run: |
