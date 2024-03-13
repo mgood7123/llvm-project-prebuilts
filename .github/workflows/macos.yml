@@ -79,6 +79,8 @@ jobs:
 
       - name: install groff
         run: |
+          brew link --overwrite python@3.11
+          brew link --overwrite python@3.12
           brew install groff
 
       - name: check free memory
