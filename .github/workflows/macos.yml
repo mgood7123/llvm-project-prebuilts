@@ -69,11 +69,11 @@ jobs:
 
       - name: brew config
         run: |
-          brew config
+          brew config || true
 
       - name: brew doctor
         run: |
-          brew doctor
+          brew doctor || true
 
       - name: install autotools
         run: |
