@@ -214,7 +214,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: deps - ${{ matrix.name }}
+    name: llvm stage 1 - ${{ matrix.name }}
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
