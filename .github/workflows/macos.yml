@@ -43,7 +43,7 @@ jobs:
         include:
           - os: macos-13
             name: macos-intel
-            install_groff: (brew install groff ; brew link --overwrite python@3.11 ; brew link --overwrite python@3.12)
+            install_groff: brew install groff || true; brew link --overwrite python@3.11 || true ; brew link --overwrite python@3.12 || true
           - os: macos-14
             name: macos-m1
             install_groff: brew install groff
