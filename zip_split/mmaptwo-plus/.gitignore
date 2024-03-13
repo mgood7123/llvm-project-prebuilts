@@ -1,0 +1,11 @@
+.DS_Store
+*~
+*.swo
+*.swp
+*.kate-swp
+DEADJOE
+/notes
+/build
+/out
+/.vs
+/CMakeSettings.json
