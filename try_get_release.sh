@@ -14,8 +14,9 @@ RSHA=$(curl --silent -I $URL.sha512 | grep -E "^HTTP" | awk -F " " '{print $2}')
 if [[ ("$R" = "200" || "$R" = "302") && ("$RSHA" == "200" || "$RSHA" == "302") ]]
     then
         echo "file '$FILE' exists in releases"
-        curl -L $URL.sha512 > $FILE.sha512
-        curl -L $URL > $FILE
+        curl -L $URL.sha512 -o $FILE.sha512
+        curl -L $URL -o $FILE
+        cat $FILE.sha512
         if sha512sum -c $FILE.sha512
             then
                 echo 'extracting build directory...'
