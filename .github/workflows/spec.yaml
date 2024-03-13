@@ -36,31 +36,31 @@ jobs:
       - name: update packages
         run: |
           pacman -Sy
-        shell: msys {0}
+        shell: msys2 {0}
 
       - name: install pacboy
-        shell: msys {0}
+        shell: msys2 {0}
         run: |
           pacman -Syu --noconfirm --needed pactoys
 
       - name: update packages
-        shell: msys {0}
+        shell: msys2 {0}
         run: |
           pacboy -Sy
 
       - name: install procps
-        shell: msys {0}
+        shell: msys2 {0}
         run: |
           pacboy -S --noconfirm --needed procps
 
       - name: check free memory
-        shell: msys {0}
+        shell: msys2 {0}
         run: |
           export MSYS=winsymlinks:native
           free
 
       - name: check free space
-        shell: msys {0}
+        shell: msys2 {0}
         run: |
           export MSYS=winsymlinks:native
           df -h /
