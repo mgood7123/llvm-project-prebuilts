@@ -46,7 +46,7 @@ jobs:
             install_groff: HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install groff || true; brew link --overwrite python@3.12 || true
           - os: macos-14
             name: macos-m1
-            install_groff: brew install groff
+            install_groff: HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install groff
 
     runs-on: ${{ matrix.os }}
 
@@ -77,7 +77,7 @@ jobs:
 
       - name: install autotools
         run: |
-          brew install automake
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install automake
 
       - name: check free memory
         run: |
@@ -101,7 +101,7 @@ jobs:
 
       # - name: install clang 17
       #   run: |
-      #     brew install llvm@17
+      #     HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install llvm@17
 
       # - name: check free memory
       #   run: |
@@ -137,7 +137,7 @@ jobs:
 
       - name: install coreutils
         run: |
-          brew install coreutils
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install coreutils
 
       - name: check free memory
         run: |
