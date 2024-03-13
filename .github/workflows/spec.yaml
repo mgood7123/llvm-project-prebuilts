@@ -1,0 +1,134 @@
+# Job execution time - Each job in a workflow can run for up to 6 hours of execution time.
+# Workflow run time - Each workflow run is limited to 35 days
+
+name: spec_test
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+
+  spec_test_windows:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows latest (Intel)
+          - os: windows-2022
+            name: windows 2022 (Intel)
+          - os: windows-2019
+            name: windows 2019 (Intel)
+
+    runs-on: ${{ matrix.os }}
+
+    name: spec test - ${{ matrix.name }}
+
+    steps:
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+        shell: msys {0}
+
+      - name: install pacboy
+        shell: msys {0}
+        run: |
+          pacman -Syu --noconfirm --needed pactoys
+
+      - name: update packages
+        shell: msys {0}
+        run: |
+          pacboy -Sy
+
+      - name: install procps
+        shell: msys {0}
+        run: |
+          pacboy -S --noconfirm --needed procps
+
+      - name: check free memory
+        shell: msys {0}
+        run: |
+          export MSYS=winsymlinks:native
+          free
+
+      - name: check free space
+        shell: msys {0}
+        run: |
+          export MSYS=winsymlinks:native
+          df -h /
+
+  spec_test_linux:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: ubuntu latest (Intel)
+          - os: ubuntu-22.04
+            name: ubuntu 22.04 (Intel)
+          - os: ubuntu-20.04
+            name: ubuntu 20.04 (Intel)
+
+    runs-on: ${{ matrix.os }}
+
+    name: spec test - ${{ matrix.name }}
+
+    steps:
+      - name: install procps
+        run: |
+          sudo apt install -y procps
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
+  spec_test_macos:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            name: macos latest (Intel)
+            command: python free.py ; df -h /
+            shell: bash
+          - os: macos-11
+            name: macos 11 (Intel)
+            command: python free.py ; df -h /
+            shell: bash
+          - os: macos-12
+            name: macos 12 (Intel)
+            command: python free.py ; df -h /
+            shell: bash
+          - os: macos-13
+            name: macos 13 (Intel)
+            command: python free.py ; df -h /
+            shell: bash
+          - os: macos-14
+            name: macos 14 (M1)
+            command: python free.py ; df -h /
+            shell: bash
+
+    runs-on: ${{ matrix.os }}
+
+    name: spec test - ${{ matrix.name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: check free memory
+        run: |
+          python free.py
+
+      - name: check free space
+        run: |
+          df -h /
