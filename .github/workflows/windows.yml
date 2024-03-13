@@ -87,53 +87,155 @@ jobs:
         run: |
           pacboy -Sy
 
+      - name: install procps
+        run: |
+          pacboy -S --noconfirm --needed procps
+
+      - name: check free memory
+        run: |
+          export MSYS=winsymlinks:native
+          free
+
+      - name: check free space
+        run: |
+          export MSYS=winsymlinks:native
+          df -h /
+
       - name: install findutils
         run: |
           pacboy -S --noconfirm --needed findutils
           which find
           ls -l /usr/bin/find.exe
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install clang 17
         run: |
           pacboy -S --noconfirm --needed clang:p
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: install cmake
         run: |
           pacboy -S --noconfirm --needed make:p cmake:p
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install autotools
         run: |
           pacboy -S --noconfirm --needed autotools:p
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: install patch
         run: |
           pacboy -S --noconfirm --needed patch
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install gperf
         run: |
           pacboy -S --noconfirm --needed gperf:p
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: install groff
         run: |
           pacboy -S --noconfirm --needed groff
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install git
         run: |
           pacboy -S --noconfirm --needed git
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install gettext
         run: |
           pacboy -S --noconfirm --needed gettext
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: clone libiconv
         run: |
           export MSYS=winsymlinks:native
           cd deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: libiconv autopull.sh
         run: |
           export MSYS=winsymlinks:native
           cd deps ; cd libiconv ; ./autopull.sh --one-time
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: check if build directory is cached
         run: |
@@ -146,11 +248,29 @@ jobs:
             #
           ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--deps--windows   cmake_build_dir.tar || true
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: cmake build deps - Debug
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
+
+      - name: check free memory
+        run: |
+          export MSYS=winsymlinks:native
+          free
+
+      - name: check free space
+        run: |
+          export MSYS=winsymlinks:native
+          df -h /
 
       - name: archive build directory
         run: |
@@ -168,10 +288,28 @@ jobs:
           tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG
           sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: list files
         run: |
           ls -l
       
+      - name: check free memory
+        run: |
+          export MSYS=winsymlinks:native
+          free
+
+      - name: check free space
+        run: |
+          export MSYS=winsymlinks:native
+          df -h /
+
       - name: upload build directory
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
@@ -251,6 +389,20 @@ jobs:
         run: |
           pacboy -Sy
 
+      - name: install procps
+        run: |
+          pacboy -S --noconfirm --needed procps
+
+      - name: check free memory
+        run: |
+          export MSYS=winsymlinks:native
+          free
+
+      - name: check free space
+        run: |
+          export MSYS=winsymlinks:native
+          df -h /
+
       - name: install findutils
         run: |
           pacboy -S --noconfirm --needed findutils
@@ -261,13 +413,37 @@ jobs:
         run: |
           pacboy -S --noconfirm --needed clang:p
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install cmake
         run: |
           pacboy -S --noconfirm --needed make:p cmake:p
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install git
         run: |
           pacboy -S --noconfirm --needed git
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: check if build directory is cached
         run: |
@@ -283,31 +459,71 @@ jobs:
             # we need the previous job's rootfs
           ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--windows   cmake_build_dir.tar   storage--deps--windows   cmake_build_dir_root_fs.tar
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: clone llvm-project
         run: |
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: cmake LLVM STAGE 1 - Debug - Configure
         run: |
           export MSYS=winsymlinks:native
           cmake -G "Unix Makefiles" -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: cmake LLVM STAGE 1 - Debug - Build
         run: |
           export MSYS=winsymlinks:native
           cmake --build BUILD_DEBUG
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: cmake LLVM STAGE 1 - Debug - Install
         run: |
           export MSYS=winsymlinks:native
           cmake --install BUILD_DEBUG
 
+      - name: check free memory
+        run: |
+          export MSYS=winsymlinks:native
+          free
+
+      - name: check free space
+        run: |
+          export MSYS=winsymlinks:native
+          df -h /
+
       - name: archive build directory
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          tar -cf cmake_build_dir.tar BUILD_DEBUG
-          sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512
           # we need only the rootfs in the next stage
           mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
           rm -rf BUILD_DEBUG
@@ -318,10 +534,28 @@ jobs:
           tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG
           sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: list files
         run: |
           ls -l
       
+      - name: check free memory
+        run: |
+          export MSYS=winsymlinks:native
+          free
+
+      - name: check free space
+        run: |
+          export MSYS=winsymlinks:native
+          df -h /
+
       - name: upload build directory
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
@@ -335,7 +569,5 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            cmake_build_dir.tar
-            cmake_build_dir.tar.sha512
             cmake_build_dir_root_fs.tar
             cmake_build_dir_root_fs.tar.sha512

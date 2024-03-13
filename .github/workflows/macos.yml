@@ -55,21 +55,65 @@ jobs:
           ref: ${{needs.should_run.outputs.output1}}
           submodules: recursive
 
+      - name: install procps
+        run: |
+          pacboy -S --noconfirm --needed procps
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install autotools
         run: |
           brew install automake
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: clone libiconv
         run: |
           cd deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: libiconv autopull.sh
         run: |
           cd deps ; cd libiconv ; ./autopull.sh --one-time
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install coreutils
         run: |
           brew install coreutils
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: check if build directory is cached
         run: |
@@ -81,10 +125,26 @@ jobs:
             #
           ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--deps--macos   cmake_build_dir.tar || true
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: cmake build deps - Debug
         run: |
           export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: archive build directory
         run: |
@@ -100,10 +160,26 @@ jobs:
           tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG
           sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: list files
         run: |
           ls -l
       
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: upload build directory
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
@@ -151,9 +227,29 @@ jobs:
           ref: ${{needs.should_run.outputs.output1}}
           # we dont need submodules anymore
 
+      - name: install procps
+        run: |
+          pacboy -S --noconfirm --needed procps
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: install coreutils
         run: |
           brew install coreutils
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: check if build directory is cached
         run: |
@@ -168,27 +264,65 @@ jobs:
             # we need the previous job's rootfs
           ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--macos   cmake_build_dir.tar   storage--deps--macos   cmake_build_dir_root_fs.tar
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: clone llvm-project
         run: |
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: cmake LLVM STAGE 1 - Debug - Configure
         run: |
           export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
           cmake -G "Unix Makefiles" -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: cmake LLVM STAGE 1 - Debug - Build
         run: |
           cmake --build BUILD_DEBUG
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
 
       - name: cmake LLVM STAGE 1 - Debug - Install
         run: |
           cmake --install BUILD_DEBUG
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: archive build directory
         run: |
-          tar -cf cmake_build_dir.tar BUILD_DEBUG
-          sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512
           # we need only the rootfs in the next stage
           mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
           rm -rf BUILD_DEBUG
@@ -199,10 +333,26 @@ jobs:
           tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG
           sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512
 
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: list files
         run: |
           ls -l
       
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: upload build directory
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
@@ -216,7 +366,5 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            cmake_build_dir.tar
-            cmake_build_dir.tar.sha512
             cmake_build_dir_root_fs.tar
             cmake_build_dir_root_fs.tar.sha512
