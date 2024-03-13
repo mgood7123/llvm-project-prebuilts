@@ -67,6 +67,14 @@ jobs:
         run: |
           df -h /
 
+      - name: brew config
+        run: |
+          brew config
+
+      - name: brew doctor
+        run: |
+          brew doctor
+
       - name: install autotools
         run: |
           brew install automake
@@ -95,13 +103,13 @@ jobs:
       #   run: |
       #     brew install llvm@17
 
-      - name: check free memory
-        run: |
-          python3 free.py
+      # - name: check free memory
+      #   run: |
+      #     python3 free.py
 
-      - name: check free space
-        run: |
-          df -h /
+      # - name: check free space
+      #   run: |
+      #     df -h /
 
       - name: clone libiconv
         run: |
