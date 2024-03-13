@@ -55,10 +55,6 @@ jobs:
           ref: ${{needs.should_run.outputs.output1}}
           submodules: recursive
 
-      - name: install procps
-        run: |
-          brew install procps
-
       - name: check free memory
         run: |
           free
@@ -226,10 +222,6 @@ jobs:
         with:
           ref: ${{needs.should_run.outputs.output1}}
           # we dont need submodules anymore
-
-      - name: install procps
-        run: |
-          brew install procps
 
       - name: check free memory
         run: |
