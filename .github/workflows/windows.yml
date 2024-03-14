@@ -240,7 +240,7 @@ jobs:
       - name: rcu bootstrap
         run: |
           export MSYS=winsymlinks:native
-          cd deps ; cd userspace-rcu ; ./bootstrap
+          cd deps ; git clone --recursive --depth=1 https://github.com/urcu/userspace-rcu ; cd userspace-rcu ; ./bootstrap
 
       - name: check free memory
         run: |

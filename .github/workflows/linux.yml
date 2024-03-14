@@ -247,7 +247,7 @@ jobs:
 
       - name: SYSTEMD - rcu bootstrap
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; cd userspace-rcu ; ./bootstrap\""
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; git clone --recursive --depth=1 https://github.com/urcu/userspace-rcu ; cd userspace-rcu ; ./bootstrap\""
 
       - name: check free memory
         run: |
