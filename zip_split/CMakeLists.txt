@@ -22,9 +22,11 @@ add_subdirectory(cppfs)
 add_subdirectory(mmaptwo-plus)
 
 add_executable(zip_split zip_split.cpp mmap.cpp)
+target_compile_definitions(zip_split PUBLIC "NOMINMAX")
 target_include_directories(zip_split PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(zip_split PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/mmaptwo-plus)
 target_include_directories(zip_split PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/cppfs)
+#target_include_directories(zip_split PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/bitsery)
 target_link_libraries(zip_split mmaptwo_plus cppfs)
 
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")

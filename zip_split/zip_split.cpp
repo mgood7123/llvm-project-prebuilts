@@ -8,7 +8,7 @@
 #include <memory>
 #include <cstring>
 
-#include <mmap.h>
+#include "mmap.h"
 
 #include <iostream>
 #include <istream>
@@ -27,40 +27,113 @@
 #include <sys/types.h>
 #endif
 
-/*
-if [[ $# == 0 ]]
-    then
-        find -type f -exec ./split.sh "{}" 25000 \;
-        exit 0
-fi
-
-bsize=$(($2))
-flength=$(stat --printf=%s "$1")
-echo "splitting file $1 with into chunks of $bsize bytes"
-pieces=$((($flength-1) / $bsize))
-for i in $(seq 0 $pieces)
-    do
-        dd if="$1" bs=$bsize skip=$i count=1 2>/dev/null >/dev/null
-        if (($bsize*($i+1) > $flength))
-            then
-                echo "wrote $flength/$flength bytes ($(($i+1))/$(($pieces+1)))"
-            else
-                echo "wrote $(($bsize*($i+1)))/$flength bytes ($(($i+1))/$(($pieces+1)))"
-        fi
-done
-*/
-
 static MMapHelper * map;
 static std::shared_ptr<MMapHelper::Page> current_page;
 static std::size_t page_size;
+uint64_t next_commit_size;
 static const char* api;
 
-uint64_t total_size = 0;
-uint64_t next_commit_size = 0;
-int split_number = 0;
-uint64_t split_size = 0;
+struct SplitFile {
+    cppfs::FileHandle handle;
+    std::unique_ptr<std::ostream> file_out_stream;
+    std::string split_file;
+    uint64_t total_size = 0;
+    int split_number = 0;
+    bool open = false;
+    bool first_open = true;
+    const char* current_path = nullptr;
+    std::size_t current_size = 0;
 
-bool work(const char* path) {
+    void close_bin() {
+        if (open) {
+            std::cout << "flushing stream" << std::endl;
+            file_out_stream->flush();
+            file_out_stream.reset();
+            std::cout << "closed stream" << std::endl;
+            open = false;
+        }
+    }
+
+    void open_bin(const std::string& f) {
+        close_bin();
+        handle = cppfs::fs::open(f.c_str());
+        handle.remove();
+        file_out_stream = handle.createOutputStream(std::ios::binary);
+        if (!file_out_stream) throw new std::runtime_error("could not create output stream");
+        open = true;
+        std::cout << "opened stream" << std::endl;
+    }
+
+    void write_bin(const char* ptr, std::streamsize size) {
+        if (!open) {
+            if (first_open) {
+                first_open = false;
+            }
+            else {
+                split_number++;
+            }
+            split_file = "split." + std::to_string(split_number);
+            open_bin(split_file);
+            std::cout << "processing... [" << split_file.c_str() << "] (" << std::to_string(size) << "/" << std::to_string(current_size) << " bytes, file: '" << current_path << "')" << std::endl;
+        }
+        std::cout << "file_out_stream->write(ptr, " << std::to_string(size) << ")" << std::endl;
+        file_out_stream->write(ptr, size);
+        total_size += size;
+    }
+
+    template<typename T>
+    void write_bin(const T& value) {
+        write_bin(reinterpret_cast<const char*>(&value), static_cast<std::streamsize>(sizeof(char) * sizeof(T)));
+    }
+
+    template<typename T>
+    void write_bin(const T* ptr, std::size_t elements) {
+        write_bin(reinterpret_cast<const char*>(ptr), static_cast<std::streamsize>(sizeof(char) * (sizeof(T) * elements)));
+    }
+
+    void write_bin(const void* ptr, std::size_t elements) {
+        write_bin(reinterpret_cast<const char*>(ptr), static_cast<std::streamsize>(sizeof(char) * elements));
+    }
+
+    void commit() {
+        if (open) {
+            next_commit_size += page_size;
+            std::cout << "committing...  [" << split_file.c_str() << "] (total size: " << std::to_string(total_size) << " bytes, split size: " << std::to_string(page_size) << " bytes, next_commit_size: " << std::to_string(next_commit_size) << " bytes)" << std::endl;
+            close_bin();
+        }
+    }
+
+    void finalize() {
+        commit();
+        std::cout << "finalizing...  [" << split_file.c_str() << "]" << std::endl;
+        std::cout << "finalized" << std::endl;
+    }
+
+    void write(const char* file_path, std::size_t size, void* ptr, std::size_t bytes) {
+        std::cout << "request to write '"<< std::to_string(bytes) << "' bytes" << std::endl;
+        if (current_path != file_path) {
+            current_path = file_path;
+            current_size = size;
+            write_bin(file_path, strlen(file_path)+1);
+            write_bin(size);
+        }
+        if (total_size >= next_commit_size) {
+            std::cout << "total_size >= next_commit_size (total size: " << std::to_string(total_size) << " bytes, split size: " << std::to_string(page_size) << " bytes, next_commit_size: " << std::to_string(next_commit_size) << " bytes)" << std::endl;
+            commit();
+        }
+        if (size != 0 && ptr != nullptr && bytes != 0) {
+            write_bin(ptr, bytes);
+        }
+    }
+};
+
+SplitFile split;
+
+bool work(const char* path, std::size_t size) {
+    if (size == 0) {
+        split.write(path, size, nullptr, 0);
+        return true;
+    }
     MMapHelper _map(path, 'r');
     map = &_map;
 
@@ -87,21 +160,13 @@ bool work(const char* path) {
 
     size_t current_index = 0;
     while (true) {
-        if (total_size >= next_commit_size) {
-            next_commit_size += split_size;
-            std::cout << "committing...  [split." << std::to_string(split_number) << "] (total size: " << std::to_string(total_size) << " bytes, split size: " << std::to_string(split_size) << " bytes, next_commit_size: " << std::to_string(next_commit_size) << " bytes)" << std::endl;
-            usleep(1);
-            split_number++;
-        }
         if (map->length() < (current_index + page_size)) {
             auto t = map->obtain_map(current_index, map->length() - current_index);
             if (t.get() == nullptr) {
                 throw std::runtime_error("FAILED TO OBTAIN MAPPING");
             }
             current_page = t;
-            std::cout << "compressing... [split." << std::to_string(split_number) << "] (" << std::to_string(map_len) << "/" << std::to_string(map_len) << " bytes, file: '" << path << "')" << std::endl;
-            //usleep(1);
-            total_size += map_len - current_index;
+            split.write(path, size, t.get(), map_len - current_index);
             map = nullptr;
         }
         else {
@@ -111,9 +176,7 @@ bool work(const char* path) {
             }
             current_page = t;
             current_index += page_size;
-            std::cout << "compressing... [split." << std::to_string(split_number) << "] (" << std::to_string(current_index+page_size) << "/" << std::to_string(map_len) << " bytes, file: '" << path << "')" << std::endl;
-            //usleep(1);
-            total_size += page_size;
+            split.write(path, size, t.get(), page_size);
         }
         if (map == nullptr) {
             return true;
@@ -140,12 +203,7 @@ void invoke_dir(const std::string& path)
         // std::cout << "leaving directory:  " << path << std::endl;
     }
     else if (handle.isFile()) {
-        if (handle.size() == 0) {
-            std::cout << "skipping zero length file: " << path << std::endl;
-        }
-        else {
-            if (!work(path.c_str())) exit(-1);
-        }
+        if (!work(path.c_str(), handle.size())) exit(-1);
     } else {
         std::cout << "unknown type:  " << path << std::endl;
     }
@@ -154,19 +212,14 @@ void invoke_dir(const std::string& path)
 int main(int argc, char** argv) {
 	if (argc > 1) {
         api = mmaptwo::get_os() == mmaptwo::os_unix ? "mmap(2)" : mmaptwo::get_os() == mmaptwo::os_win32 ? "MapViewOfFile" : "(unknown api)";
-        page_size = mmaptwo::get_page_size()*10; // 400 kb to 800 kb page size
-        split_size = page_size * 1000; // 400 mb to 800 mb split size
-        next_commit_size = split_size;
+        page_size = mmaptwo::get_page_size();
+        next_commit_size = page_size;
         std::cout << "using mmap (" << api << ") api with a page size of " << std::to_string(page_size) << std::endl;
+        std::cout << "using split size of " << std::to_string(page_size) << " bytes" << std::endl;
 
         invoke_dir(argv[1]);
-        
-        std::cout << "committing...  [split." << std::to_string(split_number) << "] (total size: " << std::to_string(total_size) << " bytes, split size: " << std::to_string(split_size) << " bytes, next_commit_size: " << std::to_string(next_commit_size) << " bytes)" << std::endl;
-        usleep(1);
 
-        std::cout << "finalizing...  [split." << std::to_string(split_number) << "]" << std::endl;
-        usleep(150);
-        std::cout << "finalized" << std::endl;
+        split.finalize();
     }
 	return 0;
 }

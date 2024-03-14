@@ -223,6 +223,14 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libarchive . archi
     "
 )
 
+build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/userspace-rcu . rcu
+    "" # no extra c flags
+    "" # no extra cxx flags
+    "
+      -D BUILD_SHARED_LIBS=OFF
+    "
+)
+
 find_package(LibEdit REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(LZ4 REQUIRED)
