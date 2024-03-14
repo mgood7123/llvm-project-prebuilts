@@ -245,9 +245,9 @@ jobs:
         run: |
           df -h /
 
-      - name: SYSTEMD - rcu bootstrap
+      - name: SYSTEMD - download rcu
         run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 -O ; tar -xf userspace-rcu-latest-0.14.tar.bz2 ; mv userspace-rcu-0.14.0 userspace-rcu ; cd userspace-rcu ; ./bootstrap\""
+          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 -O ; tar -xf userspace-rcu-latest-0.14.tar.bz2 ; mv userspace-rcu-0.14.0 userspace-rcu\""
 
       - name: check free memory
         run: |
