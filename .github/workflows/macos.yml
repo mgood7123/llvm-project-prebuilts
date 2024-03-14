@@ -157,7 +157,7 @@ jobs:
 
       - name: rcu bootstrap
         run: |
-          cd deps ; git clone --recursive --depth=1 https://github.com/urcu/userspace-rcu ; cd userspace-rcu ; ./bootstrap
+          cd deps ; curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 -O ; tar -xf userspace-rcu-latest-0.14.tar.bz2 ; mv userspace-rcu-0.14.0 userspace-rcu ; cd userspace-rcu ; ./bootstrap
 
       - name: check free memory
         run: |
