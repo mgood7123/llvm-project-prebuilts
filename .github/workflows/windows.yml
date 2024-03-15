@@ -121,7 +121,7 @@ jobs:
           # patch for MSYS2
           cat -n userspace-rcu/include/urcu/syscall-compat.h
           echo "patching..."
-          grep -rl '__CYGWIN__' userspace-rcu | xargs sed -i 's/__CYGWIN__/__MSYS2__/g'
+          grep -rl '__CYGWIN__' userspace-rcu | xargs sed -i 's/__CYGWIN__/__MINGW32__/g'
           cat -n userspace-rcu/include/urcu/syscall-compat.h
           pacboy -S --noconfirm --needed msys2-runtime-devel # includes poll.h and pthread.a
 
