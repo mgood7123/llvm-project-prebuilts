@@ -32,6 +32,20 @@ include(./build_root.cmake)
 
 build_root_init(${CMAKE_CURRENT_SOURCE_DIR}/cmake/packages ${CMAKE_CURRENT_BINARY_DIR}/BUILD_ROOT)
 
+if (WIN32)
+    set(ENV{PTHREAD_LIBS} /usr/lib/libpthread.a)
+endif()
+
+# rcu does not depend on any libs
+build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/userspace-rcu . rcu
+    "" # no extra c flags
+    "" # no extra cxx flags
+    "
+        --enable-static=yes
+        --enable-shared=no
+    "
+)
+
 if (ANDROID)
     # android does not have glob/globfree, build it early
     #
@@ -220,15 +234,6 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libarchive . archi
     "
       -D BUILD_SHARED_LIBS=OFF
       -D ENABLE_LZO=ON
-    "
-)
-
-build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/userspace-rcu . rcu
-    "" # no extra c flags
-    "" # no extra cxx flags
-    "
-        --enable-static=yes
-        --enable-shared=no
     "
 )
 
