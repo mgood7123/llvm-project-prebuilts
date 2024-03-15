@@ -46,6 +46,8 @@ build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/userspace-rcu .
     "
 )
 
+file(COPY /usr/lib/libpthread.a DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/lib)
+
 if (ANDROID)
     # android does not have glob/globfree, build it early
     #

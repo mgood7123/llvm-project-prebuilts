@@ -244,7 +244,7 @@ jobs:
           pacboy -S --noconfirm --needed bzip2
           curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 | tar -xj
           mv userspace-rcu-0.14.0 userspace-rcu
-          pacboy -S --noconfirm --needed msys2-runtime-devel
+          pacboy -S --noconfirm --needed msys2-runtime-devel # includes poll.h and pthread.a
 
       - name: check free memory
         run: |
