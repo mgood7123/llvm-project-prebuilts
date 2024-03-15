@@ -133,6 +133,7 @@ jobs:
           grep -rl 'act.sa_sigaction = sigrcu_handler;' userspace-rcu | xargs sed -i 's/act.sa_sigaction = sigrcu_handler;//g'
           grep -rl 'act.sa_flags = SA_SIGINFO | SA_RESTART;' userspace-rcu | xargs sed -i 's/act.sa_flags = SA_SIGINFO | SA_RESTART;//g'
           grep -rl 'sigaction(SIGRCU, &act, NULL)' userspace-rcu | xargs sed -i 's/sigaction(SIGRCU, &act, NULL)/0/g'
+          grep -rl 'siginfo_t' userspace-rcu | xargs sed -i 's/siginfo_t/void/g'
           grep -rl 'pthread_kill(index->tid, SIGRCU);' userspace-rcu | xargs sed -i 's/pthread_kill(index->tid, SIGRCU);/pthread_kill(index->tid, 0);/g'
           set +v
           echo "patched"
