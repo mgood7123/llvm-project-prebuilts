@@ -99,6 +99,18 @@ jobs:
         run: |
           df -h /
 
+      - name: install git
+        run: |
+          pacboy -S --noconfirm --needed git
+
+      - name: check free memory
+        run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
       - name: download rcu
         run: |
           export MSYS=winsymlinks:native
@@ -198,18 +210,6 @@ jobs:
       - name: install groff
         run: |
           pacboy -S --noconfirm --needed groff
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
-      - name: install git
-        run: |
-          pacboy -S --noconfirm --needed git
 
       - name: check free memory
         run: |
