@@ -223,18 +223,6 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libarchive . archi
     "
 )
 
-if (WIN32)
-    build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/pthreads-w32-cmake . pthreads
-        "" # no extra c flags
-        "" # no extra cxx flags
-        "
-          -D BUILD_SHARED_LIBS=OFF
-          -D PTW32_ARCH=x64 (mingw64)
-        "
-    )
-    set(ENV{PTHREAD_LIBS} ${LLVM_BUILD_ROOT__ROOTFS}/lib/libpthreads.a)
-endif()
-
 build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/userspace-rcu . rcu
     "" # no extra c flags
     "" # no extra cxx flags
