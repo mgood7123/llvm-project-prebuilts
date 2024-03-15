@@ -41,8 +41,8 @@ if (WIN32)
     #      -D PTW32_ARCH=x64 (mingw64)
     #    "
     #)
-    file(COPY D:/a/_temp/msys64/clang64/usr/lib/libpthread.a DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/lib)
-    file(COPY D:/a/_temp/msys64/clang64/usr/include/sys/poll.h DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/include)
+    #file(COPY D:/a/_temp/msys64/clang64/usr/lib/libpthread.a DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/lib)
+    #file(COPY D:/a/_temp/msys64/clang64/usr/include/sys/poll.h DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/include)
     set(ENV{PTHREAD_LIBS} ${LLVM_BUILD_ROOT__ROOTFS}/lib/libpthread.a)
 endif()
 
