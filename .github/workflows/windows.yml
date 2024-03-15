@@ -123,6 +123,15 @@ jobs:
           grep -rl '__CYGWIN__' userspace-rcu | xargs sed -i 's/__CYGWIN__/__MINGW32__/g'
           grep -rl 'sigset_t' userspace-rcu | xargs sed -i 's/sigset_t/_sigset_t/g'
           grep -rl 'ret = sigfillset(&newmask)' userspace-rcu | xargs sed -i 's/ret = sigfillset(&newmask)/newmask = -1; ret = 0/g'
+          grep -rl 'ret = sigemptyset(&newmask)' userspace-rcu | xargs sed -i 's/ret = sigemptyset(&newmask)/newmask = 0; ret = 0/g'
+          grep -rl 'ret = sigaddset(&mask, SIGRCU)' userspace-rcu | xargs sed -i 's/ret = sigaddset(&mask, SIGRCU)/ret = 0/g'
+          grep -rl 'sigismember(&oldmask, SIGRCU)' userspace-rcu | xargs sed -i 's/sigismember(&oldmask, SIGRCU)/0/g'
+          grep -rl 'struct sigaction act;' userspace-rcu | xargs sed -i 's/struct sigaction act;//g'
+          grep -rl 'act.sa_sigaction = sigrcu_handler;' userspace-rcu | xargs sed -i 's/act.sa_sigaction = sigrcu_handler;//g'
+          grep -rl 'act.sa_flags = SA_SIGINFO | SA_RESTART;' userspace-rcu | xargs sed -i 's/act.sa_flags = SA_SIGINFO | SA_RESTART;//g'
+          grep -rl 'sigaction(SIGRCU, &act, NULL)' userspace-rcu | xargs sed -i 's/sigaction(SIGRCU, &act, NULL)/0/g'
+          grep -rl 'pthread_kill(index->tid, SIGRCU);' userspace-rcu | xargs sed -i 's/pthread_kill(index->tid, SIGRCU);/pthread_kill(index->tid, 0);/g'
+          echo "patched"
           pacboy -S --noconfirm --needed msys2-runtime-devel # includes poll.h and pthread.a
 
       - name: check free memory
