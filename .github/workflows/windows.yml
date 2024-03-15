@@ -108,6 +108,7 @@ jobs:
           mv userspace-rcu-0.14.0 userspace-rcu
           pacboy -S --noconfirm --needed msys2-runtime-devel # includes poll.h and pthread.a
           ls -l /usr/include/sys
+          ls -l /usr/lib
 
       - name: check free memory
         run: |
