@@ -33,16 +33,17 @@ include(./build_root.cmake)
 build_root_init(${CMAKE_CURRENT_SOURCE_DIR}/cmake/packages ${CMAKE_CURRENT_BINARY_DIR}/BUILD_ROOT)
 
 if (WIN32)
-    build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/pthreads-w32-cmake . pthreads
-        "" # no extra c flags
-        "" # no extra cxx flags
-        "
-          -D BUILD_SHARED_LIBS=OFF
-          -D PTW32_ARCH=x64 (mingw64)
-        "
-    )
-    set(ENV{PTHREAD_LIBS} ${LLVM_BUILD_ROOT__ROOTFS}/lib/libpthreads.a)
-    file(COPY /usr/include/sys/poll.h DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/include)
+    #build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/pthreads-w32-cmake . pthreads
+    #    "" # no extra c flags
+    #    "" # no extra cxx flags
+    #    "
+    #      -D BUILD_SHARED_LIBS=OFF
+    #      -D PTW32_ARCH=x64 (mingw64)
+    #    "
+    #)
+    file(COPY D:/a/_temp/msys64/clang64/usr/lib/libpthread.a DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/lib)
+    file(COPY D:/a/_temp/msys64/clang64/usr/include/sys/poll.h DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/include)
+    set(ENV{PTHREAD_LIBS} ${LLVM_BUILD_ROOT__ROOTFS}/lib/libpthread.a)
 endif()
 
 # rcu does not depend on any libs
