@@ -48,8 +48,8 @@ endif()
 
 # rcu does not depend on any libs
 build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/userspace-rcu . rcu
-    "-D__CYGWIN__" # extra c flags
-    "-D__CYGWIN__" # extra cxx flags
+    "" # no extra c flags
+    "" # no extra cxx flags
     "
         --enable-static=yes
         --enable-shared=no
