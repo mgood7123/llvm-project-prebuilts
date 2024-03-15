@@ -34,19 +34,18 @@ build_root_init(${CMAKE_CURRENT_SOURCE_DIR}/cmake/packages ${CMAKE_CURRENT_BINAR
 
 if (WIN32)
     set(ENV{PTHREAD_LIBS} /usr/lib/libpthread.a)
+    file(COPY /usr/lib/libpthread.a DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/lib)
 endif()
 
 # rcu does not depend on any libs
 build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/userspace-rcu . rcu
-    "" # no extra c flags
-    "" # no extra cxx flags
+    "-I/usr/include/sys" # no extra c flags
+    "-I/usr/include/sys" # no extra cxx flags
     "
         --enable-static=yes
         --enable-shared=no
     "
 )
-
-file(COPY /usr/lib/libpthread.a DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/lib)
 
 if (ANDROID)
     # android does not have glob/globfree, build it early
