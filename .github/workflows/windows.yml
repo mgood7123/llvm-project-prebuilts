@@ -93,6 +93,24 @@ jobs:
 
       - name: check free memory
         run: |
+          free
+
+      - name: check free space
+        run: |
+          df -h /
+
+      - name: download rcu
+        run: |
+          export MSYS=winsymlinks:native
+          cd deps
+          pacboy -S --noconfirm --needed bzip2
+          curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 | tar -xj
+          mv userspace-rcu-0.14.0 userspace-rcu
+          pacboy -S --noconfirm --needed msys2-runtime-devel # includes poll.h and pthread.a
+          ls -l /usr/include/sys
+
+      - name: check free memory
+        run: |
           export MSYS=winsymlinks:native
           free
 
@@ -228,23 +246,6 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           cd deps ; cd libiconv ; ./autopull.sh --one-time
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
-      - name: download rcu
-        run: |
-          export MSYS=winsymlinks:native
-          cd deps
-          pacboy -S --noconfirm --needed bzip2
-          curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 | tar -xj
-          mv userspace-rcu-0.14.0 userspace-rcu
-          pacboy -S --noconfirm --needed msys2-runtime-devel # includes poll.h and pthread.a
 
       - name: check free memory
         run: |
