@@ -33,14 +33,15 @@ include(./build_root.cmake)
 build_root_init(${CMAKE_CURRENT_SOURCE_DIR}/cmake/packages ${CMAKE_CURRENT_BINARY_DIR}/BUILD_ROOT)
 
 if (WIN32)
-    set(ENV{PTHREAD_LIBS} /usr/lib/libpthread.a)
+    set(ENV{PTHREAD_LIBS} ${LLVM_BUILD_ROOT__ROOTFS}/lib/libpthread.a)
     file(COPY /usr/lib/libpthread.a DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/lib)
+    #file(COPY /usr/lib/sys/poll.h DESTINATION ${LLVM_BUILD_ROOT__ROOTFS}/include)
 endif()
 
 # rcu does not depend on any libs
 build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/userspace-rcu . rcu
-    "-I/usr/include/sys" # no extra c flags
-    "-I/usr/include/sys" # no extra cxx flags
+    "" # no extra c flags
+    "" # no extra cxx flags
     "
         --enable-static=yes
         --enable-shared=no
