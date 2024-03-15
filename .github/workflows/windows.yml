@@ -240,7 +240,7 @@ jobs:
       - name: download rcu
         run: |
           export MSYS=winsymlinks:native
-          cd deps ; curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 -O ; pacboy -S --noconfirm --needed bzip2 ; tar -xf userspace-rcu-latest-0.14.tar.bz2 ; mv userspace-rcu-0.14.0 userspace-rcu
+          cd deps ; curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 -O ; pacboy -S --noconfirm --needed bzip2 ; pacboy -S --noconfirm --needed libtool ; tar -xf userspace-rcu-latest-0.14.tar.bz2 ; mv userspace-rcu-0.14.0 userspace-rcu
 
       - name: check free memory
         run: |
