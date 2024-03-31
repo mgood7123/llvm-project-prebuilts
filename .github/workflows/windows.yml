@@ -65,6 +65,8 @@ jobs:
           update: true
           path-type: strict
 
+      # - name: ${{ matrix.icon }} Setup Cygwin (required for RCU)
+
       - name: test symlink support
         run: |
           export MSYS=winsymlinks:native
@@ -109,44 +111,6 @@ jobs:
 
       - name: check free space
         run: |
-          df -h /
-
-      - name: download rcu
-        run: |
-          export MSYS=winsymlinks:native
-          cd deps
-          pacboy -S --noconfirm --needed bzip2
-          curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 | tar -xj
-          mv userspace-rcu-0.14.0 userspace-rcu
-          # patch for MSYS2
-          echo "patching..."
-          set -v
-          grep -rl '__CYGWIN__' userspace-rcu | xargs sed -i 's/__CYGWIN__/__MINGW32__/g'
-          grep -rl 'sigset_t' userspace-rcu | xargs sed -i 's/sigset_t/_sigset_t/g'
-          grep -rl 'ret = sigfillset(&newmask)' userspace-rcu | xargs sed -i 's/ret = sigfillset(&newmask)/newmask = -1; ret = 0/g'
-          grep -rl 'ret = sigemptyset(&mask)' userspace-rcu | xargs sed -i 's/ret = sigemptyset(&mask)/mask = 0; ret = 0/g'
-          grep -rl 'ret = sigemptyset(&act.sa_mask);' userspace-rcu | xargs sed -i 's/ret = sigemptyset(&act.sa_mask);/ret = 0;/g'
-          grep -rl 'sigemptyset(&act.sa_mask);' userspace-rcu | xargs sed -i 's/sigemptyset(&act.sa_mask);//g'
-          grep -rl 'ret = sigaddset(&mask, SIGRCU)' userspace-rcu | xargs sed -i 's/ret = sigaddset(&mask, SIGRCU)/ret = 0/g'
-          grep -rl 'sigismember(&oldmask, SIGRCU)' userspace-rcu | xargs sed -i 's/sigismember(&oldmask, SIGRCU)/0/g'
-          grep -rl 'struct sigaction act;' userspace-rcu | xargs sed -i 's/struct sigaction act;//g'
-          grep -rl 'act.sa_sigaction = sigrcu_handler;' userspace-rcu | xargs sed -i 's/act.sa_sigaction = sigrcu_handler;//g'
-          grep -rl 'act.sa_flags = SA_SIGINFO | SA_RESTART;' userspace-rcu | xargs sed -i 's/act.sa_flags = SA_SIGINFO | SA_RESTART;//g'
-          grep -rl 'sigaction(SIGRCU, &act, NULL)' userspace-rcu | xargs sed -i 's/sigaction(SIGRCU, &act, NULL)/0/g'
-          grep -rl 'siginfo_t' userspace-rcu | xargs sed -i 's/siginfo_t/void/g'
-          grep -rl 'pthread_kill(index->tid, SIGRCU);' userspace-rcu | xargs sed -i 's/pthread_kill(index->tid, SIGRCU);/pthread_kill(index->tid, 0);/g'
-          set +v
-          echo "patched"
-          pacboy -S --noconfirm --needed msys2-runtime-devel # includes poll.h and pthread.a
-
-      - name: check free memory
-        run: |
-          export MSYS=winsymlinks:native
-          free
-
-      - name: check free space
-        run: |
-          export MSYS=winsymlinks:native
           df -h /
 
       - name: install findutils
@@ -271,6 +235,38 @@ jobs:
 
       - name: check free space
         run: |
+          df -h /
+
+      - name: download rcu
+        run: |
+          export MSYS=winsymlinks:native
+          cd deps
+          curl -L https://mirror.endianness.com/gnu/automake/automake-1.16.3.tar.gz | tar -xz
+          pacboy -S --noconfirm autoconf2.72 autoconf2.71 autoconf2.69 autoconf2.13 automake1.16 automake1.15 automake1.14 automake1.13 automake1.12 automake1.11 autoconf-wrapper automake-wrapper
+          pacboy -R --noconfirm autoconf2.72 autoconf2.71 autoconf2.69 autoconf2.13 automake1.16 automake1.15 automake1.14 automake1.13 automake1.12 automake1.11 autoconf-wrapper automake-wrapper
+          pacboy -S --noconfirm autoconf2.69 autoconf-wrapper
+          cd automake-1.16.3
+          ./bootstrap
+          ./configure
+          make
+          sudo make install
+          # git clone https://github.com/urcu/userspace-rcu userspace-rcu-0.14.0
+          curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 | tar -xj
+
+          # patch for MSYS2
+          . patch_rcu.sh
+
+          mv userspace-rcu-0.14.0 userspace-rcu
+          pacboy -S --noconfirm --needed msys2-runtime-devel # includes poll.h and pthread.a
+
+      - name: check free memory
+        run: |
+          export MSYS=winsymlinks:native
+          free
+
+      - name: check free space
+        run: |
+          export MSYS=winsymlinks:native
           df -h /
 
       - name: check if build directory is cached
