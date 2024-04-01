@@ -169,7 +169,8 @@ jobs:
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
 
-          ls -l BUILD_DEBUG/BUILD_ROOT/BUILD/iconv/gnulib/etc/license-notices/GPL
+          ls -l BUILD_DEBUG/BUILD_ROOT/BUILD/iconv/gnulib/etc/license-notices/GPL || true
+          ls -l BUILD_DEBUG/BUILD_ROOT/BUILD/iconv/gnulib/etc/license-notices/GPLv3+ || true
 
           # we need only the rootfs in the next stage
           #
