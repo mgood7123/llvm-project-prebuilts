@@ -1,3 +1,5 @@
+# https://jfrog.com/blog/xz-backdoor-attack-cve-2024-3094-all-you-need-to-know/
+
 cd $1
 
 cmake -B build_release -S . -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=rootfs

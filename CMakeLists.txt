@@ -31,7 +31,7 @@ endif()
 include(./build_root.cmake)
 
 build_root_init(${CMAKE_CURRENT_SOURCE_DIR}/cmake/packages ${CMAKE_CURRENT_BINARY_DIR}/BUILD_ROOT)
-
+if (false)
 if (ANDROID)
     # android does not have glob/globfree, build it early
     #
@@ -53,7 +53,7 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/lzma2301 . 7z
       -D BUILD_SHARED_LIBS=OFF
     "
 )
-
+endif()
 # iconv does not depend on any libs
 build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv . iconv
     "" # no extra c flags
@@ -63,7 +63,7 @@ build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv . icon
         --enable-shared=no
     " # extra configure arguments
 )
-
+if (false)
 # zlib does not depend on any libs
 build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib . zlib
     "" # no extra c flags
@@ -280,7 +280,7 @@ message("OPENSSL_CRYPTO_TARGET = ${OPENSSL_CRYPTO_TARGET}")
 message("EXPAT_TARGET = ${EXPAT_TARGET}")
 message("LZO2_TARGET = ${LZO2_TARGET}")
 message("ARCHIVE_TARGET = ${ARCHIVE_TARGET}")
-
+endif()
 # set(ZPACK_USE_SYSTEM_LZ4 ON CACHE BOOL "" FORCE)
 # set(ZPACK_USE_SYSTEM_ZSTD ON CACHE BOOL "" FORCE)
 # set(ZPACK_USE_SYSTEM_XXHASH ON CACHE BOOL "" FORCE)
