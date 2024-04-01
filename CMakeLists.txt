@@ -32,16 +32,6 @@ include(./build_root.cmake)
 
 build_root_init(${CMAKE_CURRENT_SOURCE_DIR}/cmake/packages ${CMAKE_CURRENT_BINARY_DIR}/BUILD_ROOT)
 
-# build the directory/file splitter program first
-# TODO: build this program seperately
-build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/split . split
-    "" # no extra c flags
-    "" # no extra cxx flags
-    "
-        -D BUILD_SHARED_LIBS=OFF
-    " # extra configure arguments
-)
-
 if (ANDROID)
     # android does not have glob/globfree, build it early
     #

@@ -59,14 +59,6 @@ jobs:
         run: |
           sudo apt install -y procps
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: load docker image
         run: |
           sudo sh -c 'curl -L https://github.com/mgood7123/SystemD-docker/releases/download/1.0/ubuntu_systemd.tar | docker image load'
@@ -102,25 +94,9 @@ jobs:
           sudo docker cp $GITHUB_WORKSPACE git_local_ubuntu:/home/ubuntu/git_repo
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo chown -R ubuntu:ubuntu git_repo\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - install clang-17
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y clang-17 clang-format-17 lldb-17 lld-17 clang-tidy-17 clang-tools-17 flang-17 llvm-17-linker-tools llvm-17-tools llvm-17-runtime llvm-17-tools mlir-17-tools libmlir-17\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - make clang-17 default
         run: |
@@ -129,169 +105,53 @@ jobs:
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "sudo chown ubuntu:ubuntu update_alternatives_clang.sh"
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo ./update_alternatives_clang.sh 17\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - install cmake
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y cmake\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - install automake
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y automake\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - install patch
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y patch\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - install gperf
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y gperf\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - install groff
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y groff\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - install git
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y git\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - install gettext
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y gettext\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - clone libiconv
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - libiconv autopull.sh
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; cd libiconv ; ./autopull.sh --one-time\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
-      - name: SYSTEMD - download rcu
-        run: |
-          sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo/deps ; sudo apt install -y bzip2 ; curl -L https://lttng.org/files/urcu/userspace-rcu-latest-0.14.tar.bz2 | tar -xj ; mv userspace-rcu-0.14.0 userspace-rcu\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - check if build directory is cached
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color ; export COLORTERM=truecolor ; chmod +x try_get_release.sh ; chmod +x try_get_release_or.sh ; ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--deps--linux   cmake_build_dir.tar || true\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - cmake build deps - Debug
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color ; export COLORTERM=truecolor ; cmake -G \\\"Unix Makefiles\\\" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_CXX_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - archive build directory
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color ; export COLORTERM=truecolor ; tar -cf cmake_build_dir.tar BUILD_DEBUG ; sha512sum cmake_build_dir.tar > cmake_build_dir.tar.sha512 ; mv BUILD_DEBUG/BUILD_ROOT/ROOTFS . ; rm -rf BUILD_DEBUG ; mkdir BUILD_DEBUG ; mkdir BUILD_DEBUG/BUILD_ROOT ; mv ROOTFS BUILD_DEBUG/BUILD_ROOT ; tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG ; sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: pull archive build directory
         run: |
@@ -300,26 +160,10 @@ jobs:
           sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir_root_fs.tar $GITHUB_WORKSPACE
           sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir_root_fs.tar.sha512 $GITHUB_WORKSPACE
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: list files
         run: |
           ls -l
       
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: upload build directory
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
@@ -373,14 +217,6 @@ jobs:
         run: |
           sudo apt install -y procps
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: load docker image
         run: |
           sudo sh -c 'curl -L https://github.com/mgood7123/SystemD-docker/releases/download/1.0/ubuntu_systemd.tar | docker image load'
@@ -416,25 +252,9 @@ jobs:
           sudo docker cp $GITHUB_WORKSPACE git_local_ubuntu:/home/ubuntu/git_repo
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo chown -R ubuntu:ubuntu git_repo\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - install clang-17
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y clang-17 clang-format-17 lldb-17 lld-17 clang-tidy-17 clang-tools-17 flang-17 llvm-17-linker-tools llvm-17-tools llvm-17-runtime llvm-17-tools mlir-17-tools libmlir-17\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - make clang-17 default
         run: |
@@ -443,147 +263,51 @@ jobs:
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "sudo chown ubuntu:ubuntu update_alternatives_clang.sh"
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo ./update_alternatives_clang.sh 17\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - install cmake
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y cmake\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - install git
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y git\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - install curl
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"sudo apt install -y curl\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - check if build directory is cached
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color ; export COLORTERM=truecolor ; chmod +x try_get_release.sh ; chmod +x try_get_release_or.sh ; ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--linux   cmake_build_dir.tar   storage--deps--linux   cmake_build_dir_root_fs.tar || true\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - clone llvm-project
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color ; export COLORTERM=truecolor ; git clone --depth=1 --recursive https://github.com/llvm/llvm-project\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - cmake LLVM STAGE 1 - Debug - Configure
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color ; export COLORTERM=truecolor ; cmake -G \\\"Unix Makefiles\\\" -DLLVM_OPTIMIZED_TABLEGEN=true -DCMAKE_MODULE_PATH=\\\"\\\$(pwd)/cmake/packages\\\" -DCMAKE_INSTALL_PREFIX=\\\"\\\$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS\\\" -DLLVM_BUILD_ROOT__ROOTFS=\\\"\\\$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS\\\" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_CXX_FLAGS=\\\"-g3 -O0\\\" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - cmake LLVM STAGE 1 - Debug - Build
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color ; export COLORTERM=truecolor ; cmake --build BUILD_DEBUG\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: SYSTEMD - cmake LLVM STAGE 1 - Debug - Install
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color ; export COLORTERM=truecolor ; cmake --install BUILD_DEBUG\""
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: SYSTEMD - archive build directory
         run: |
           sudo docker container exec --user ubuntu --workdir /home/ubuntu git_local_ubuntu bash -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u ubuntu)/bus systemd-run --user --scope --collect /bin/bash -c \"cd git_repo ; export TERM=xterm-256color ; export COLORTERM=truecolor ; mv BUILD_DEBUG/BUILD_ROOT/ROOTFS . ; rm -rf BUILD_DEBUG ; mkdir BUILD_DEBUG ; mkdir BUILD_DEBUG/BUILD_ROOT ; mv ROOTFS BUILD_DEBUG/BUILD_ROOT ; tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG ; sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512\""
-
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
 
       - name: pull archive build directory
         run: |
           sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir_root_fs.tar $GITHUB_WORKSPACE
           sudo docker cp git_local_ubuntu:/home/ubuntu/git_repo/cmake_build_dir_root_fs.tar.sha512 $GITHUB_WORKSPACE
 
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: list files
         run: |
           ls -l
       
-      - name: check free memory
-        run: |
-          free
-
-      - name: check free space
-        run: |
-          df -h /
-
       - name: upload build directory
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
