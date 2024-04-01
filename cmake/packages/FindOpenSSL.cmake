@@ -69,11 +69,18 @@ find_package_handle_standard_args(OpenSSL
                                   REQUIRED_VARS
                                     OPENSSL_INCLUDE_DIRS
                                     OPENSSL_LIBRARIES
+                                  VERSION_VAR
+                                    OPENSSL_VERSION_STRING)
+mark_as_advanced(OPENSSL_INCLUDE_DIRS OPENSSL_LIBRARIES)
+
+find_package_handle_standard_args(OpenSSL
+                                  FOUND_VAR
+                                    OPENSSL_CRYPTO_FOUND
+                                  REQUIRED_VARS
                                     OPENSSL_CRYPTO_INCLUDE_DIRS
                                     OPENSSL_CRYPTO_LIBRARIES
                                   VERSION_VAR
                                     OPENSSL_VERSION_STRING)
-mark_as_advanced(OPENSSL_INCLUDE_DIRS OPENSSL_LIBRARIES)
 mark_as_advanced(OPENSSL_CRYPTO_INCLUDE_DIRS OPENSSL_CRYPTO_LIBRARIES)
 
 if (OPENSSL_FOUND AND NOT TARGET LLVM_STATIC_OPENSSL)
