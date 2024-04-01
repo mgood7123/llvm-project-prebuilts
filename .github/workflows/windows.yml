@@ -162,8 +162,6 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cp -v /usr/lib/libpthread.a BUILD_DEBUG/BUILD_ROOT/ROOTFS/lib/libpthread.a
-          cp -v /usr/include/sys/poll.h BUILD_DEBUG/BUILD_ROOT/ROOTFS/include/poll.h
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
 
       - name: archive build directory
