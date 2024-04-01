@@ -169,6 +169,8 @@ jobs:
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
 
+          ls -l BUILD_DEBUG/BUILD_ROOT/BUILD/iconv/.git/objects/pack/pack-a54976b1827c9a3c1e530e699a2c033e028ec548.idx
+
           # we need only the rootfs in the next stage
           #
           # 256 mb
