@@ -141,6 +141,10 @@ jobs:
           export MSYS=winsymlinks:native
           cd deps ; cd libiconv ; ./autopull.sh --one-time
 
+      - name: install gcc
+        run: |
+          pacboy -S --noconfirm --needed gcc
+
       - name: build split program
         run: |
           cd split
