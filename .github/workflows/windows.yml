@@ -202,8 +202,9 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            cmake_build_dir.split.*
-            cmake_build_dir_root_fs.split.*
+            ./cmake_build_dir.split.*
+            ./cmake_build_dir_rootfs.split.*
+            ./split/build/split.exe
 
 
 
