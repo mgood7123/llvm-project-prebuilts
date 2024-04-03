@@ -184,6 +184,7 @@ jobs:
           # 256 mb
           #
           ./split/build/split.exe --split -r BUILD_DEBUG --name cmake_build_dir --size 256000000
+          tar -cf zip.tar split/build/split.exe /usr/bin/msys-2.0.dll
 
       - name: list files
         run: |
@@ -204,8 +205,7 @@ jobs:
           artifacts: |
             ./cmake_build_dir.split.*
             ./cmake_build_dir_rootfs.split.*
-            ./split/build/split.exe
-
+            zip.tar
 
 
 
