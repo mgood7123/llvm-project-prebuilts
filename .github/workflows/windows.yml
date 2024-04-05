@@ -65,8 +65,6 @@ jobs:
           update: true
           path-type: strict
 
-      # - name: ${{ matrix.icon }} Setup Cygwin (required for RCU)
-
       - name: test symlink support
         run: |
           export MSYS=winsymlinks:native
@@ -141,26 +139,18 @@ jobs:
           export MSYS=winsymlinks:native
           cd deps ; cd libiconv ; ./autopull.sh --one-time
 
-      - name: install gcc
-        run: |
-          pacboy -S --noconfirm --needed gcc
-
       - name: build split program
         run: |
-          cd split
-          chmod +x ./make.sh
-          ./make.sh
+          export MSYS=winsymlinks:native
+          D:/a/_temp/msys64/msys2_shell.cmd -defterm -here -no-start -msys2 -shell bash -c "pacman -S --noconfirm --needed cmake ninja gcc ; cd split ; chmod +x make.sh ; ./make.sh"
 
       - name: check if build directory is cached
         run: |
           export MSYS=winsymlinks:native
-          chmod +x try_get_release.sh
-          chmod +x try_get_release_or.sh
-            # ./try_get_release.sh   user   repo   file   tag
-            #
-            # response=$? # 0=match, -1=corrupt, -2=missing
-            #
-          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--deps--windows   cmake_build_dir.tar || true
+
+          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows--debug/build.split.map
+
+          ./split/build/split.exe --join $URL --out BUILD_DEBUG || true
 
       - name: cmake build deps - Debug
         run: |
@@ -171,19 +161,13 @@ jobs:
       - name: archive build directory
         run: |
           export MSYS=winsymlinks:native
-          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
 
-          ls -l BUILD_DEBUG/BUILD_ROOT/BUILD/iconv/gnulib/etc/license-notices/GPL || true
-          ls -l BUILD_DEBUG/BUILD_ROOT/BUILD/iconv/gnulib/etc/license-notices/GPLv3+ || true
-
-          # we need only the rootfs in the next stage
-          #
           # 256 mb
           #
-          ./split/build/split.exe --split -r BUILD_DEBUG/BUILD_ROOT/ROOTFS --name cmake_build_dir_rootfs --size 256000000
+          ./split/build/split.exe --split -r BUILD_DEBUG/BUILD_ROOT/ROOTFS --name rootfs --size 256000000
           # 256 mb
           #
-          ./split/build/split.exe --split -r BUILD_DEBUG --name cmake_build_dir --size 256000000
+          ./split/build/split.exe --split -r BUILD_DEBUG --name build --size 256000000
           mkdir split_tar
           cd split_tar
           mkdir split
@@ -199,8 +183,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm 18 deps - windows"
-          tag: "storage--deps--windows"
+          name: "llvm 18 deps - windows - DEBUG"
+          tag: "storage--deps--windows--debug"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -208,8 +192,8 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./cmake_build_dir.split.*
-            ./cmake_build_dir_rootfs.split.*
+            ./build.split.*
+            ./rootfs.split.*
             split_tar/split.exe.tar
 
 
@@ -272,10 +256,6 @@ jobs:
         run: |
           pacboy -Sy
 
-      - name: install procps
-        run: |
-          pacboy -S --noconfirm --needed procps
-
       - name: install findutils
         run: |
           pacboy -S --noconfirm --needed findutils
@@ -296,23 +276,23 @@ jobs:
 
       - name: build split program
         run: |
-          cd split
-          chmod +x ./make.sh
-          ./make.sh
+          export MSYS=winsymlinks:native
+          D:/a/_temp/msys64/msys2_shell.cmd -defterm -here -no-start -msys2 -shell bash -c "pacman -S --noconfirm --needed cmake ninja gcc ; cd split ; chmod +x make.sh ; ./make.sh"
 
       - name: check if build directory is cached
         run: |
           export MSYS=winsymlinks:native
-          chmod +x try_get_release.sh
-          chmod +x try_get_release_or.sh
-            # ./try_get_release_or.sh   user   repo   tag1   file1   or_tag2   or_file2
-            #
-            # response=$? # 0=match, -1=corrupt, -2=missing
-            #
-            # in non-0 it is an error and we cannot continue
-            #
-            # we need the previous job's rootfs
-          ./try_get_release_or.sh   mgood7123   llvm-project-prebuilts   storage--llvm-stage-1--windows   cmake_build_dir.tar   storage--deps--windows   cmake_build_dir_root_fs.tar
+
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows--debug/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows--debug/rootfs.split.map
+
+          if ./split/build/split.exe --join $URL1 --out BUILD_DEBUG
+            then
+              true;
+            else
+              mkdir BUILD_DEBUG/BUILD_ROOT
+              ./split/build/split.exe --join $URL2 --out BUILD_DEBUG/BUILD_ROOT/ROOTFS
+          fi
 
       - name: clone llvm-project
         run: |
@@ -321,6 +301,7 @@ jobs:
       - name: cmake LLVM STAGE 1 - Debug - Configure
         run: |
           export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           cmake -G "Unix Makefiles" -DLLVM_OPTIMIZED_TABLEGEN=true -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
 
       - name: cmake LLVM STAGE 1 - Debug - Build
@@ -336,15 +317,20 @@ jobs:
       - name: archive build directory
         run: |
           export MSYS=winsymlinks:native
-          # we need only the rootfs in the next stage
-          mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
-          rm -rf BUILD_DEBUG
-          # preserve the directory structure
-          mkdir BUILD_DEBUG
-          mkdir BUILD_DEBUG/BUILD_ROOT
-          mv ROOTFS BUILD_DEBUG/BUILD_ROOT
-          tar -cf cmake_build_dir_root_fs.tar BUILD_DEBUG
-          sha512sum cmake_build_dir_root_fs.tar > cmake_build_dir_root_fs.tar.sha512
+
+          # 256 mb
+          #
+          ./split/build/split.exe --split -r BUILD_DEBUG/BUILD_ROOT/ROOTFS --name rootfs --size 256000000
+          # 256 mb
+          #
+          ./split/build/split.exe --split -r BUILD_DEBUG --name build --size 256000000
+
+          mkdir split_tar
+          cd split_tar
+          mkdir split
+          cp ../split/build/split.exe split
+          cp /usr/bin/msys-2.0.dll split
+          tar -cf split.exe.tar split
 
       - name: list files
         run: |
@@ -354,8 +340,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "cmake_build_dir"
-          tag: "storage--llvm-stage-1--windows"
+          name: "llvm 18 stage 1 - windows - DEBUG"
+          tag: "storage--llvm-stage-1--windows--debug"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -363,5 +349,6 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            cmake_build_dir_root_fs.tar
-            cmake_build_dir_root_fs.tar.sha512
+            ./build.split.*
+            ./rootfs.split.*
+            split_tar/split.exe.tar
