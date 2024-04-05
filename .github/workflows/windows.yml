@@ -277,7 +277,7 @@ jobs:
       - name: build split program
         run: |
           export MSYS=winsymlinks:native
-          D:/a/_temp/msys64/msys2_shell.cmd -defterm -here -no-start -msys2 -shell bash -c "pacman -S --noconfirm --needed cmake ninja gcc ; cd split ; chmod +x make.sh ; ./make.sh"
+          D:/a/_temp/msys64/msys2_shell.cmd -defterm -here -no-start -msys2 -shell bash -c "pacman -S --noconfirm --needed cmake make gcc ; cd split ; chmod +x make.sh ; ./make.sh"
 
       - name: check if build directory is cached
         run: |
