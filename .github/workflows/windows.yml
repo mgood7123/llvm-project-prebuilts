@@ -221,12 +221,13 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 256 mb
+          # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_DEBUG/BUILD_ROOT/ROOTFS --name rootfs --size 256000000
-          # 256 mb
+          ./split_exe/split.exe --split -r BUILD_DEBUG/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+          # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_DEBUG --name build --size 256000000
+          ./split_exe/split.exe --split -r BUILD_DEBUG --name build --size 750000000
 
       - name: list files
         run: |
@@ -374,12 +375,13 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 256 mb
+          # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_DEBUG/BUILD_ROOT/ROOTFS --name rootfs --size 256000000
-          # 256 mb
+          ./split_exe/split.exe --split -r BUILD_DEBUG/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+          # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_DEBUG --name build --size 256000000
+          ./split_exe/split.exe --split -r BUILD_DEBUG --name build --size 750000000
 
       - name: list files
         run: |
