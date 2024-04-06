@@ -175,7 +175,7 @@ jobs:
           cp /usr/bin/msys-2.0.dll split_exe
           tar -cf split.exe.tar split_exe
           sha512sum split.exe.tar > split.exe.tar.sha512
-          rm -rf split
+          rm -rf split/BUILD_DEBUG
 
       - name: upload split build directory
         if: success() # if we cancel during the upload, wait for it to complete
