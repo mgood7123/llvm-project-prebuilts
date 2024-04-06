@@ -158,7 +158,6 @@ jobs:
           export MSYS=winsymlinks:native
           cd split
           # we need only the rootfs in the next stage
-          cp /usr/bin/msys-2.0.dll BUILD_DEBUG
           cp /usr/bin/msys-2.0.dll BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin
           mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
           tar -cf split_build.tar BUILD_DEBUG
@@ -172,7 +171,7 @@ jobs:
           sha512sum split_rootfs.tar > split_rootfs.tar.sha512
           cd ..
           mkdir split_exe
-          cp ../split/BUILD_DEBUG/split.exe split_exe
+          cp split/BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin/split.exe split_exe
           cp /usr/bin/msys-2.0.dll split_exe
           tar -cf split.exe.tar split_exe
           sha512sum split.exe.tar > split.exe.tar.sha512
