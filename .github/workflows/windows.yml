@@ -178,6 +178,7 @@ jobs:
           rm -rf split/BUILD_DEBUG
           rm -rf split_exe
           tar -xf split.exe.tar
+          /bin/ls -l /usr/bin/msys-2.0.dll
           /bin/ls -l split_exe
 
       - name: list files
