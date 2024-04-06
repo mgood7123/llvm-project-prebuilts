@@ -321,7 +321,11 @@ jobs:
 
       - name: install cmake
         run: |
-          pacboy -S --noconfirm --needed make:p cmake:p
+          pacboy -S --noconfirm --needed make:p ninja:p cmake:p
+
+      - name: install ninja
+        run: |
+          pacboy -S --noconfirm --needed ninja:p
 
       - name: install git
         run: |
