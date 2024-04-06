@@ -171,13 +171,12 @@ jobs:
           tar -cf split_rootfs.tar BUILD_DEBUG
           sha512sum split_rootfs.tar > split_rootfs.tar.sha512
           cd ..
-          mkdir split_tar
-          cd split_tar
           mkdir split_exe
-          cp ../split/build/split.exe split_exe
+          cp ../split/BUILD_DEBUG/split.exe split_exe
           cp /usr/bin/msys-2.0.dll split_exe
           tar -cf split.exe.tar split_exe
           sha512sum split.exe.tar > split.exe.tar.sha512
+          rm -rf split
 
       - name: upload split build directory
         if: success() # if we cancel during the upload, wait for it to complete
@@ -196,8 +195,8 @@ jobs:
             ./split/split_build.tar.sha512
             ./split/split_rootfs.tar
             ./split/split_rootfs.tar.sha512
-            ./split_tar/split_exe.tar
-            ./split_tar/split_exe.tar.sha512
+            ./split_exe.tar
+            ./split_exe.tar.sha512
 
       - name: check if build directory is cached
         run: |
@@ -205,7 +204,7 @@ jobs:
 
           URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows--debug/build.split.map
 
-          ./split/BUILD_DEBUG/split.exe --join $URL --out BUILD_DEBUG || true
+          ./split_exe/split.exe --join $URL --out BUILD_DEBUG || true
 
       - name: cmake build deps - Debug
         run: |
@@ -219,10 +218,10 @@ jobs:
 
           # 256 mb
           #
-          ./split/BUILD_DEBUG/split.exe --split -r BUILD_DEBUG/BUILD_ROOT/ROOTFS --name rootfs --size 256000000
+          ./split_exe/split.exe --split -r BUILD_DEBUG/BUILD_ROOT/ROOTFS --name rootfs --size 256000000
           # 256 mb
           #
-          ./split/BUILD_DEBUG/split.exe --split -r BUILD_DEBUG --name build --size 256000000
+          ./split_exe/split.exe --split -r BUILD_DEBUG --name build --size 256000000
 
       - name: list files
         run: |
