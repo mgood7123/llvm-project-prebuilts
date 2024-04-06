@@ -65,16 +65,6 @@ jobs:
           update: true
           path-type: strict
 
-      - name: test symlink support
-        run: |
-          export MSYS=winsymlinks:native
-          touch a
-          ln -s a b
-          cp -v -r deps/zstd/tests/cli-tests/bin .
-          rm -f a
-          rm -f b
-          rm -rf bin
-
       - name: update packages
         run: |
           pacman -Sy
@@ -94,8 +84,6 @@ jobs:
       - name: install findutils
         run: |
           pacboy -S --noconfirm --needed findutils
-          which find
-          ls -l /usr/bin/find.exe
 
       - name: install clang 17
         run: |
@@ -175,8 +163,6 @@ jobs:
           rm -rf split/BUILD_DEBUG
           rm -rf split_exe
           tar -xf split.exe.tar
-          /bin/ls -l /usr/bin/msys-2.0.dll
-          /bin/ls -l split_exe
           ./split_exe/split.exe
 
       - name: list files
@@ -237,7 +223,7 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm 18 deps - windows - DEBUG"
+          name: "llvm deps - windows - DEBUG"
           tag: "storage--deps--windows--debug"
           makeLatest: true
           generateReleaseNotes: false
@@ -287,16 +273,6 @@ jobs:
           update: true
           path-type: strict
 
-      - name: test symlink support
-        run: |
-          export MSYS=winsymlinks:native
-          touch a
-          ln -s a b
-          cp -v -r deps/zstd/tests/cli-tests/bin .
-          rm -f a
-          rm -f b
-          rm -rf bin
-
       - name: update packages
         run: |
           pacman -Sy
@@ -312,8 +288,6 @@ jobs:
       - name: install findutils
         run: |
           pacboy -S --noconfirm --needed findutils
-          which find
-          ls -l /usr/bin/find.exe
 
       - name: install clang 17
         run: |
@@ -332,9 +306,6 @@ jobs:
           export MSYS=winsymlinks:native
           chmod +x ./try_get_release.sh
           ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
-          /bin/ls -l /usr/bin/msys-2.0.dll
-          /bin/ls -l split_exe
-          ./split_exe/split.exe
 
       - name: check if build directory is cached
         run: |
@@ -359,7 +330,7 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DLLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;lld;lldb;mlir;polly;pstl;flang" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libc;libcxx;libcxxabi;libunwind;openmp" -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
+          cmake -G "Ninja" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DLLVM_ENABLE_PROJECTS="" -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
 
       - name: cmake LLVM STAGE 1 - Debug - Build
         run: |
@@ -391,7 +362,141 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm 18 stage 1 - windows - DEBUG"
+          name: "llvm stage 1 - windows - DEBUG"
+          tag: "storage--llvm-stage-1--windows--debug"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build.split.*
+            ./rootfs.split.*
+
+
+
+  build_llvm_clang_stage_1:
+    needs: build_llvm_stage_1
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: clang64
+
+    runs-on: ${{ matrix.os }}
+
+    name: clang stage 1 - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install pacboy
+        run: |
+          pacman -Syu --noconfirm --needed pactoys
+
+      - name: update packages
+        run: |
+          pacboy -Sy
+
+      - name: install findutils
+        run: |
+          pacboy -S --noconfirm --needed findutils
+
+      - name: install clang 17
+        run: |
+          pacboy -S --noconfirm --needed clang:p
+
+      - name: install cmake
+        run: |
+          pacboy -S --noconfirm --needed make:p cmake:p
+
+      - name: install git
+        run: |
+          pacboy -S --noconfirm --needed git
+
+      - name: check if split program is cached
+        run: |
+          export MSYS=winsymlinks:native
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
+
+      - name: check if build directory is cached
+        run: |
+          export MSYS=winsymlinks:native
+
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows--debug/build.split.map
+
+          if ./split_exe/split.exe --join -r $URL1 --out BUILD_DEBUG
+            then
+              true;
+            else
+              ./split_exe/split.exe --join -r $URL2 --out BUILD_DEBUG
+          fi
+
+      - name: clone llvm-project
+        run: |
+          git clone --depth=1 --recursive https://github.com/llvm/llvm-project
+
+      - name: cmake CLANG STAGE 1 - Debug - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          cmake -G "Ninja" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DLLVM_ENABLE_PROJECTS="clang" -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_DEBUG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_DEBUG
+
+      - name: cmake CLANG STAGE 1 - Debug - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build BUILD_DEBUG
+
+      - name: cmake CLANG STAGE 1 - Debug - Install
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install BUILD_DEBUG
+
+      - name: archive build directory
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_DEBUG/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_DEBUG --name build --size 750000000
+
+      - name: list files
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage 1 - windows - DEBUG"
           tag: "storage--llvm-stage-1--windows--debug"
           makeLatest: true
           generateReleaseNotes: false
