@@ -333,6 +333,8 @@ jobs:
           cd split
           chmod +x ../try_get_release.sh
           ../try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
+          /bin/ls -l /usr/bin/msys-2.0.dll
+          /bin/ls -l split_exe
 
       - name: check if build directory is cached
         run: |
