@@ -87,10 +87,6 @@ jobs:
         run: |
           pacboy -Sy
 
-      - name: install procps
-        run: |
-          pacboy -S --noconfirm --needed procps
-
       - name: install git
         run: |
           pacboy -S --noconfirm --needed git
