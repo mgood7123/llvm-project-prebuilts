@@ -208,7 +208,7 @@ jobs:
           export MSYS=winsymlinks:native
 
           URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows--debug/build.split.map
-          ./split_exe/split.exe --join $URL --out BUILD_DEBUG || true
+          ./split_exe/split.exe --join -r $URL --out BUILD_DEBUG || true
 
       - name: cmake build deps - Debug
         run: |
@@ -342,12 +342,12 @@ jobs:
           URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows--debug/build.split.map
           URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows--debug/rootfs.split.map
 
-          if ./split_exe/split.exe --join $URL1 --out BUILD_DEBUG
+          if ./split_exe/split.exe --join -r $URL1 --out BUILD_DEBUG
             then
               true;
             else
               mkdir BUILD_DEBUG/BUILD_ROOT
-              ./split_exe/split.exe --join $URL2 --out BUILD_DEBUG/BUILD_ROOT/ROOTFS
+              ./split_exe/split.exe --join -r $URL2 --out BUILD_DEBUG/BUILD_ROOT/ROOTFS
           fi
 
       - name: clone llvm-project
