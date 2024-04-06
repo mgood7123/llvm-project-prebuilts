@@ -365,7 +365,7 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
-          cmake --build BUILD_DEBUG -j $(nproc)
+          cmake --build BUILD_DEBUG
 
       - name: cmake LLVM STAGE 1 - Debug - Install
         run: |
