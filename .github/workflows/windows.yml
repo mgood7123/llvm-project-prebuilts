@@ -327,7 +327,7 @@ jobs:
       - name: check if split program is cached
         run: |
           export MSYS=winsymlinks:native
-          chmod +x ../try_get_release.sh
+          chmod +x ./try_get_release.sh
           ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
           /bin/ls -l /usr/bin/msys-2.0.dll
           /bin/ls -l split_exe
