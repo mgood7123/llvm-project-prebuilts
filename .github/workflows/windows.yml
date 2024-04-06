@@ -177,6 +177,10 @@ jobs:
           sha512sum split.exe.tar > split.exe.tar.sha512
           rm -rf split/BUILD_DEBUG
 
+      - name: list files
+        run: |
+          ls -l
+      
       - name: upload split build directory
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
@@ -194,8 +198,8 @@ jobs:
             ./split/split_build.tar.sha512
             ./split/split_rootfs.tar
             ./split/split_rootfs.tar.sha512
-            ./split_exe.tar
-            ./split_exe.tar.sha512
+            ./split.exe.tar
+            ./split.exe.tar.sha512
 
       - name: check if build directory is cached
         run: |
@@ -325,7 +329,7 @@ jobs:
           export MSYS=winsymlinks:native
           cd split
           chmod +x ../try_get_release.sh
-          ../try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split_exe.tar
+          ../try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
 
       - name: check if build directory is cached
         run: |
