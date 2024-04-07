@@ -300,6 +300,18 @@ jobs:
         run: |
           pacboy -S --noconfirm --needed git
 
+      - name: install ncurses
+        run: |
+          pacboy -S --noconfirm --needed ncurses ncurses:p ncurses-devel
+
+      - name: install python
+        run: |
+          pacboy -S --noconfirm --needed python-devel
+
+      - name: install swig
+        run: |
+          pacboy -S --noconfirm --needed swig
+
       - name: check if split program is cached
         run: |
           export MSYS=winsymlinks:native
