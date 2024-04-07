@@ -78,7 +78,7 @@ if (WIN32)
         "-lpthread" # extra c flags
         "-lpthread" # extra cxx flags
         "
-            --disable-stripping --with-xterm-kbs=BS --enable-exp-win32 --enable-term-driver --with-pthread --enable-termcap --without-ada
+            --disable-stripping --with-xterm-kbs=BS --enable-exp-win32 --enable-term-driver --with-pthread --enable-termcap --without-ada --enable-pc-files
         " # extra configure arguments
     )
 else()
@@ -86,7 +86,7 @@ else()
         "-lpthread" # extra c flags
         "-lpthread" # extra cxx flags
         "
-            --disable-stripping --with-xterm-kbs=BS --enable-term-driver --with-pthread --enable-termcap --without-ada
+            --disable-stripping --with-xterm-kbs=BS --enable-term-driver --with-pthread --enable-termcap --without-ada --enable-pc-files
         " # extra configure arguments
     )
 endif()
