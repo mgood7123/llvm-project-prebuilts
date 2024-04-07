@@ -73,13 +73,23 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib . zlib
     "
 )
 
-build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncurses
-    "" # no extra c flags
-    "" # no extra cxx flags
-    "
-        --disable-stripping
-    " # extra configure arguments
-)
+if (WIN32)
+    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncurses
+        "" # no extra c flags
+        "" # no extra cxx flags
+        "
+            --disable-stripping --with-xterm-kbs=DEL
+        " # extra configure arguments
+    )
+else()
+    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncurses
+        "" # no extra c flags
+        "" # no extra cxx flags
+        "
+            --disable-stripping
+        " # extra configure arguments
+    )
+endif()
 
 if (WIN32)
     build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/wineditline . LibEdit
