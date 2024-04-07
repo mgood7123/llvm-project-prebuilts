@@ -424,7 +424,9 @@ macro(build_root_add_makefile_package src relative_path_to_makefile_dir build_di
       #
       string(LENGTH "${LLVM_BUILD_ROOT__ROOTFS}" LLVM_BUILD_ROOT__ROOTFS__MSYS_TMP_LENGTH)
       math(EXPR LLVM_BUILD_ROOT__ROOTFS__MSYS_TMP_LENGTH_ADJUSTED "${LLVM_BUILD_ROOT__ROOTFS__MSYS_TMP_LENGTH} - 2" OUTPUT_FORMAT DECIMAL)
-      string(SUBSTRING "${CMAKE_CXX_COMPILER}" 2 ${LLVM_BUILD_ROOT__ROOTFS__MSYS_TMP_LENGTH_ADJUSTED} LLVM_BUILD_ROOT__ROOTFS__MSYS)
+      string(SUBSTRING "${LLVM_BUILD_ROOT__ROOTFS}" 2 ${LLVM_BUILD_ROOT__ROOTFS__MSYS_TMP_LENGTH_ADJUSTED} LLVM_BUILD_ROOT__ROOTFS__MSYS)
+  else()
+    set(LLVM_BUILD_ROOT__ROOTFS__MSYS ${LLVM_BUILD_ROOT__ROOTFS})
   endif()
 
   set(BUILD_ROOT_____________FLAGS "${BUILD_ROOT_____________FLAGS_CORE} export PKG_CONFIG_PATH=\"${LLVM_BUILD_ROOT__ROOTFS__MSYS}/lib/pkgconfig:${LLVM_BUILD_ROOT__ROOTFS__MSYS}/share/pkgconfig:\$PKG_CONFIG_PATH\" \; export CC=\"${BUILD_ROOT_____________deps_cc}\" \; export LDFLAGS=\"${BUILD_ROOT_____________COMMON_LINK_FLAGS}\" \; export CFLAGS=\"${BUILD_ROOT_____________COMMON_FLAGS} ${BUILD_ROOT_____________ADDITIONAL_C_FLAGS} ${new_line_seperated_extra_c_flags_list_str} ${CMAKE_C_FLAGS}\" \; export CXX=\"${BUILD_ROOT_____________deps_cxx}\" \; export CXXFLAGS=\"${BUILD_ROOT_____________COMMON_FLAGS} ${BUILD_ROOT_____________ADDITIONAL_C_FLAGS} ${new_line_seperated_extra_cxx_flags_list_str} ${CMAKE_CXX_FLAGS}\" \;")
