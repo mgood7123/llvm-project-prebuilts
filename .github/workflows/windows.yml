@@ -135,7 +135,6 @@ jobs:
           export MSYS=winsymlinks:native
           export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
           chmod +x try_get_release.sh
-          cd split
           D:/a/_temp/msys64/msys2_shell.cmd -defterm -here -no-start -msys2 -shell bash -c "pacman -S --noconfirm --needed cmake make gcc ; cd split ; chmod +x make.sh ; ./make.sh"
 
       - name: archive split build directory
