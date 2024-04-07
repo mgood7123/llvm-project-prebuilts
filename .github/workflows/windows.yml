@@ -143,24 +143,24 @@ jobs:
           export MSYS=winsymlinks:native
           cd split
           # we need only the rootfs in the next stage
-          cp /usr/bin/msys-2.0.dll BUILD_RELEASE/BUILD_ROOT/ROOTFS/bin
-          mv BUILD_RELEASE/BUILD_ROOT/ROOTFS .
-          tar -cf split_build.tar BUILD_RELEASE
+          cp /usr/bin/msys-2.0.dll BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin
+          mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
+          tar -cf split_build.tar BUILD_DEBUG
           sha512sum split_build.tar > split_build.tar.sha512
-          rm -rf BUILD_RELEASE
+          rm -rf BUILD_DEBUG
           # preserve the directory structure
-          mkdir BUILD_RELEASE
-          mkdir BUILD_RELEASE/BUILD_ROOT
-          mv ROOTFS BUILD_RELEASE/BUILD_ROOT
-          tar -cf split_rootfs.tar BUILD_RELEASE
+          mkdir BUILD_DEBUG
+          mkdir BUILD_DEBUG/BUILD_ROOT
+          mv ROOTFS BUILD_DEBUG/BUILD_ROOT
+          tar -cf split_rootfs.tar BUILD_DEBUG
           sha512sum split_rootfs.tar > split_rootfs.tar.sha512
           cd ..
           mkdir split_exe
-          cp split/BUILD_RELEASE/BUILD_ROOT/ROOTFS/bin/split.exe split_exe
+          cp split/BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin/split.exe split_exe
           cp /usr/bin/msys-2.0.dll split_exe
           tar -cf split.exe.tar split_exe
           sha512sum split.exe.tar > split.exe.tar.sha512
-          rm -rf split/BUILD_RELEASE
+          rm -rf split/BUILD_DEBUG
           rm -rf split_exe
           tar -xf split.exe.tar
           ./split_exe/split.exe
