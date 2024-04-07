@@ -267,11 +267,7 @@ _nc_va_tracef(const char *fmt, va_list ap)
 # if USE_WEAK_SYMBOLS
 	if ((pthread_self))
 # endif
-#ifdef _NC_WINDOWS
-	    fprintf(fp, "%#lx:", (long) (intptr_t) pthread_self().p);
-#else
 	    fprintf(fp, "%#lx:", (long) (intptr_t) pthread_self());
-#endif
 #endif
 	if (before || after) {
 	    int n;

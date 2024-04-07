@@ -75,21 +75,29 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib . zlib
 
 if (WIN32)
     build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncurses
-        "" # no extra c flags
-        "" # no extra cxx flags
+        "-lpthread" # extra c flags
+        "-lpthread" # extra cxx flags
         "
-            --disable-stripping --with-xterm-kbs=DEL
+            --disable-stripping --with-xterm-kbs=BS --enable-exp-win32 --enable-term-driver --with-pthread --enable-termcap --without-ada
         " # extra configure arguments
     )
 else()
     build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncurses
-        "" # no extra c flags
-        "" # no extra cxx flags
+        "-lpthread" # extra c flags
+        "-lpthread" # extra cxx flags
         "
-            --disable-stripping
+            --disable-stripping --with-xterm-kbs=BS --enable-term-driver --with-pthread --enable-termcap --without-ada
         " # extra configure arguments
     )
 endif()
+
+# nano depends on ncurses
+build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/nano . nano
+    # wchar_t must store ISO 10646 characters
+    "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
+    "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
+    "    --enable-utf8" # extra configure arguments
+)
 
 if (WIN32)
     build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/wineditline . LibEdit

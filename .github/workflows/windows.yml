@@ -113,6 +113,10 @@ jobs:
         run: |
           pacboy -S --noconfirm --needed gettext
 
+      - name: install texinfo
+        run: |
+          pacboy -S --noconfirm --needed texinfo
+
       - name: clone libiconv
         run: |
           export MSYS=winsymlinks:native
@@ -201,7 +205,6 @@ jobs:
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
 
-          # we have nanosleep
           export cf_cv_func_nanosleep=yes
 
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_RELEASE
