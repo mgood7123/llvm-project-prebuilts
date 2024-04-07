@@ -73,6 +73,14 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib . zlib
     "
 )
 
+build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncurses
+    "" # no extra c flags
+    "" # no extra cxx flags
+    "
+        --disable-stripping
+    " # extra configure arguments
+)
+
 if (WIN32)
     build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/wineditline . LibEdit
         "" # no extra c flags
@@ -82,17 +90,6 @@ if (WIN32)
         "
     )
 else()
-    if (ANDROID)
-        # https://android.googlesource.com/platform/bionic/+/master/docs/status.md
-        # android does not have ncurses so we must build it
-        build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncurses
-            "" # no extra c flags
-            "" # no extra cxx flags
-            "
-                --disable-stripping
-            " # extra configure arguments
-        )
-    endif()
     build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libedit-20230828-3.1 . LibEdit
         # wchar_t must store ISO 10646 characters
         "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
