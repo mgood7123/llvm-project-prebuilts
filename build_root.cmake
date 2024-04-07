@@ -415,7 +415,15 @@ macro(build_root_add_makefile_package src relative_path_to_makefile_dir build_di
 
   unset(BUILD_ROOT_____________FLAGS)
   unset(BUILD_ROOT_____________FLAGS CACHE)
-  set(BUILD_ROOT_____________FLAGS "${BUILD_ROOT_____________FLAGS_CORE} export PKG_CONFIG_PATH=\"${LLVM_BUILD_ROOT__ROOTFS}/lib/pkgconfig:${LLVM_BUILD_ROOT__ROOTFS}/share/pkgconfig:\$PKG_CONFIG_PATH\" \; export CC=\"${BUILD_ROOT_____________deps_cc}\" \; export LDFLAGS=\"${BUILD_ROOT_____________COMMON_LINK_FLAGS}\" \; export CFLAGS=\"${BUILD_ROOT_____________COMMON_FLAGS} ${BUILD_ROOT_____________ADDITIONAL_C_FLAGS} ${new_line_seperated_extra_c_flags_list_str} ${CMAKE_C_FLAGS}\" \; export CXX=\"${BUILD_ROOT_____________deps_cxx}\" \; export CXXFLAGS=\"${BUILD_ROOT_____________COMMON_FLAGS} ${BUILD_ROOT_____________ADDITIONAL_C_FLAGS} ${new_line_seperated_extra_cxx_flags_list_str} ${CMAKE_CXX_FLAGS}\" \;")
+  # LLVM_BUILD_ROOT__ROOTFS is an absolute path
+  #  LLVM_BUILD_ROOT__ROOTFS = C:/...
+  #
+  #  we need to chop off the drive letter so PKG_CONFIG_PATH works
+  #
+  string(LENGTH "${LLVM_BUILD_ROOT__ROOTFS}" LLVM_BUILD_ROOT__ROOTFS__MSYS_TMP_LENGTH)
+  math(EXPR LLVM_BUILD_ROOT__ROOTFS__MSYS_TMP_LENGTH_ADJUSTED "${LLVM_BUILD_ROOT__ROOTFS__MSYS_TMP_LENGTH} - 2" OUTPUT_FORMAT DECIMAL)
+  string(SUBSTRING "${CMAKE_CXX_COMPILER}" 2 ${LLVM_BUILD_ROOT__ROOTFS__MSYS_TMP_LENGTH_ADJUSTED} LLVM_BUILD_ROOT__ROOTFS__MSYS)
+  set(BUILD_ROOT_____________FLAGS "${BUILD_ROOT_____________FLAGS_CORE} export PKG_CONFIG_PATH=\"${LLVM_BUILD_ROOT__ROOTFS__MSYS}/lib/pkgconfig:${LLVM_BUILD_ROOT__ROOTFS__MSYS}/share/pkgconfig:\$PKG_CONFIG_PATH\" \; export CC=\"${BUILD_ROOT_____________deps_cc}\" \; export LDFLAGS=\"${BUILD_ROOT_____________COMMON_LINK_FLAGS}\" \; export CFLAGS=\"${BUILD_ROOT_____________COMMON_FLAGS} ${BUILD_ROOT_____________ADDITIONAL_C_FLAGS} ${new_line_seperated_extra_c_flags_list_str} ${CMAKE_C_FLAGS}\" \; export CXX=\"${BUILD_ROOT_____________deps_cxx}\" \; export CXXFLAGS=\"${BUILD_ROOT_____________COMMON_FLAGS} ${BUILD_ROOT_____________ADDITIONAL_C_FLAGS} ${new_line_seperated_extra_cxx_flags_list_str} ${CMAKE_CXX_FLAGS}\" \;")
 
   build_root_message("-------- BUILDING MAKEFILE PROJECT: '${build_dir}'")
 
