@@ -41822,12 +41822,12 @@ if test -n "$NCURSESW_CFLAGS"; then
     pkg_cv_NCURSESW_CFLAGS="$NCURSESW_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncursesw\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "ncursesw") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncurses\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "ncurses") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_NCURSESW_CFLAGS=`$PKG_CONFIG --cflags "ncursesw" 2>/dev/null`
+  pkg_cv_NCURSESW_CFLAGS=`$PKG_CONFIG --cflags "ncurses" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -41839,12 +41839,12 @@ if test -n "$NCURSESW_LIBS"; then
     pkg_cv_NCURSESW_LIBS="$NCURSESW_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncursesw\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "ncursesw") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncurses\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "ncurses") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_NCURSESW_LIBS=`$PKG_CONFIG --libs "ncursesw" 2>/dev/null`
+  pkg_cv_NCURSESW_LIBS=`$PKG_CONFIG --libs "ncurses" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -41865,9 +41865,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        NCURSESW_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncursesw" 2>&1`
+	        NCURSESW_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncurses" 2>&1`
         else
-	        NCURSESW_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncursesw" 2>&1`
+	        NCURSESW_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncurses" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$NCURSESW_PKG_ERRORS" >&5
@@ -41885,7 +41885,7 @@ $as_echo "yes" >&6; }
 
 			CURSES_LIB=$NCURSESW_LIBS
 			CPPFLAGS="$NCURSESW_CFLAGS $CPPFLAGS"
-			CURSES_LIB_NAME=ncursesw
+			CURSES_LIB_NAME=ncurses
 			CURSES_LIB_WIDE=yes
 
 fi
@@ -42080,13 +42080,13 @@ fi
 			CURSES_LIB=`$NCURSESW_CONFIG --libs`
 			LIBS="$CURSES_LIB $LIBS"
 			CPPFLAGS="`$NCURSESW_CONFIG --cflags` $CPPFLAGS"
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for wget_wch in -lncursesw" >&5
-$as_echo_n "checking for wget_wch in -lncursesw... " >&6; }
+			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for wget_wch in -lncurses" >&5
+$as_echo_n "checking for wget_wch in -lncurses... " >&6; }
 if ${ac_cv_lib_ncursesw_wget_wch+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lncursesw  $LIBS"
+LIBS="-lncurses  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -42117,17 +42117,17 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ncursesw_wget_wch" >&5
 $as_echo "$ac_cv_lib_ncursesw_wget_wch" >&6; }
 if test "x$ac_cv_lib_ncursesw_wget_wch" = xyes; then :
-  CURSES_LIB_NAME=ncursesw CURSES_LIB_WIDE=yes
+  CURSES_LIB_NAME=ncurses CURSES_LIB_WIDE=yes
 fi
 
 		else
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for wget_wch in -lncursesw" >&5
-$as_echo_n "checking for wget_wch in -lncursesw... " >&6; }
+			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for wget_wch in -lncurses" >&5
+$as_echo_n "checking for wget_wch in -lncurses... " >&6; }
 if ${ac_cv_lib_ncursesw_wget_wch+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lncursesw  $LIBS"
+LIBS="-lncurses  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -42158,7 +42158,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ncursesw_wget_wch" >&5
 $as_echo "$ac_cv_lib_ncursesw_wget_wch" >&6; }
 if test "x$ac_cv_lib_ncursesw_wget_wch" = xyes; then :
-  CURSES_LIB="-lncursesw" CURSES_LIB_NAME=ncursesw CURSES_LIB_WIDE=yes
+  CURSES_LIB="-lncurses" CURSES_LIB_NAME=ncurses CURSES_LIB_WIDE=yes
 fi
 
 		fi

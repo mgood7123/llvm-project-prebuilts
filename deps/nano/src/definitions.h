@@ -62,7 +62,7 @@
 
 /* Prefer wide ncurses over normal ncurses over curses. */
 #if defined(HAVE_NCURSESW_NCURSES_H)
-#include <ncursesw/ncurses.h>
+#include <ncurses.h>
 #elif defined(HAVE_NCURSES_H)
 #include <ncurses.h>
 #else
