@@ -91,14 +91,6 @@ else()
     )
 endif()
 
-# nano depends on ncurses
-build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/nano . nano
-    # wchar_t must store ISO 10646 characters
-    "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
-    "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
-    "    --enable-utf8 --enable-color" # extra configure arguments
-)
-
 if (WIN32)
     build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/wineditline . LibEdit
         "" # no extra c flags
