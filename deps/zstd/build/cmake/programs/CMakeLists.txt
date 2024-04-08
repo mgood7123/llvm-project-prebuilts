@@ -63,11 +63,11 @@ endif ()
 
 # Add lzma support
 if (ZSTD_LZMA_SUPPORT)
-    find_package(LZMA REQUIRED)
+    find_package(LibLZMA REQUIRED)
 
     if (LZMA_FOUND)
-        include_directories(${LZMA_INCLUDE_DIRS})
-        target_link_libraries(zstd ${LZMA_LIBRARIES})
+        include_directories(${LIBLZMA_INCLUDE_DIRS})
+        target_link_libraries(zstd ${LIBLZMA_LIBRARIES})
         set_property(TARGET zstd APPEND PROPERTY COMPILE_DEFINITIONS "ZSTD_LZMACOMPRESS;ZSTD_LZMADECOMPRESS;LZMA_API_STATIC")
     else ()
         message(SEND_ERROR "lzma library is missing")

@@ -233,7 +233,7 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libarchive . archi
 find_package(LibEdit REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(LZ4 REQUIRED)
-find_package(LZMA REQUIRED)
+find_package(LibLZMA REQUIRED)
 find_package(7z REQUIRED)
 find_package(zstd REQUIRED)
 find_package(xxHash REQUIRED)
@@ -248,7 +248,7 @@ find_package(Archive REQUIRED)
 message("LIBEDIT LIBS: ${LibEdit_LIBRARIES}")
 message("ZLIB LIBS: ${ZLIB_LIBRARIES}")
 message("LZ4 LIBS: ${LZ4_LIBRARIES}")
-message("LZMA LIBS: ${LZMA_LIBRARIES}")
+message("LIBLZMA LIBS: ${LIBLZMA_LIBRARIES}")
 message("7Z LIBS: ${7Z_LIBRARIES}")
 message("ZSTD LIB: ${zstd_LIBRARY}")
 message("XXHASH LIBS: ${xxHash_LIBRARIES}")
@@ -263,7 +263,7 @@ message("Archive LIBS: ${ARCHIVE_LIBRARIES}")
 message("LIBEDIT INCLUDE_DIRECTORIES: ${LibEdit_INCLUDE_DIRS}")
 message("ZLIB INCLUDE_DIRECTORIES: ${ZLIB_INCLUDE_DIRS}")
 message("LZ4 INCLUDE_DIRECTORIES: ${LZ4_INCLUDE_DIRS}")
-message("LZMA INCLUDE_DIRECTORIES: ${LZMA_INCLUDE_DIRS}")
+message("LIBLZMA INCLUDE_DIRECTORIES: ${LIBLZMA_INCLUDE_DIRS}")
 message("7Z INCLUDE_DIRECTORIES: ${7Z_INCLUDE_DIRS}")
 message("ZSTD INCLUDE_DIRECTORIES: ${zstd_INCLUDE_DIRS}")
 message("XXHASH INCLUDE_DIRECTORIES: ${xxHash_INCLUDE_DIRS}")
@@ -275,7 +275,7 @@ message("Lzo2 INCLUDE_DIRECTORIES: ${LZO2_INCLUDE_DIRS}")
 message("Archive INCLUDE_DIRECTORIES: ${ARCHIVE_INCLUDE_DIRS}")
 message("ZLIB_TARGET = ${ZLIB_TARGET}")
 message("LZ4_TARGET = ${LZ4_TARGET}")
-message("LZMA_TARGET = ${LZMA_TARGET}")
+message("LIBLZMA_TARGET = ${LIBLZMA_TARGET}")
 message("7Z_TARGET = ${7Z_TARGET}")
 message("zstd_TARGET = ${zstd_TARGET}")
 message("xxHash_TARGET = ${xxHash_TARGET}")
@@ -780,7 +780,7 @@ message("ARCHIVE_TARGET = ${ARCHIVE_TARGET}")
 #     ${OPENSSL_SSL_TARGET}
 #     ${EXPAT_TARGET}
 #     ${ARCHIVE_TARGET}
-#     ${LZMA_TARGET}
+#     ${LIBLZMA_TARGET}
 # )
 
 # target_compile_options(zip PRIVATE "-O3")
@@ -883,7 +883,7 @@ message("ARCHIVE_TARGET = ${ARCHIVE_TARGET}")
 #       ${OPENSSL_SSL_LIBRARY}
 #       ${EXPAT_LIBRARIES}
 #       ${ARCHIVE_LIBRARIES}
-#       ${LZMA_LIBRARIES}
+#       ${LIBLZMA_LIBRARIES}
 #       $<TARGET_FILE:zip>
 #       $<TARGET_FILE:zpack>
 #       $<TARGET_FILE:LLVM_18_STATIC>
@@ -899,7 +899,7 @@ message("ARCHIVE_TARGET = ${ARCHIVE_TARGET}")
 #       ${OPENSSL_INCLUDE_DIR}
 #       ${EXPAT_INCLUDE_DIRS}
 #       ${ARCHIVE_INCLUDE_DIRS}
-#       ${LZMA_INCLUDE_DIRS}
+#       ${LIBLZMA_INCLUDE_DIRS}
 #       ${LLVM_18_STATIC_EMBEDDED_RESOURCES_REAL_INCLUDES}
 
 #     EXECUTABLES
@@ -924,7 +924,7 @@ message("ARCHIVE_TARGET = ${ARCHIVE_TARGET}")
 #       OPENSSL_SSL ${OPENSSL_SSL_LIBRARY}
 #       EXPAT ${EXPAT_LIBRARIES}
 #       ARCHIVE ${ARCHIVE_LIBRARIES}
-#       LZMA ${LZMA_LIBRARIES}
+#       LIBLZMA ${LIBLZMA_LIBRARIES}
 
 #     SYS_LIBS
 #       ${LLVM_18_L}
@@ -969,7 +969,7 @@ message("ARCHIVE_TARGET = ${ARCHIVE_TARGET}")
 #     ${OPENSSL_SSL_TARGET}
 #     ${EXPAT_TARGET}
 #     ${ARCHIVE_TARGET}
-#     ${LZMA_TARGET}
+#     ${LIBLZMA_TARGET}
 # )
 
 # add_library(llvm_orcjit_example_packaged_zip_extract STATIC src/extract.cpp)

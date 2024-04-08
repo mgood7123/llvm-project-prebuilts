@@ -12,31 +12,31 @@ Result variables
 
 This module will set the following variables in your project:
 
-``LZMA_FOUND``
+``LIBLZMA_FOUND``
   True if liblzma headers and library were found.
-``LZMA_INCLUDE_DIRS``
+``LIBLZMA_INCLUDE_DIRS``
   Directory where liblzma headers are located.
-``LZMA_LIBRARIES``
+``LIBLZMA_LIBRARIES``
   Lzma libraries to link against.
-``LZMA_HAS_AUTO_DECODER``
+``LIBLZMA_HAS_AUTO_DECODER``
   True if lzma_auto_decoder() is found (required).
-``LZMA_HAS_EASY_ENCODER``
+``LIBLZMA_HAS_EASY_ENCODER``
   True if lzma_easy_encoder() is found (required).
-``LZMA_HAS_LZMA_PRESET``
+``LIBLZMA_HAS_LZMA_PRESET``
   True if lzma_lzma_preset() is found (required).
-``LZMA_VERSION_MAJOR``
+``LIBLZMA_VERSION_MAJOR``
   The major version of lzma
-``LZMA_VERSION_MINOR``
+``LIBLZMA_VERSION_MINOR``
   The minor version of lzma
-``LZMA_VERSION_PATCH``
+``LIBLZMA_VERSION_PATCH``
   The patch version of lzma
-``LZMA_VERSION_STRING``
+``LIBLZMA_VERSION_STRING``
   version number as a string (ex: "5.0.3")
 #]=======================================================================]
 
 set(CMAKE_FIND_DEBUG_MODE FALSE) # TRUE)
 
-find_path(LZMA_INCLUDE_DIRS lzma.h
+find_path(LIBLZMA_INCLUDE_DIRS lzma.h
   PATHS ${LLVM_BUILD_ROOT__ROOTFS}/include
   NO_DEFAULT_PATH
   NO_PACKAGE_ROOT_PATH
@@ -47,7 +47,7 @@ find_path(LZMA_INCLUDE_DIRS lzma.h
   NO_CMAKE_FIND_ROOT_PATH
 )
 
-find_library(LZMA_LIBRARIES NAMES liblzma.a
+find_library(LIBLZMA_LIBRARIES NAMES liblzma.a
   PATHS ${LLVM_BUILD_ROOT__ROOTFS}/lib
   NO_DEFAULT_PATH
   NO_PACKAGE_ROOT_PATH
@@ -123,54 +123,54 @@ macro(CHECK_LIBRARY_EXISTS LIBRARY FUNCTION LOCATION VARIABLE)
   endif()
 endmacro()
 
-if(LZMA_INCLUDE_DIRS AND EXISTS "${LZMA_INCLUDE_DIRS}/lzma.h")
+if(LIBLZMA_INCLUDE_DIRS AND EXISTS "${LIBLZMA_INCLUDE_DIRS}/lzma.h")
   include(CMakePushCheckState)
   cmake_push_check_state()
-  set(CMAKE_REQUIRED_INCLUDES ${LZMA_INCLUDE_DIRS})
-  set(CMAKE_REQUIRED_LIBRARIES ${LZMA_LIBRARIES})
+  set(CMAKE_REQUIRED_INCLUDES ${LIBLZMA_INCLUDE_DIRS})
+  set(CMAKE_REQUIRED_LIBRARIES ${LIBLZMA_LIBRARIES})
   check_include_file(lzma.h HAVE_LZMA_H)
   cmake_pop_check_state()
   if (HAVE_LZMA_H)
-    file(STRINGS "${LZMA_INCLUDE_DIRS}/lzma/version.h" _lzma_version_lines REGEX "#define[ \t]+LZMA_VERSION_(MAJOR|MINOR|PATCH)")
+    file(STRINGS "${LIBLZMA_INCLUDE_DIRS}/lzma/version.h" _lzma_version_lines REGEX "#define[ \t]+LZMA_VERSION_(MAJOR|MINOR|PATCH)")
     string(REGEX REPLACE ".*LZMA_VERSION_MAJOR *\([0-9]*\).*" "\\1" _lzma_version_major "${_lzma_version_lines}")
     string(REGEX REPLACE ".*LZMA_VERSION_MINOR *\([0-9]*\).*" "\\1" _lzma_version_minor "${_lzma_version_lines}")
     string(REGEX REPLACE ".*LZMA_VERSION_PATCH *\([0-9]*\).*" "\\1" _lzma_version_patch "${_lzma_version_lines}")
-    set(LZMA_VERSION_STRING "${_lzma_version_major}.${_lzma_version_minor}.${_lzma_version_patch}")
-    CHECK_LIBRARY_EXISTS(${LZMA_LIBRARIES} lzma_auto_decoder "" LZMA_HAS_AUTO_DECODER)
-    CHECK_LIBRARY_EXISTS(${LZMA_LIBRARIES} lzma_easy_encoder "" LZMA_HAS_EASY_ENCODER)
-    CHECK_LIBRARY_EXISTS(${LZMA_LIBRARIES} lzma_lzma_preset "" LZMA_HAS_LZMA_PRESET)
+    set(LIBLZMA_VERSION_STRING "${_lzma_version_major}.${_lzma_version_minor}.${_lzma_version_patch}")
+    CHECK_LIBRARY_EXISTS(${LIBLZMA_LIBRARIES} lzma_auto_decoder "" LIBLZMA_HAS_AUTO_DECODER)
+    CHECK_LIBRARY_EXISTS(${LIBLZMA_LIBRARIES} lzma_easy_encoder "" LIBLZMA_HAS_EASY_ENCODER)
+    CHECK_LIBRARY_EXISTS(${LIBLZMA_LIBRARIES} lzma_lzma_preset "" LIBLZMA_HAS_LZMA_PRESET)
   else()
-    set(LZMA_INCLUDE_DIRS "")
-    set(LZMA_LIBRARIES "")
+    set(LIBLZMA_INCLUDE_DIRS "")
+    set(LIBLZMA_LIBRARIES "")
   endif()
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(LZMA
+find_package_handle_standard_args(LibLZMA
                                   FOUND_VAR
-                                    LZMA_FOUND
+                                    LIBLZMA_FOUND
                                   REQUIRED_VARS
-                                    LZMA_INCLUDE_DIRS
-                                    LZMA_LIBRARIES
-                                    LZMA_HAS_AUTO_DECODER
-                                    LZMA_HAS_EASY_ENCODER
-                                    LZMA_HAS_LZMA_PRESET
+                                    LIBLZMA_INCLUDE_DIRS
+                                    LIBLZMA_LIBRARIES
+                                    LIBLZMA_HAS_AUTO_DECODER
+                                    LIBLZMA_HAS_EASY_ENCODER
+                                    LIBLZMA_HAS_LZMA_PRESET
                                   VERSION_VAR
-                                    LZMA_VERSION_STRING)
-mark_as_advanced(LZMA_INCLUDE_DIRS LZMA_LIBRARIES)
+                                    LIBLZMA_VERSION_STRING)
+mark_as_advanced(LIBLZMA_INCLUDE_DIRS LIBLZMA_LIBRARIES)
 
-message(STATUS "LZMA: found :           ${LZMA_FOUND}")
-message(STATUS "LZMA: include_dirs :    ${LZMA_INCLUDE_DIRS}")
-message(STATUS "LZMA: lib :             ${LZMA_LIBRARIES}")
-message(STATUS "LZMA: version :         ${LZMA_VERSION_STRING}")
-message(STATUS "LZMA: has auto decode : ${LZMA_HAS_AUTO_DECODER}")
-message(STATUS "LZMA: has easy decode : ${LZMA_HAS_EASY_ENCODER}")
-message(STATUS "LZMA: has lzma preset : ${LZMA_HAS_LZMA_PRESET}")
+message(STATUS "LIBLZMA: found :           ${LIBLZMA_FOUND}")
+message(STATUS "LIBLZMA: include_dirs :    ${LIBLZMA_INCLUDE_DIRS}")
+message(STATUS "LIBLZMA: lib :             ${LIBLZMA_LIBRARIES}")
+message(STATUS "LIBLZMA: version :         ${LIBLZMA_VERSION_STRING}")
+message(STATUS "LIBLZMA: has auto decode : ${LIBLZMA_HAS_AUTO_DECODER}")
+message(STATUS "LIBLZMA: has easy decode : ${LIBLZMA_HAS_EASY_ENCODER}")
+message(STATUS "LIBLZMA: has lzma preset : ${LIBLZMA_HAS_LZMA_PRESET}")
 
-if (LZMA_FOUND AND NOT TARGET LLVM_STATIC_LZMA)
-  add_library(LLVM_STATIC_LZMA UNKNOWN IMPORTED)
-  set_target_properties(LLVM_STATIC_LZMA PROPERTIES IMPORTED_LOCATION ${LZMA_LIBRARIES})
-  set_target_properties(LLVM_STATIC_LZMA PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${LZMA_INCLUDE_DIRS})
-  set_target_properties(LLVM_STATIC_LZMA PROPERTIES INTERFACE_COMPILE_DEFINITIONS LZMA_API_STATIC )
-  set(LZMA_TARGET LLVM_STATIC_LZMA)
+if (LIBLZMA_FOUND AND NOT TARGET LLVM_STATIC_LIBLZMA)
+  add_library(LLVM_STATIC_LIBLZMA UNKNOWN IMPORTED)
+  set_target_properties(LLVM_STATIC_LIBLZMA PROPERTIES IMPORTED_LOCATION ${LIBLZMA_LIBRARIES})
+  set_target_properties(LLVM_STATIC_LIBLZMA PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${LIBLZMA_INCLUDE_DIRS})
+  set_target_properties(LLVM_STATIC_LIBLZMA PROPERTIES INTERFACE_COMPILE_DEFINITIONS LZMA_API_STATIC )
+  set(LIBLZMA_TARGET LLVM_STATIC_LIBLZMA)
 endif()

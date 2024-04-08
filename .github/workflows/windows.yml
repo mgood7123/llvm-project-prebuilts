@@ -207,6 +207,12 @@ jobs:
 
           export cf_cv_func_nanosleep=yes
 
+          # these files got updated for LibLZMA, rebuild them
+          #
+          rm -rf BUILD_RELEASE/BUILD_ROOT/{SRC,BUILD}/archive
+          rm -rf BUILD_RELEASE/BUILD_ROOT/{SRC,BUILD}/xml2
+          rm -rf BUILD_RELEASE/BUILD_ROOT/{SRC,BUILD}/zstd
+
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_RELEASE
 
       - name: archive build directory
