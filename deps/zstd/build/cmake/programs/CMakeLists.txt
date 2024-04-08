@@ -65,7 +65,7 @@ endif ()
 if (ZSTD_LZMA_SUPPORT)
     find_package(LibLZMA REQUIRED)
 
-    if (LZMA_FOUND)
+    if (LIBLZMA_FOUND)
         include_directories(${LIBLZMA_INCLUDE_DIRS})
         target_link_libraries(zstd ${LIBLZMA_LIBRARIES})
         set_property(TARGET zstd APPEND PROPERTY COMPILE_DEFINITIONS "ZSTD_LZMACOMPRESS;ZSTD_LZMADECOMPRESS;LZMA_API_STATIC")
