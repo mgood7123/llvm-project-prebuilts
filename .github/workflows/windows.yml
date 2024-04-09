@@ -65,10 +65,6 @@ jobs:
           update: true
           path-type: strict
 
-      - name: check for nanosleep
-        run: |
-          nm /usr/lib/libpthread.a | grep nanosleep
-
       - name: update packages
         run: |
           pacman -Sy
@@ -120,6 +116,10 @@ jobs:
       - name: install texinfo
         run: |
           pacboy -S --noconfirm --needed texinfo
+
+      - name: check for nanosleep
+        run: |
+          nm /usr/lib/libpthread.a | grep nanosleep
 
       - name: clone libiconv
         run: |
