@@ -2,7 +2,7 @@ unset(CMAKE_FIND_DEBUG_MODE)
 unset(CMAKE_FIND_DEBUG_MODE CACHE)
 set(CMAKE_FIND_DEBUG_MODE FALSE) # TRUE)
 
-find_path(CURSES_INCLUDE_DIRS ncurses/curses.h
+find_path(NCURSES_INCLUDE_DIRS ncurses/ncurses.h
   PATHS ${LLVM_BUILD_ROOT__ROOTFS}/include
   NO_DEFAULT_PATH
   NO_PACKAGE_ROOT_PATH
@@ -143,19 +143,21 @@ if(CURSES_INCLUDE_DIRS AND EXISTS "${CURSES_INCLUDE_DIRS}/ncurses/curses.h")
       endif()
       if (EXISTS "${CYGDIR}/usr/bin/cygpath.exe")
         if (EXISTS "${CYGDIR}/usr/lib/libmsys-2.0.a")
-          CHECK_LIBRARY_EXISTS("${CYGDIR}usr/lib/libpthread.a" nanosleep "" HAVE_NANOSLEEP_FUNC)
+          # clang64 provides nanosleep in /clang64/lib/libpthread.a
+          CHECK_LIBRARY_EXISTS("${CYGDIR}clang64/lib/libpthread.a" nanosleep "" HAVE_NANOSLEEP_FUNC)
           # msys2
-          set(CMAKE_REQUIRED_LIBRARIES "${CYGDIR}usr/lib/libpthread.a")
+          set(CMAKE_REQUIRED_LIBRARIES "${CYGDIR}clang64/lib/libpthread.a")
         else()
+          # cygwin provides nanosleep, we assume it is implicit
+          #CHECK_LIBRARY_EXISTS("${CYGDIR}clang64/lib/libpthread.a" nanosleep "" HAVE_NANOSLEEP_FUNC)
           # cygwin
-          set(CMAKE_REQUIRED_LIBRARIES "${CYGDIR}usr/lib/libpthread.a")
+          #set(CMAKE_REQUIRED_LIBRARIES "${CYGDIR}usr/lib/libpthread.a")
         endif()
       endif()
     else()
     endif()
     CHECK_LIBRARY_EXISTS(${CURSES_LIBRARIES} cbreak "" CURSES_NCURSES_HAS_CBREAK)
     CHECK_LIBRARY_EXISTS(${CURSES_LIBRARIES} nodelay "" CURSES_NCURSES_HAS_NODELAY)
-    CHECK_LIBRARY_EXISTS(${CURSES_LIBRARIES} pecho_wchar "" CURSES_NCURSES_HAS_WIDECHAR)
     cmake_pop_check_state()
   else()
     set(CURSES_INCLUDE_DIRS "")
@@ -190,15 +192,11 @@ message(STATUS "MENU:   lib :           ${MENU_LIBRARIES}")
 message(STATUS "CURSES: version :       ${CURSES_VERSION_STRING}")
 message(STATUS "CURSES: has cbreak :    ${CURSES_NCURSES_HAS_CBREAK}")
 message(STATUS "CURSES: has nodelay :   ${CURSES_NCURSES_HAS_NODELAY}")
-message(STATUS "CURSES: has wide char : ${CURSES_NCURSES_HAS_WIDECHAR}")
 
 if (CURSES_FOUND AND NOT TARGET LLVM_STATIC_CURSES)
   add_library(LLVM_STATIC_CURSES UNKNOWN IMPORTED)
   set_target_properties(LLVM_STATIC_CURSES PROPERTIES IMPORTED_LOCATION ${CURSES_LIBRARIES})
   set_target_properties(LLVM_STATIC_CURSES PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CURSES_INCLUDE_DIRS})
-  if (CURSES_HAS_WIDECHAR)
-    set_target_properties(LLVM_STATIC_CURSES PROPERTIES INTERFACE_COMPILE_DEFINITIONS CURSES_WIDECHAR)
-  endif()
   set(CURSES_TARGET LLVM_STATIC_CURSES)
 endif()
 

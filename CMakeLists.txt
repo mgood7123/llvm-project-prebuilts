@@ -81,12 +81,19 @@ if (WIN32)
             --disable-stripping --with-xterm-kbs=BS --enable-exp-win32 --enable-term-driver --enable-termcap --without-ada --enable-pc-files
         " # extra configure arguments
     )
-else()
-    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncurses
+    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncursesw
         "-lpthread" # extra c flags
         "-lpthread" # extra cxx flags
         "
-            --disable-stripping --with-xterm-kbs=BS --enable-term-driver --enable-termcap --without-ada --enable-pc-files
+            --disable-stripping --with-xterm-kbs=BS --enable-exp-win32 --enable-term-driver --enable-termcap --without-ada --enable-pc-files --enable-widec
+        " # extra configure arguments
+    )
+else()
+    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncursesw
+        "-lpthread" # extra c flags
+        "-lpthread" # extra cxx flags
+        "
+            --disable-stripping --with-xterm-kbs=BS --enable-term-driver --enable-termcap --without-ada --enable-pc-files --enable-widec
         " # extra configure arguments
     )
 endif()
