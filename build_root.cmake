@@ -45,7 +45,7 @@ macro (build_root_exec_working_directory working_directory)
     endif()
 endmacro()
 
-macro (build_root_exec_cmake)
+macro (build_root_exec_cmake new_line_seperated_extra_c_flags new_line_seperated_extra_cxx_flags)
     message(STATUS "build_root_exec_cmake ARGN = \"${ARGN}\"")
     unset(command_list)
     unset(command_list CACHE)
@@ -58,6 +58,8 @@ macro (build_root_exec_cmake)
         endif()
         string(APPEND command_str "${ARG}")
     endforeach()
+    message(STATUS "new_line_seperated_extra_c_flags = ${new_line_seperated_extra_c_flags}")
+    message(STATUS "new_line_seperated_extra_cxx_flags = ${new_line_seperated_extra_cxx_flags}")
     execute_process(
         COMMAND
         ${command_list}
@@ -238,6 +240,8 @@ macro(build_root_init cmake_packages_dir build_root_dir)
   endif()
 
   message("CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
+  message("CMAKE_SYSTEM = ${CMAKE_SYSTEM}")
+  message("CMAKE_HOST_SYSTEM_NAME = ${CMAKE_HOST_SYSTEM_NAME}")
   message("CMAKE_ANDROID_NDK = ${CMAKE_ANDROID_NDK}")
   message("CMAKE_ANDROID_NDK_VERSION = ${CMAKE_ANDROID_NDK_VERSION}")
   message("CMAKE_ANDROID_NDK_TOOLCHAIN_HOST_TAG = ${CMAKE_ANDROID_NDK_TOOLCHAIN_HOST_TAG}")
@@ -324,6 +328,8 @@ macro(build_root_add_cmake_package src relative_path_to_cmake_dir build_dir new_
   
   build_root_message("-------- BUILDING CMAKE PROJECT: '${build_dir}' -- CONFIGURING")
   build_root_exec_cmake(
+    ${new_line_seperated_extra_c_flags}
+    ${new_line_seperated_extra_cxx_flags}
     # configure
     ${CMAKE_COMMAND}
     ${new_line_seperated_extra_cmake_config_list_str}
