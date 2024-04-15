@@ -119,6 +119,11 @@ jobs:
         run: |
           pacboy -S --noconfirm --needed texinfo
 
+      - name: find error.h
+        run: |
+          export MSYS=winsymlinks:native
+          find /usr/include -name error.h
+
       - name: clone libiconv
         run: |
           export MSYS=winsymlinks:native
