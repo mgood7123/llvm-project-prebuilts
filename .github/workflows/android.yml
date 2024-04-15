@@ -16,6 +16,7 @@ defaults:
 
 jobs:
   should_run:
+    if: false
     runs-on: ubuntu-latest
     name: should_i_run
     outputs:
@@ -33,7 +34,6 @@ jobs:
          ./check 1 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] macos [4]
   
   build_deps:
-    if: false
     needs: should_run
     # so we can upload releases
     permissions:
