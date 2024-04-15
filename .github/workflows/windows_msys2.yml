@@ -45,7 +45,7 @@ jobs:
         include:
           - os: windows-latest
             name: windows
-            sys: msys2
+            sys: MSYS2
 
     runs-on: ${{ matrix.os }}
 
@@ -254,7 +254,7 @@ jobs:
         include:
           - os: windows-latest
             name: windows
-            sys: msys2
+            sys: MSYS2
 
     runs-on: ${{ matrix.os }}
 
@@ -381,7 +381,7 @@ jobs:
         include:
           - os: windows-latest
             name: windows
-            sys: msys2
+            sys: MSYS2
 
     runs-on: ${{ matrix.os }}
 
@@ -512,7 +512,7 @@ jobs:
         include:
           - os: windows-latest
             name: windows
-            sys: msys2
+            sys: MSYS2
 
     runs-on: ${{ matrix.os }}
 
