@@ -20,9 +20,6 @@ jobs:
     outputs:
       output1: ${{ steps.check.outputs.target_commit_id }}
     steps:
-     - name: 'libedit not fully ported to win32 yet, lldb will be broken'
-       run: |
-         false
      - name: check
        run: |
          wget https://gist.github.com/mgood7123/47957c59a4b0cbda11875632ee0b8f15/raw/7e876a60f2735cf7e60150a9a29edf6ddaad20a8/check.cpp -O check.cpp
@@ -35,7 +32,8 @@ jobs:
          ./check 2 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] windows [4]
        shell: bash
   
-  build_deps:
+  # 'libedit not fully ported to win32 yet, lldb will be broken'
+  win32_build_deps:
     if: false
     needs: should_run
     # so we can upload releases
@@ -251,8 +249,8 @@ jobs:
 
 
 
-  build_llvm_stage_1:
-    needs: build_deps
+  win32_build_llvm_stage_1:
+    needs: win32_build_deps
     # so we can upload releases
     permissions:
       contents: write
@@ -398,6 +396,59 @@ jobs:
             ./build.split.*
             ./rootfs.split.*
 
+  win32_build_llvm_stage_2:
+    needs: win32_build_llvm_stage_1
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: clang64
+
+    runs-on: ${{ matrix.os }}
+
+    name: llvm stage 2 - ${{ matrix.name }}
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+  win32_build_llvm_stage_3:
+    needs: win32_build_llvm_stage_2
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: clang64
+
+    runs-on: ${{ matrix.os }}
+
+    name: llvm stage 3 - ${{ matrix.name }}
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
 
 
 
