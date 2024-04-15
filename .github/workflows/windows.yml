@@ -51,7 +51,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: deps - ${{ matrix.name }}
+    name: win32 deps - ${{ matrix.name }}
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -266,7 +266,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: llvm stage 1 - ${{ matrix.name }}
+    name: win32 llvm stage 1 - ${{ matrix.name }}
 
     steps:
 
@@ -413,7 +413,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: llvm stage 2 - ${{ matrix.name }}
+    name: win32 llvm stage 2 - ${{ matrix.name }}
 
     steps:
 
@@ -440,7 +440,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: llvm stage 3 - ${{ matrix.name }}
+    name: win32 llvm stage 3 - ${{ matrix.name }}
 
     steps:
 
@@ -563,7 +563,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: deps - ${{ matrix.name }}
+    name: msys2 deps - ${{ matrix.name }}
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -772,7 +772,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: llvm stage 1 - ${{ matrix.name }}
+    name: msys2 llvm stage 1 - ${{ matrix.name }}
 
     steps:
 
@@ -899,7 +899,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: llvm stage 2 - ${{ matrix.name }}
+    name: msys2 llvm stage 2 - ${{ matrix.name }}
 
     steps:
 
@@ -1030,7 +1030,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: llvm stage 3 - ${{ matrix.name }}
+    name: msys2 llvm stage 3 - ${{ matrix.name }}
 
     steps:
 
