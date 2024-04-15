@@ -627,14 +627,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed texinfo
 
-      - name: find error.h
-        run: |
-          export MSYS=winsymlinks:native
-          find /usr/include -name error.h
-
       - name: clone libiconv
         run: |
           export MSYS=winsymlinks:native
+          find /usr/include -name error.h
           cd deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1
 
       - name: libiconv autopull.sh
