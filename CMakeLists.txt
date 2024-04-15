@@ -18,7 +18,7 @@ include(./build_root.cmake)
 
 build_root_init(${CMAKE_CURRENT_SOURCE_DIR}/cmake/packages ${CMAKE_CURRENT_BINARY_DIR}/BUILD_ROOT)
 
-if (ANDROID)
+if (BUILD_ROOT_OS__ANDROID)
     # android does not have glob/globfree, build it early
     #
     # glob does not depend on any libs
@@ -59,7 +59,18 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib . zlib
     "
 )
 
-if (WIN32)
+if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
+    # win/msys
+    #
+    build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/wcwidth . wcwidth
+        "" # no extra c flags
+        "" # no extra cxx flags
+        "" # no extra configure arguments
+    )
+endif()
+if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
+    # win/msys
+    #
     find_program(CYGPATH_EXE NAMES cygpath.exe)
     if (CYGPATH_EXE)
       execute_process(COMMAND "${CYGPATH_EXE}" "-u" "${LLVM_BUILD_ROOT__ROOTFS}/lib" OUTPUT_VARIABLE CYG_LLVM_BUILD_ROOT__ROOTFS_LIB)
@@ -81,6 +92,8 @@ if (WIN32)
         " # extra configure arguments
     )
 else()
+    # unix/cygwin
+    #
     build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncurses
         "" # no extra c flags
         "" # no extra cxx flags
@@ -97,15 +110,21 @@ else()
     )
 endif()
 
-if (WIN32)
-    build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/wineditline . LibEdit
-        "" # no extra c flags
-        "" # no extra cxx flags
+if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
+    # win/msys
+    #
+    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/../deps/libedit-20230828-3.1 . LibEdit
+        # wchar_t must store ISO 10646 characters
+        "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
+        "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
         "
-          -D BUILD_SHARED_LIBS=OFF
-        "
+            --enable-static=yes
+            --enable-shared=no
+        " # extra configure arguments
     )
 else()
+    # unix/cygwin
+    #
     build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libedit-20230828-3.1 . LibEdit
         # wchar_t must store ISO 10646 characters
         "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
@@ -236,6 +255,12 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libarchive . archi
     "
 )
 
+if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
+    # win/msys
+    #
+    find_package(wcwidth REQUIRED)
+endif()
+find_package(Curses REQUIRED)
 find_package(LibEdit REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(LZ4 REQUIRED)
@@ -251,6 +276,15 @@ find_package(EXPAT REQUIRED)
 find_package(LZO2 REQUIRED)
 find_package(Archive REQUIRED)
 
+if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
+    # win/msys
+    #
+    message("WCWIDTH LIBS: ${WCWIDTH_LIBRARIES}")
+endif()
+message("CURSES LIBS: ${CURSES_LIBRARIES}")
+message("CURSES PANEL LIBS: ${PANEL_LIBRARIES}")
+message("CURSES FORM LIBS: ${FORM_LIBRARIES}")
+message("CURSES MENU LIBS: ${MENU_LIBRARIES}")
 message("LIBEDIT LIBS: ${LibEdit_LIBRARIES}")
 message("ZLIB LIBS: ${ZLIB_LIBRARIES}")
 message("LZ4 LIBS: ${LZ4_LIBRARIES}")
@@ -266,6 +300,16 @@ message("OpenSSL Crypto LIBS: ${OPENSSL_CRYPTO_LIBRARIES}")
 message("Expat LIBS: ${EXPAT_LIBRARIES}")
 message("Lzo2 LIBS: ${LZO2_LIBRARIES}")
 message("Archive LIBS: ${ARCHIVE_LIBRARIES}")
+
+if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
+    # win/msys
+    #
+    message("WCWIDTH INCLUDE_DIRECTORIES: ${WCWIDTH_INCLUDE_DIRECTORIES}")
+endif()
+message("CURSES INCLUDE_DIRECTORIES: ${CURSES_INCLUDE_DIRECTORIES}")
+message("CURSES PANEL INCLUDE_DIRECTORIES: ${PANEL_INCLUDE_DIRECTORIES}")
+message("CURSES FORM INCLUDE_DIRECTORIES: ${FORM_INCLUDE_DIRECTORIES}")
+message("CURSES MENU INCLUDE_DIRECTORIES: ${MENU_INCLUDE_DIRECTORIES}")
 message("LIBEDIT INCLUDE_DIRECTORIES: ${LibEdit_INCLUDE_DIRS}")
 message("ZLIB INCLUDE_DIRECTORIES: ${ZLIB_INCLUDE_DIRS}")
 message("LZ4 INCLUDE_DIRECTORIES: ${LZ4_INCLUDE_DIRS}")
@@ -279,6 +323,16 @@ message("OpenSSL INCLUDE_DIRECTORIES: ${OPENSSL_INCLUDE_DIRS}")
 message("Expat INCLUDE_DIRECTORIES: ${EXPAT_INCLUDE_DIRS}")
 message("Lzo2 INCLUDE_DIRECTORIES: ${LZO2_INCLUDE_DIRS}")
 message("Archive INCLUDE_DIRECTORIES: ${ARCHIVE_INCLUDE_DIRS}")
+
+if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
+    # win/msys
+    #
+    message("WCWIDTH TARGET: ${WCWIDTH_TARGET}")
+endif()
+message("CURSES TARGET: ${CURSES_TARGET}")
+message("CURSES PANEL TARGET: ${PANEL_TARGET}")
+message("CURSES FORM TARGET: ${FORM_TARGET}")
+message("CURSES MENU TARGET: ${MENU_TARGET}")
 message("ZLIB_TARGET = ${ZLIB_TARGET}")
 message("LZ4_TARGET = ${LZ4_TARGET}")
 message("LIBLZMA_TARGET = ${LIBLZMA_TARGET}")

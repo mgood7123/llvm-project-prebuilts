@@ -20,6 +20,9 @@ jobs:
     outputs:
       output1: ${{ steps.check.outputs.target_commit_id }}
     steps:
+     - name: 'libedit not fully ported to win32 yet, lldb will be broken'
+       run: |
+         false
      - name: check
        run: |
          wget https://gist.github.com/mgood7123/47957c59a4b0cbda11875632ee0b8f15/raw/7e876a60f2735cf7e60150a9a29edf6ddaad20a8/check.cpp -O check.cpp
