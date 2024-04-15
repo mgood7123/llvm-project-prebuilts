@@ -36,7 +36,7 @@ jobs:
        shell: bash
   
   build_deps:
-    if: never()
+    if: false
     needs: should_run
     # so we can upload releases
     permissions:
