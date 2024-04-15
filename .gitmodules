@@ -7,3 +7,9 @@
 [submodule "split"]
 	path = split
 	url = https://github.com/mgood7123/split.git
+[submodule "deps/wcwidth"]
+	path = deps/wcwidth
+	url = https://github.com/mgood7123/wcwidth
+[submodule "deps/libedit-20230828-3.1"]
+	path = deps/libedit-20230828-3.1
+	url = https://github.com/mgood7123/libedit-unix-win

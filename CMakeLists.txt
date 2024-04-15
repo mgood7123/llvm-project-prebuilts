@@ -14,32 +14,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POLICY_DEFAULT_CMP0074 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0075 NEW)
 
-if (APPLE)
-  message("PLATFORM APPLE")
-elseif (UNIX AND NOT ANDROID)
-  message("PLATFORM LINUX")
-elseif (UNIX AND ANDROID)
-  message("PLATFORM LINUX ANDROID")
-elseif (WIN32)
-  find_program(CYGPATH_EXE NAMES cygpath.exe)
-
-  if (CYGPATH_EXE)
-    execute_process(COMMAND "${CYGPATH_EXE}" "-w" "/" OUTPUT_VARIABLE CYGDIR)
-    string(STRIP ${CYGDIR} CYGDIR)
-  endif()
-  if (EXISTS "${CYGDIR}/usr/bin/cygpath.exe")
-    if (EXISTS "${CYGDIR}/usr/lib/libmsys-2.0.a")
-      message("PLATFORM WINDOWS MSYS")
-    else()
-      message("PLATFORM WINDOWS CYGWIN")
-    endif()
-  else()
-    message("PLATFORM WINDOWS")
-  endif()
-else()
-  message(FATAL_ERROR "UNKNOWN PLATFORM")
-endif()
-
 include(./build_root.cmake)
 
 build_root_init(${CMAKE_CURRENT_SOURCE_DIR}/cmake/packages ${CMAKE_CURRENT_BINARY_DIR}/BUILD_ROOT)
@@ -86,11 +60,16 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib . zlib
 )
 
 if (WIN32)
+    find_program(CYGPATH_EXE NAMES cygpath.exe)
+    if (CYGPATH_EXE)
+      execute_process(COMMAND "${CYGPATH_EXE}" "-u" "${LLVM_BUILD_ROOT__ROOTFS}/lib" OUTPUT_VARIABLE CYG_LLVM_BUILD_ROOT__ROOTFS_LIB)
+      string(STRIP ${CYG_LLVM_BUILD_ROOT__ROOTFS_LIB} CYG_LLVM_BUILD_ROOT__ROOTFS_LIB)
+    endif()
     build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncurses
         "-lpthread" # extra c flags
         "-lpthread" # extra cxx flags
         "
-            --disable-stripping --with-xterm-kbs=BS --enable-exp-win32 --enable-term-driver --enable-termcap --without-ada --enable-pc-files --disable-echo
+            --disable-stripping --with-xterm-kbs=BS --enable-exp-win32 --enable-term-driver --enable-termcap --without-ada --enable-pc-files --disable-echo --with-pkg-config-libdir=\"${CYG_LLVM_BUILD_ROOT__ROOTFS_LIB}\"
         " # extra configure arguments
     )
     #  --with-form-libname=formw --with-panel-libname=panelw --with-menu-libname=menuw
@@ -98,7 +77,7 @@ if (WIN32)
         "-lpthread" # extra c flags
         "-lpthread" # extra cxx flags
         "
-            --disable-stripping --with-xterm-kbs=BS --enable-exp-win32 --enable-term-driver --enable-termcap --without-ada --enable-pc-files --disable-echo --enable-widec
+            --disable-stripping --with-xterm-kbs=BS --enable-exp-win32 --enable-term-driver --enable-termcap --without-ada --enable-pc-files --disable-echo --with-pkg-config-libdir=\"${CYG_LLVM_BUILD_ROOT__ROOTFS_LIB}\" --enable-widec
         " # extra configure arguments
     )
 else()
@@ -106,14 +85,14 @@ else()
         "" # no extra c flags
         "" # no extra cxx flags
         "
-            --disable-stripping --with-xterm-kbs=BS --enable-term-driver --enable-termcap --without-ada --enable-pc-files --disable-echo
+            --disable-stripping --with-xterm-kbs=BS --enable-term-driver --enable-termcap --without-ada --enable-pc-files --disable-echo --with-pkg-config-libdir=\"${LLVM_BUILD_ROOT__ROOTFS}/lib\"
         " # extra configure arguments
     )
     build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/ncurses . ncursesw
         "" # no extra c flags
         "" # no extra cxx flags
         "
-            --disable-stripping --with-xterm-kbs=BS --enable-term-driver --enable-termcap --without-ada --enable-pc-files --disable-echo --enable-widec
+            --disable-stripping --with-xterm-kbs=BS --enable-term-driver --enable-termcap --without-ada --enable-pc-files --disable-echo --with-pkg-config-libdir=\"${LLVM_BUILD_ROOT__ROOTFS}/lib\" --enable-widec
         " # extra configure arguments
     )
 endif()

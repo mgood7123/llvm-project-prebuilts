@@ -91,5 +91,39 @@ if (LibEdit_FOUND AND NOT TARGET LLVM_STATIC_LibEdit::LibEdit)
   set_target_properties(LLVM_STATIC_LibEdit::LibEdit PROPERTIES
                         IMPORTED_LOCATION ${LibEdit_LIBRARIES}
                         INTERFACE_INCLUDE_DIRECTORIES ${LibEdit_INCLUDE_DIRS})
+  find_package(Curses REQUIRED)
+  if (WIN32)
+    find_program(CYGPATH_EXE NAMES cygpath.exe)
+    if (CYGPATH_EXE)
+        execute_process(COMMAND "${CYGPATH_EXE}" "-m" "/" OUTPUT_VARIABLE CYGDIR)
+        string(STRIP ${CYGDIR} CYGDIR)
+    endif()
+    if (EXISTS "${CYGDIR}usr/bin/cygpath.exe")
+      if (EXISTS "${CYGDIR}usr/lib/libmsys-2.0.a")
+        find_package(wcwidth REQUIRED)
+        if (NOT EXISTS "${CYGDIR}clang64/lib/libregex.a")
+          message(FATAL_ERROR "${CYGDIR}clang64/lib/libregex.a not found")
+        endif()
+        if (NOT EXISTS "${CYGDIR}clang64/lib/libtre.a")
+          message(FATAL_ERROR "${CYGDIR}clang64/lib/libtre.a not found")
+        endif()
+        add_library(LLVM_STATIC_Regex UNKNOWN IMPORTED)
+        set_target_properties(LLVM_STATIC_Regex PROPERTIES IMPORTED_LOCATION "${CYGDIR}clang64/lib/libregex.a")
+        add_library(LLVM_STATIC_Tre UNKNOWN IMPORTED)
+        set_target_properties(LLVM_STATIC_Tre PROPERTIES IMPORTED_LOCATION "${CYGDIR}clang64/lib/libtre.a")
+        target_link_libraries(Edit PUBLIC "${WCWIDTH_TARGET};${CURSES_TARGET};userenv.lib;LLVM_STATIC_Regex;LLVM_STATIC_Tre")
+      else()
+        # cygwin provides wcwidth, we assume it is implicit
+        # cygwin provides regex, we assume it is implicit
+        # cygwin provides systre, we assume it is implicit
+        set_target_properties(LLVM_STATIC_LibEdit::LibEdit PROPERTIES INTERFACE_LINK_LIBRARIES "${CURSES_TARGET};userenv.lib")
+      endif()
+    endif()
+  else()
+    # linux provides wcwidth, we assume it is implicit
+    # linux provides regex, we assume it is implicit
+    # linux provides systre, we assume it is implicit
+    set_target_properties(LLVM_STATIC_LibEdit::LibEdit PROPERTIES INTERFACE_LINK_LIBRARIES ${CURSES_TARGET})
+  endif()
   set(LibEdit_TARGET LLVM_STATIC_LibEdit::LibEdit)
 endif()
