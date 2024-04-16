@@ -110,30 +110,32 @@ else()
     )
 endif()
 
-if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
-    # win/msys
-    #
-    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/../deps/libedit-20230828-3.1 . LibEdit
-        # wchar_t must store ISO 10646 characters
-        "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
-        "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
-        "
-            --enable-static=yes
-            --enable-shared=no
-        " # extra configure arguments
-    )
-else()
-    # unix/cygwin
-    #
-    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libedit-20230828-3.1 . LibEdit
-        # wchar_t must store ISO 10646 characters
-        "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
-        "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
-        "
-            --enable-static=yes
-            --enable-shared=no
-        " # extra configure arguments
-    )
+if (CMAKE_BUILD_LIBEDIT)
+    if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
+        # win/msys
+        #
+        build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/../deps/libedit-20230828-3.1 . LibEdit
+            # wchar_t must store ISO 10646 characters
+            "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
+            "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
+            "
+                --enable-static=yes
+                --enable-shared=no
+            " # extra configure arguments
+        )
+    else()
+        # unix/cygwin
+        #
+        build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libedit-20230828-3.1 . LibEdit
+            # wchar_t must store ISO 10646 characters
+            "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
+            "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
+            "
+                --enable-static=yes
+                --enable-shared=no
+            " # extra configure arguments
+        )
+    endif()
 endif()
 
 # lz4 does not depend on any libs
