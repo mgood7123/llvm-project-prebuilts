@@ -680,6 +680,7 @@ jobs:
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS/tmp
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS/var
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS/var/lib
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS/var/lib/pacman
