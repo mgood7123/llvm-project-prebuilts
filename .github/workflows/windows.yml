@@ -107,6 +107,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed cmake
 
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
+
       - name: install autotools
         run: |
           pacman -S --noconfirm --needed autotools
@@ -245,6 +249,10 @@ jobs:
       - name: install cmake
         run: |
           pacboy -S --noconfirm --needed make:p cmake:p
+
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja:p
 
       - name: install autotools
         run: |
@@ -395,6 +403,10 @@ jobs:
       - name: install cmake
         run: |
           pacboy -S --noconfirm --needed make:p cmake:p
+
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja:p
 
       - name: install git
         run: |
@@ -773,6 +785,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed cmake
 
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
+
       - name: install git
         run: |
           pacman -S --noconfirm --needed git
@@ -900,6 +916,10 @@ jobs:
       - name: install cmake
         run: |
           pacman -S --noconfirm --needed cmake
+
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
 
       - name: install git
         run: |
@@ -1029,6 +1049,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed cmake
 
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
+
       - name: install git
         run: |
           pacman -S --noconfirm --needed git
@@ -1157,6 +1181,10 @@ jobs:
       - name: install cmake
         run: |
           pacman -S --noconfirm --needed cmake
+
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
 
       - name: install autotools
         run: |
@@ -1307,6 +1335,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed cmake
 
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
+
       - name: install git
         run: |
           pacman -S --noconfirm --needed git
@@ -1440,6 +1472,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed cmake
 
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
+
       - name: install git
         run: |
           pacman -S --noconfirm --needed git
@@ -1567,6 +1603,10 @@ jobs:
       - name: install cmake
         run: |
           pacman -S --noconfirm --needed cmake
+
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
 
       - name: install git
         run: |
