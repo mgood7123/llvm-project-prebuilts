@@ -305,6 +305,7 @@ jobs:
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S . -B BUILD_RELEASE
 
       - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -317,6 +318,7 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE --name build --size 750000000
 
       - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
@@ -452,6 +454,7 @@ jobs:
           cmake --install BUILD_RELEASE
 
       - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -464,6 +467,7 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE --name build --size 750000000
 
       - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
@@ -746,6 +750,7 @@ jobs:
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_BUILD_LIBEDIT=FALSE -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S . -B BUILD_RELEASE_no_libedit
 
       - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -758,6 +763,7 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit --name build --size 750000000
 
       - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
@@ -866,11 +872,13 @@ jobs:
           cmake --build BUILD_RELEASE_no_libedit
 
       - name: cmake LLVM STAGE 1 - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install BUILD_RELEASE_no_libedit
 
       - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -883,6 +891,7 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit --name build --size 750000000
 
       - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
@@ -991,11 +1000,13 @@ jobs:
           cmake --build BUILD_RELEASE_no_libedit
 
       - name: cmake LLVM STAGE 2 - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install BUILD_RELEASE_no_libedit
 
       - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1008,6 +1019,7 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit --name build --size 750000000
 
       - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
@@ -1116,11 +1128,13 @@ jobs:
           cmake --build BUILD_RELEASE_no_libedit
 
       - name: cmake LLVM STAGE 3 - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install BUILD_RELEASE_no_libedit
 
       - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1133,6 +1147,7 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit --name build --size 750000000
 
       - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
@@ -1269,6 +1284,7 @@ jobs:
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_BUILD_LIBEDIT=TRUE -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S . -B BUILD_RELEASE_CLANG
 
       - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1281,6 +1297,7 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
 
       - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
@@ -1394,11 +1411,13 @@ jobs:
           cmake --build BUILD_RELEASE_CLANG
 
       - name: cmake LLVM STAGE 1 - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install BUILD_RELEASE_CLANG
 
       - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1411,6 +1430,7 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
 
       - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
@@ -1519,11 +1539,13 @@ jobs:
           cmake --build BUILD_RELEASE_CLANG
 
       - name: cmake LLVM STAGE 2 - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install BUILD_RELEASE_CLANG
 
       - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1536,6 +1558,7 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
 
       - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
@@ -1644,11 +1667,13 @@ jobs:
           cmake --build BUILD_RELEASE_CLANG
 
       - name: cmake LLVM STAGE 3 - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install BUILD_RELEASE_CLANG
 
       - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1661,6 +1686,7 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
 
       - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
