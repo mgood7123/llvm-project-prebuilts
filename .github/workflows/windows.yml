@@ -729,7 +729,7 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS/usr --name rootfs --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
