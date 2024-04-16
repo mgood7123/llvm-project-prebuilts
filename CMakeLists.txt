@@ -112,7 +112,6 @@ else()
     )
 endif()
 
-if (CMAKE_BUILD_LIBEDIT)
 if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
     # win/msys
     #
