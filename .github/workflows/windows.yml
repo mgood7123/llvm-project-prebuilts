@@ -636,9 +636,9 @@ jobs:
 
 
 
-# clang 11 is too old to build libedit, build without libedit then rebuild via clang
+# clang 11 is too old to build iconv, build without iconv then rebuild via clang
 
-  no_libedit_msys2_build_deps:
+  no_iconv_msys2_build_deps:
     needs: msys2_build_split
     # so we can upload releases
     permissions:
@@ -655,7 +655,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 deps (no_libedit) - ${{ matrix.name }}
+    name: msys2 deps (no_iconv) - ${{ matrix.name }}
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -715,20 +715,6 @@ jobs:
         run: |
           pacman -S --noconfirm --needed texinfo
 
-      - name: clone libiconv
-        run: |
-          export MSYS=winsymlinks:native
-          find /usr/include -name error.h
-          cd deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1
-
-      - name: libiconv autopull.sh
-        run: |
-          export MSYS=winsymlinks:native
-          cd deps ; cd libiconv ; ./autopull.sh --one-time
-
-#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/ROOTFS/lib/pkgconfig:$(pwd)/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; sh ./configure   --prefix=$(pwd)/ROOTFS --enable-static=yes --enable-shared=no'
-#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/ROOTFS/lib/pkgconfig:$(pwd)/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; make --trace'
-
       - name: check if split program is cached
         run: |
           export MSYS=winsymlinks:native
@@ -739,15 +725,15 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-no_libedit--release/build.split.map
-          ./split_exe/split.exe --join -r $URL --out BUILD_RELEASE_no_libedit || true
+          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-no_iconv--release/build.split.map
+          ./split_exe/split.exe --join -r $URL --out BUILD_RELEASE_no_iconv || true
 
       - name: cmake build deps - Release
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
-          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_BUILD_LIBEDIT=FALSE -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S . -B BUILD_RELEASE_no_libedit
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_BUILD_ICONV=FALSE -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S . -B BUILD_RELEASE_no_iconv
 
       - name: archive build directory
         if: success() # if we cancel during the upload, wait for it to complete
@@ -756,11 +742,11 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_no_iconv --name build --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -771,8 +757,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm deps - windows msys2 no_libedit - RELEASE"
-          tag: "storage--deps--windows-msys2-no_libedit--release"
+          name: "llvm deps - windows msys2 no_iconv - RELEASE"
+          tag: "storage--deps--windows-msys2-no_iconv--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -783,8 +769,8 @@ jobs:
             ./build.split.*
             ./rootfs.split.*
 
-  no_libedit_msys2_build_llvm_stage_1:
-    needs: no_libedit_msys2_build_deps
+  no_iconv_msys2_build_llvm_stage_1:
+    needs: no_iconv_msys2_build_deps
     # so we can upload releases
     permissions:
       contents: write
@@ -800,7 +786,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 llvm stage 1 (no_libedit) - ${{ matrix.name }}
+    name: msys2 llvm stage 1 (no_iconv) - ${{ matrix.name }}
 
     steps:
 
@@ -847,14 +833,14 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-no_libedit--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-no_libedit--release/rootfs.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-no_iconv--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-no_iconv--release/rootfs.split.map
 
           # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_no_libedit || true
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_no_iconv || true
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_no_libedit/BUILD_ROOT
-          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS
+          mkdir BUILD_RELEASE_no_iconv/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
@@ -864,18 +850,18 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;" -DLLVM_ENABLE_RUNTIMES="" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE_no_libedit
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;" -DLLVM_ENABLE_RUNTIMES="" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE_no_iconv
 
       - name: cmake LLVM STAGE 1 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_no_libedit
+          cmake --build BUILD_RELEASE_no_iconv
 
       - name: cmake LLVM STAGE 1 - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE_no_libedit
+          cmake --install BUILD_RELEASE_no_iconv
 
       - name: archive build directory
         if: success() # if we cancel during the upload, wait for it to complete
@@ -884,11 +870,11 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_no_iconv --name build --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -899,8 +885,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage 1 - windows msys2 no_libedit - RELEASE"
-          tag: "storage--llvm-stage-1--windows-msys2-no_libedit--release"
+          name: "llvm stage 1 - windows msys2 no_iconv - RELEASE"
+          tag: "storage--llvm-stage-1--windows-msys2-no_iconv--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -911,8 +897,8 @@ jobs:
             ./build.split.*
             ./rootfs.split.*
 
-  no_libedit_msys2_build_llvm_stage_2:
-    needs: no_libedit_msys2_build_llvm_stage_1
+  no_iconv_msys2_build_llvm_stage_2:
+    needs: no_iconv_msys2_build_llvm_stage_1
     # so we can upload releases
     permissions:
       contents: write
@@ -928,7 +914,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 llvm stage 2 (no_libedit) - ${{ matrix.name }}
+    name: msys2 llvm stage 2 (no_iconv) - ${{ matrix.name }}
 
     steps:
 
@@ -975,14 +961,14 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2-no_libedit--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-no_libedit--release/rootfs.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2-no_iconv--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-no_iconv--release/rootfs.split.map
 
           # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_no_libedit || true
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_no_iconv || true
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_no_libedit/BUILD_ROOT
-          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS
+          mkdir BUILD_RELEASE_no_iconv/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
@@ -992,18 +978,18 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang" -DLLVM_ENABLE_RUNTIMES="" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE_no_libedit
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang" -DLLVM_ENABLE_RUNTIMES="" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE_no_iconv
 
       - name: cmake LLVM STAGE 2 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_no_libedit
+          cmake --build BUILD_RELEASE_no_iconv
 
       - name: cmake LLVM STAGE 2 - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE_no_libedit
+          cmake --install BUILD_RELEASE_no_iconv
 
       - name: archive build directory
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1012,11 +998,11 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_no_iconv --name build --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1027,8 +1013,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage 2 - windows msys2 no_libedit - RELEASE"
-          tag: "storage--llvm-stage-2--windows-msys2-no_libedit--release"
+          name: "llvm stage 2 - windows msys2 no_iconv - RELEASE"
+          tag: "storage--llvm-stage-2--windows-msys2-no_iconv--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -1039,8 +1025,8 @@ jobs:
             ./build.split.*
             ./rootfs.split.*
 
-  no_libedit_msys2_build_llvm_stage_3:
-    needs: no_libedit_msys2_build_llvm_stage_2
+  no_iconv_msys2_build_llvm_stage_3:
+    needs: no_iconv_msys2_build_llvm_stage_2
     # so we can upload releases
     permissions:
       contents: write
@@ -1056,7 +1042,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 llvm stage 3 (no_libedit) - ${{ matrix.name }}
+    name: msys2 llvm stage 3 (no_iconv) - ${{ matrix.name }}
 
     steps:
 
@@ -1103,14 +1089,14 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-no_libedit--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2-no_libedit--release/rootfs.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-no_iconv--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2-no_iconv--release/rootfs.split.map
 
           # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_no_libedit || true
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_no_iconv || true
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_no_libedit/BUILD_ROOT
-          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS
+          mkdir BUILD_RELEASE_no_iconv/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
@@ -1120,18 +1106,18 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_no_libedit3/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE_no_libedit
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_no_iconv3/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE_no_iconv
 
       - name: cmake LLVM STAGE 3 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_no_libedit
+          cmake --build BUILD_RELEASE_no_iconv
 
       - name: cmake LLVM STAGE 3 - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE_no_libedit
+          cmake --install BUILD_RELEASE_no_iconv
 
       - name: archive build directory
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1140,11 +1126,11 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_no_libedit --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_no_iconv --name build --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1155,8 +1141,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage 3 - windows msys2 no_libedit - RELEASE"
-          tag: "storage--llvm-stage-3--windows-msys2-no_libedit--release"
+          name: "llvm stage 3 - windows msys2 no_iconv - RELEASE"
+          tag: "storage--llvm-stage-3--windows-msys2-no_iconv--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -1167,10 +1153,10 @@ jobs:
             ./build.split.*
             ./rootfs.split.*
 
-# clang 11 is too old, build via no_libedit (above) then rebuild with libedit via our build clang
+# clang 11 is too old, build via no_iconv (above) then rebuild with iconv via our build clang
 
   clang_msys2_build_deps:
-    needs: no_libedit_msys2_build_llvm_stage_3
+    needs: no_iconv_msys2_build_llvm_stage_3
     # so we can upload releases
     permissions:
       contents: write
@@ -1267,21 +1253,21 @@ jobs:
           export MSYS=winsymlinks:native
 
           URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-clang--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-no_libedit--release/rootfs.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-no_iconv--release/rootfs.split.map
 
           # download the build dir if it exists
           ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_no_libedit
-          mkdir BUILD_RELEASE_no_libedit/BUILD_ROOT
-          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS
+          mkdir BUILD_RELEASE_no_iconv
+          mkdir BUILD_RELEASE_no_iconv/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS
 
       - name: cmake build deps - Release
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
-          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_BUILD_LIBEDIT=TRUE -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S . -B BUILD_RELEASE_CLANG
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_BUILD_ICONV=TRUE -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S . -B BUILD_RELEASE_CLANG
 
       - name: archive build directory
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1383,7 +1369,7 @@ jobs:
 
           URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-clang--release/build.split.map
           URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-clang--release/rootfs.split.map
-          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-no_libedit--release/rootfs.split.map
+          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-no_iconv--release/rootfs.split.map
 
           # download the build dir if it exists
           ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
@@ -1391,9 +1377,9 @@ jobs:
           mkdir BUILD_RELEASE_CLANG/BUILD_ROOT
           ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_no_libedit
-          mkdir BUILD_RELEASE_no_libedit/BUILD_ROOT
-          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS
+          mkdir BUILD_RELEASE_no_iconv
+          mkdir BUILD_RELEASE_no_iconv/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
@@ -1403,7 +1389,7 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;" -DLLVM_ENABLE_RUNTIMES="" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_no_libedit/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE_CLANG
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;" -DLLVM_ENABLE_RUNTIMES="" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_no_iconv/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE_CLANG
 
       - name: cmake LLVM STAGE 1 - Release - Build
         run: |

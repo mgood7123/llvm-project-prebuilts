@@ -40,15 +40,17 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/lzma2301 . 7z
     "
 )
 
-# iconv does not depend on any libs
-build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv . iconv
-    "" # no extra c flags
-    "" # no extra cxx flags
-    "
-        --enable-static=yes
-        --enable-shared=no
-    " # extra configure arguments
-)
+if (CMAKE_BUILD_ICONV)
+    # iconv does not depend on any libs
+    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv . iconv
+        "" # no extra c flags
+        "" # no extra cxx flags
+        "
+            --enable-static=yes
+            --enable-shared=no
+        " # extra configure arguments
+    )
+endif()
 
 # zlib does not depend on any libs
 build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib . zlib
@@ -111,31 +113,30 @@ else()
 endif()
 
 if (CMAKE_BUILD_LIBEDIT)
-    if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
-        # win/msys
-        #
-        build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/../deps/libedit-20230828-3.1 . LibEdit
-            # wchar_t must store ISO 10646 characters
-            "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
-            "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
-            "
-                --enable-static=yes
-                --enable-shared=no
-            " # extra configure arguments
-        )
-    else()
-        # unix/cygwin
-        #
-        build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libedit-20230828-3.1 . LibEdit
-            # wchar_t must store ISO 10646 characters
-            "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
-            "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
-            "
-                --enable-static=yes
-                --enable-shared=no
-            " # extra configure arguments
-        )
-    endif()
+if (BUILD_ROOT_OS__WIN32 OR BUILD_ROOT_OS__MSYS)
+    # win/msys
+    #
+    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/../deps/libedit-20230828-3.1 . LibEdit
+        # wchar_t must store ISO 10646 characters
+        "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
+        "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
+        "
+            --enable-static=yes
+            --enable-shared=no
+        " # extra configure arguments
+    )
+else()
+    # unix/cygwin
+    #
+    build_root_add_makefile_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libedit-20230828-3.1 . LibEdit
+        # wchar_t must store ISO 10646 characters
+        "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra c flags
+        "-I${LLVM_BUILD_ROOT__ROOTFS}/include/ncurses -D__STDC_ISO_10646__ -DNBBY=${BUILD_ROOT_____________NBBY}" # extra cxx flags
+        "
+            --enable-static=yes
+            --enable-shared=no
+        " # extra configure arguments
+    )
 endif()
 
 # lz4 does not depend on any libs
@@ -210,15 +211,28 @@ build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/bzip2 . bzip2
     "
 )
 
-# libxml2 depends on xz (lzma) and zlib and iconv (and glob (android only))
-build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libxml2 . xml2
-    "" # no extra c flags
-    "" # no extra cxx flags
-    "
-      -D BUILD_SHARED_LIBS=OFF
-      -D LIBXML2_WITH_PYTHON=OFF
-    "
-)
+if(LIBXML2_WITH_ICONV)
+    # libxml2 depends on xz (lzma) and zlib and iconv (and glob (android only))
+    build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libxml2 . xml2
+        "" # no extra c flags
+        "" # no extra cxx flags
+        "
+          -D BUILD_SHARED_LIBS=OFF
+          -D LIBXML2_WITH_PYTHON=OFF
+        "
+    )
+else()
+    # libxml2 depends on xz (lzma) and zlib and iconv (and glob (android only))
+    build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/libxml2 . xml2
+        "" # no extra c flags
+        "" # no extra cxx flags
+        "
+          -D BUILD_SHARED_LIBS=OFF
+          -D LIBXML2_WITH_PYTHON=OFF
+          -D LIBXML2_WITH_ICONV=OFF
+        "
+    )
+endif()
 
 # openssl does not depend on any libs
 build_root_add_cmake_package(${CMAKE_CURRENT_SOURCE_DIR}/deps/openssl-cmake . openssl
@@ -271,7 +285,9 @@ find_package(7z REQUIRED)
 find_package(zstd REQUIRED)
 find_package(xxHash REQUIRED)
 find_package(BZIP2 REQUIRED)
-find_package(ICONV REQUIRED)
+if (CMAKE_BUILD_ICONV)
+    find_package(ICONV REQUIRED)
+endif()
 find_package(LibXml2 REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(EXPAT REQUIRED)
@@ -295,7 +311,9 @@ message("7Z LIBS: ${7Z_LIBRARIES}")
 message("ZSTD LIB: ${zstd_LIBRARY}")
 message("XXHASH LIBS: ${xxHash_LIBRARIES}")
 message("BZip2 LIBS: ${BZIP2_LIBRARIES}")
+if(CMAKE_BUILD_ICONV)
 message("ICONV LIBS: ${ICONV_LIBRARIES}")
+endif()
 message("Xml2 LIBS: ${LIBXML2_LIBRARIES}")
 message("OpenSSL LIBS: ${OPENSSL_LIBRARIES}")
 message("OpenSSL Crypto LIBS: ${OPENSSL_CRYPTO_LIBRARIES}")
@@ -319,7 +337,9 @@ message("LIBLZMA INCLUDE_DIRECTORIES: ${LIBLZMA_INCLUDE_DIRS}")
 message("7Z INCLUDE_DIRECTORIES: ${7Z_INCLUDE_DIRS}")
 message("ZSTD INCLUDE_DIRECTORIES: ${zstd_INCLUDE_DIRS}")
 message("XXHASH INCLUDE_DIRECTORIES: ${xxHash_INCLUDE_DIRS}")
+if(CMAKE_BUILD_ICONV)
 message("ICONV INCLUDE_DIRECTORIES: ${ICONV_INCLUDE_DIRS}")
+endif()
 message("Xml2 INCLUDE_DIRECTORIES: ${LIBXML2_INCLUDE_DIRS}")
 message("OpenSSL INCLUDE_DIRECTORIES: ${OPENSSL_INCLUDE_DIRS}")
 message("Expat INCLUDE_DIRECTORIES: ${EXPAT_INCLUDE_DIRS}")
@@ -342,7 +362,9 @@ message("7Z_TARGET = ${7Z_TARGET}")
 message("zstd_TARGET = ${zstd_TARGET}")
 message("xxHash_TARGET = ${xxHash_TARGET}")
 message("BZIP2_TARGET = ${BZIP2_TARGET}")
+if(CMAKE_BUILD_ICONV)
 message("ICONV_TARGET = ${ICONV_TARGET}")
+endif()
 message("LIBXML2_TARGET = ${LIBXML2_TARGET}")
 message("OPENSSL_TARGET = ${OPENSSL_TARGET}")
 message("OPENSSL_CRYPTO_TARGET = ${OPENSSL_CRYPTO_TARGET}")
