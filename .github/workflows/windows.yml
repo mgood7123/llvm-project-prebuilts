@@ -683,7 +683,7 @@ jobs:
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS/var
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS/var/lib
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS/var/lib/pacman
-          pacman -S --noconfirm --needed --root "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS" libarchive libarchive-devel ncurses ncurses-devel libedit libedit-devel libxml2 libxml2-devel zlib zlib-devel libzstd libzstd-devel liblz4 liblz4-devel liblzma liblzma-devel libxxhash libxxhash-devel libiconv libiconv-devel openssl openssl-devel libexpat libexpat-devel liblzo2 liblzo2-devel
+          pacman -Sy --noconfirm --needed --root "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS" libarchive libarchive-devel ncurses ncurses-devel libedit libedit-devel libxml2 libxml2-devel zlib zlib-devel libzstd libzstd-devel liblz4 liblz4-devel liblzma liblzma-devel libxxhash libxxhash-devel libiconv libiconv-devel openssl openssl-devel libexpat libexpat-devel liblzo2 liblzo2-devel
 
       - name: check if split program is cached
         run: |
