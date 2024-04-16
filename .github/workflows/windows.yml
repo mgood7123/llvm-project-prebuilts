@@ -1,6 +1,28 @@
 # Job execution time - Each job in a workflow can run for up to 6 hours of execution time.
 # Workflow run time - Each workflow run is limited to 35 days
 
+
+# llvm stage 1 builds llvm + clang, no runtimes
+# llvm stage 2 rebuilds llvm + clang with the clang built from llvm stage 1
+# llvm stage 3 rebuilds entire llvm with the clang built from llvm stage 2
+
+# from llvm
+#
+# https://github.com/llvm/llvm-project/blob/main/llvm/utils/release/test-release.sh#L469
+#
+    # During the first two phases, there is no need to build any of the projects
+    # except clang, since these phases are only meant to produce a bootstrapped
+    # clang compiler, capable of building the third phase.
+#
+    # During the first phase, there is no need to build any of the runtimes,
+    # since this phase is only meant to get a clang compiler, capable of
+    # building itself and any selected runtimes in the second phase.
+#
+      # compiler-rt builtins is needed on AIX to have a functional Phase 1 clang.
+#
+# note github actions do NOT provide an AIX system so we do not need to check for the presense of such flag
+
+
 name: windows
 
 on:
@@ -32,10 +54,139 @@ jobs:
          ./check 2 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] windows [4]
        shell: bash
   
+  msys2_build_split:
+    needs: should_run
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+
+    runs-on: ${{ matrix.os }}
+
+    name: msys2 split - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install git
+        run: |
+          pacman -S --noconfirm --needed git
+
+      - name: install gcc
+        run: |
+          pacman -S --noconfirm --needed gcc
+
+      - name: install makefile
+        run: |
+          pacman -S --noconfirm --needed make
+
+      - name: install cmake
+        run: |
+          pacman -S --noconfirm --needed cmake
+
+      - name: install autotools
+        run: |
+          pacman -S --noconfirm --needed autotools
+
+#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/ROOTFS/lib/pkgconfig:$(pwd)/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; sh ./configure   --prefix=$(pwd)/ROOTFS --enable-static=yes --enable-shared=no'
+#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/ROOTFS/lib/pkgconfig:$(pwd)/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; make --trace'
+
+      - name: check if split program is cached
+        run: |
+          export MSYS=winsymlinks:native
+          cd split
+          chmod +x ../try_get_release.sh
+          ../try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split_build.tar || true
+
+      - name: build split program
+        run: |
+          export MSYS=winsymlinks:native
+          export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+          chmod +x try_get_release.sh
+          cd split
+          chmod +x make.sh
+          ./make.sh
+
+      - name: archive split build directory
+        run: |
+          export MSYS=winsymlinks:native
+          cd split
+          # we need only the rootfs in the next stage
+          cp /usr/bin/msys-2.0.dll BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin
+          mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
+          tar -cf split_build.tar BUILD_DEBUG
+          sha512sum split_build.tar > split_build.tar.sha512
+          rm -rf BUILD_DEBUG
+          # preserve the directory structure
+          mkdir BUILD_DEBUG
+          mkdir BUILD_DEBUG/BUILD_ROOT
+          mv ROOTFS BUILD_DEBUG/BUILD_ROOT
+          tar -cf split_rootfs.tar BUILD_DEBUG
+          sha512sum split_rootfs.tar > split_rootfs.tar.sha512
+          cd ..
+          mkdir split_exe
+          cp split/BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin/split.exe split_exe
+          cp /usr/bin/msys-2.0.dll split_exe
+          tar -cf split.exe.tar split_exe
+          sha512sum split.exe.tar > split.exe.tar.sha512
+          rm -rf split/BUILD_DEBUG
+          rm -rf split_exe
+          tar -xf split.exe.tar
+          echo "checking if packaged split.exe works"
+          ./split_exe/split.exe
+          echo "packaged split.exe works"
+
+      - name: list files
+        run: |
+          ls -l
+      
+      - name: upload split build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "split"
+          tag: "storage--split--windows"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./split/split_build.tar
+            ./split/split_build.tar.sha512
+            ./split/split_rootfs.tar
+            ./split/split_rootfs.tar.sha512
+            ./split.exe.tar
+            ./split.exe.tar.sha512
+
   # 'libedit not fully ported to win32 yet, lldb will be broken'
   win32_build_deps:
     if: false
-    needs: should_run
+    needs: msys2_build_split
     # so we can upload releases
     permissions:
       contents: write
@@ -132,67 +283,8 @@ jobs:
       - name: check if split program is cached
         run: |
           export MSYS=winsymlinks:native
-          cd split
-          chmod +x ../try_get_release.sh
-          ../try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split_build.tar || true
-
-      - name: build split program
-        run: |
-          export MSYS=winsymlinks:native
-          export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
-          chmod +x try_get_release.sh
-          D:/a/_temp/msys64/msys2_shell.cmd -defterm -here -no-start -msys2 -shell bash -c "pacman -S --noconfirm --needed cmake make gcc ; cd split ; chmod +x make.sh ; ./make.sh"
-
-      - name: archive split build directory
-        run: |
-          export MSYS=winsymlinks:native
-          cd split
-          # we need only the rootfs in the next stage
-          cp /usr/bin/msys-2.0.dll BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin
-          mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
-          tar -cf split_build.tar BUILD_DEBUG
-          sha512sum split_build.tar > split_build.tar.sha512
-          rm -rf BUILD_DEBUG
-          # preserve the directory structure
-          mkdir BUILD_DEBUG
-          mkdir BUILD_DEBUG/BUILD_ROOT
-          mv ROOTFS BUILD_DEBUG/BUILD_ROOT
-          tar -cf split_rootfs.tar BUILD_DEBUG
-          sha512sum split_rootfs.tar > split_rootfs.tar.sha512
-          cd ..
-          mkdir split_exe
-          cp split/BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin/split.exe split_exe
-          cp /usr/bin/msys-2.0.dll split_exe
-          tar -cf split.exe.tar split_exe
-          sha512sum split.exe.tar > split.exe.tar.sha512
-          rm -rf split/BUILD_DEBUG
-          rm -rf split_exe
-          tar -xf split.exe.tar
-          ./split_exe/split.exe
-
-      - name: list files
-        run: |
-          ls -l
-      
-      - name: upload split build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        uses: "ncipollo/release-action@v1"
-        with:
-          name: "split"
-          tag: "storage--split--windows"
-          makeLatest: true
-          generateReleaseNotes: false
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
-          removeArtifacts: true
-          artifacts: |
-            ./split/split_build.tar
-            ./split/split_build.tar.sha512
-            ./split/split_rootfs.tar
-            ./split/split_rootfs.tar.sha512
-            ./split.exe.tar
-            ./split.exe.tar.sha512
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
 
       - name: check if build directory is cached
         run: |
@@ -210,7 +302,7 @@ jobs:
           # clang64 provides nanosleep in /clang64/lib/libpthread.a
           export cf_cv_func_nanosleep=yes
 
-          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_RELEASE
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_RELEASE
 
       - name: archive build directory
         run: |
@@ -243,11 +335,6 @@ jobs:
           artifacts: |
             ./build.split.*
             ./rootfs.split.*
-
-
-
-
-
 
   win32_build_llvm_stage_1:
     needs: win32_build_deps
@@ -352,7 +439,7 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE
 
       - name: cmake LLVM STAGE 1 - Release - Build
         run: |
@@ -545,9 +632,10 @@ jobs:
 
 
 
+# clang 11 is too old, build via gcc then rebuild via clang
 
-  msys2_build_deps:
-    needs: should_run
+  gcc_msys2_build_deps:
+    needs: msys2_build_split
     # so we can upload releases
     permissions:
       contents: write
@@ -563,7 +651,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 deps - ${{ matrix.name }}
+    name: msys2 deps (gcc) - ${{ matrix.name }}
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -590,10 +678,6 @@ jobs:
       - name: install gcc
         run: |
           pacman -S --noconfirm --needed gcc
-
-      - name: install clang
-        run: |
-          pacman -S --noconfirm --needed clang
 
       - name: install makefile
         run: |
@@ -638,86 +722,28 @@ jobs:
           export MSYS=winsymlinks:native
           cd deps ; cd libiconv ; ./autopull.sh --one-time
 
+#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/ROOTFS/lib/pkgconfig:$(pwd)/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; sh ./configure   --prefix=$(pwd)/ROOTFS --enable-static=yes --enable-shared=no'
+#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/ROOTFS/lib/pkgconfig:$(pwd)/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; make --trace'
+
       - name: check if split program is cached
         run: |
           export MSYS=winsymlinks:native
-          cd split
-          chmod +x ../try_get_release.sh
-          ../try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows-msys2   split_build.tar || true
-
-      - name: build split program
-        run: |
-          export MSYS=winsymlinks:native
-          export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
-          chmod +x try_get_release.sh
-          cd split
-          chmod +x make.sh
-          ./make.sh
-
-      - name: archive split build directory
-        run: |
-          export MSYS=winsymlinks:native
-          cd split
-          # we need only the rootfs in the next stage
-          cp /usr/bin/msys-2.0.dll BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin
-          mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
-          tar -cf split_build.tar BUILD_DEBUG
-          sha512sum split_build.tar > split_build.tar.sha512
-          rm -rf BUILD_DEBUG
-          # preserve the directory structure
-          mkdir BUILD_DEBUG
-          mkdir BUILD_DEBUG/BUILD_ROOT
-          mv ROOTFS BUILD_DEBUG/BUILD_ROOT
-          tar -cf split_rootfs.tar BUILD_DEBUG
-          sha512sum split_rootfs.tar > split_rootfs.tar.sha512
-          cd ..
-          mkdir split_exe
-          cp split/BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin/split.exe split_exe
-          cp /usr/bin/msys-2.0.dll split_exe
-          tar -cf split.exe.tar split_exe
-          sha512sum split.exe.tar > split.exe.tar.sha512
-          rm -rf split/BUILD_DEBUG
-          rm -rf split_exe
-          tar -xf split.exe.tar
-          ./split_exe/split.exe
-
-      - name: list files
-        run: |
-          ls -l
-      
-      - name: upload split build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        uses: "ncipollo/release-action@v1"
-        with:
-          name: "split"
-          tag: "storage--split--windows-msys2"
-          makeLatest: true
-          generateReleaseNotes: false
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
-          removeArtifacts: true
-          artifacts: |
-            ./split/split_build.tar
-            ./split/split_build.tar.sha512
-            ./split/split_rootfs.tar
-            ./split/split_rootfs.tar.sha512
-            ./split.exe.tar
-            ./split.exe.tar.sha512
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
 
       - name: check if build directory is cached
         run: |
           export MSYS=winsymlinks:native
 
-          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2--release/build.split.map
-          ./split_exe/split.exe --join -r $URL --out BUILD_RELEASE || true
+          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-gcc--release/build.split.map
+          ./split_exe/split.exe --join -r $URL --out BUILD_RELEASE_GCC || true
 
       - name: cmake build deps - Release
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
-          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_RELEASE
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_RELEASE_GCC
 
       - name: archive build directory
         run: |
@@ -725,11 +751,11 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_GCC --name build --size 750000000
 
       - name: list files
         run: |
@@ -739,8 +765,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm deps - windows msys2 - RELEASE"
-          tag: "storage--deps--windows-msys2--release"
+          name: "llvm deps - windows msys2 gcc - RELEASE"
+          tag: "storage--deps--windows-msys2-gcc--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -751,13 +777,8 @@ jobs:
             ./build.split.*
             ./rootfs.split.*
 
-
-
-
-
-
-  msys2_build_llvm_stage_1:
-    needs: msys2_build_deps
+  gcc_msys2_build_llvm_stage_1:
+    needs: gcc_msys2_build_deps
     # so we can upload releases
     permissions:
       contents: write
@@ -773,7 +794,132 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 llvm stage 1 - ${{ matrix.name }}
+    name: msys2 llvm stage 1 (gcc) - ${{ matrix.name }}
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install gcc
+        run: |
+          pacman -S --noconfirm --needed gcc
+
+      - name: install makefile
+        run: |
+          pacman -S --noconfirm --needed make
+
+      - name: install cmake
+        run: |
+          pacman -S --noconfirm --needed cmake
+
+      - name: install git
+        run: |
+          pacman -S --noconfirm --needed git
+
+      - name: check if split program is cached
+        run: |
+          export MSYS=winsymlinks:native
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
+
+      - name: check if build directory is cached
+        run: |
+          export MSYS=winsymlinks:native
+
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-gcc--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-gcc--release/rootfs.split.map
+
+          # download the build dir if it exists
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_GCC || true
+          # always download the previous stage's build rootfs
+          mkdir BUILD_RELEASE_GCC/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS
+
+      - name: clone llvm-project
+        run: |
+          git clone --depth=1 --recursive https://github.com/llvm/llvm-project
+
+      - name: cmake LLVM STAGE 1 - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;" -DLLVM_ENABLE_RUNTIMES="" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE_GCC
+
+      - name: cmake LLVM STAGE 1 - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build BUILD_RELEASE_GCC
+
+      - name: cmake LLVM STAGE 1 - Release - Install
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install BUILD_RELEASE_GCC
+
+      - name: archive build directory
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_GCC --name build --size 750000000
+
+      - name: list files
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage 1 - windows msys2 gcc - RELEASE"
+          tag: "storage--llvm-stage-1--windows-msys2-gcc--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build.split.*
+            ./rootfs.split.*
+
+  gcc_msys2_build_llvm_stage_2:
+    needs: gcc_msys2_build_llvm_stage_1
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+
+    runs-on: ${{ matrix.os }}
+
+    name: msys2 llvm stage 2 (gcc) - ${{ matrix.name }}
 
     steps:
 
@@ -814,42 +960,40 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           chmod +x ./try_get_release.sh
-          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows-msys2   split.exe.tar
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
 
       - name: check if build directory is cached
         run: |
           export MSYS=winsymlinks:native
 
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2--release/rootfs.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2-gcc--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-gcc--release/rootfs.split.map
 
-          if ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE
-            then
-              true;
-            else
-              mkdir BUILD_RELEASE/BUILD_ROOT
-              ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE/BUILD_ROOT/ROOTFS
-          fi
+          # download the build dir if it exists
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_GCC || true
+          # always download the previous stage's build rootfs
+          mkdir BUILD_RELEASE_GCC/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
 
-      - name: cmake LLVM STAGE 1 - Release - Configure
+      - name: cmake LLVM STAGE 2 - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang" -DLLVM_ENABLE_RUNTIMES="" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE_GCC
 
-      - name: cmake LLVM STAGE 1 - Release - Build
+      - name: cmake LLVM STAGE 2 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE
+          cmake --build BUILD_RELEASE_GCC
 
-      - name: cmake LLVM STAGE 1 - Release - Install
+      - name: cmake LLVM STAGE 2 - Release - Install
         run: |
           export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE
+          cmake --install BUILD_RELEASE_GCC
 
       - name: archive build directory
         run: |
@@ -857,11 +1001,11 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_GCC --name build --size 750000000
 
       - name: list files
         run: |
@@ -871,8 +1015,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage 1 - windows msys2 - RELEASE"
-          tag: "storage--llvm-stage-1--windows-msys2--release"
+          name: "llvm stage 2 - windows msys2 gcc - RELEASE"
+          tag: "storage--llvm-stage-2--windows-msys2-gcc--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -883,8 +1027,8 @@ jobs:
             ./build.split.*
             ./rootfs.split.*
 
-  msys2_build_llvm_stage_2:
-    needs: msys2_build_llvm_stage_1
+  gcc_msys2_build_llvm_stage_3:
+    needs: gcc_msys2_build_llvm_stage_2
     # so we can upload releases
     permissions:
       contents: write
@@ -900,7 +1044,410 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 llvm stage 2 - ${{ matrix.name }}
+    name: msys2 llvm stage 3 (gcc) - ${{ matrix.name }}
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install clang
+        run: |
+          pacman -S --noconfirm --needed clang
+
+      - name: install makefile
+        run: |
+          pacman -S --noconfirm --needed make
+
+      - name: install cmake
+        run: |
+          pacman -S --noconfirm --needed cmake
+
+      - name: install git
+        run: |
+          pacman -S --noconfirm --needed git
+
+      - name: check if split program is cached
+        run: |
+          export MSYS=winsymlinks:native
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
+
+      - name: check if build directory is cached
+        run: |
+          export MSYS=winsymlinks:native
+
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-gcc--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2-gcc--release/rootfs.split.map
+
+          # download the build dir if it exists
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_GCC || true
+          # always download the previous stage's build rootfs
+          mkdir BUILD_RELEASE_GCC/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS
+
+      - name: clone llvm-project
+        run: |
+          git clone --depth=1 --recursive https://github.com/llvm/llvm-project
+
+      - name: cmake LLVM STAGE 3 - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_GCC3/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE_GCC
+
+      - name: cmake LLVM STAGE 3 - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build BUILD_RELEASE_GCC
+
+      - name: cmake LLVM STAGE 3 - Release - Install
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install BUILD_RELEASE_GCC
+
+      - name: archive build directory
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_GCC --name build --size 750000000
+
+      - name: list files
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage 3 - windows msys2 gcc - RELEASE"
+          tag: "storage--llvm-stage-3--windows-msys2-gcc--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build.split.*
+            ./rootfs.split.*
+
+# clang 11 is too old, build via gcc (above) then rebuild via clang
+
+  clang_msys2_build_deps:
+    needs: gcc_msys2_build_llvm_stage_3
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+
+    runs-on: ${{ matrix.os }}
+
+    name: msys2 deps (clang) - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install git
+        run: |
+          pacman -S --noconfirm --needed git
+
+      - name: install makefile
+        run: |
+          pacman -S --noconfirm --needed make
+
+      - name: install cmake
+        run: |
+          pacman -S --noconfirm --needed cmake
+
+      - name: install autotools
+        run: |
+          pacman -S --noconfirm --needed autotools
+
+      - name: install patch
+        run: |
+          pacman -S --noconfirm --needed patch
+
+      - name: install gperf
+        run: |
+          pacman -S --noconfirm --needed gperf
+
+      - name: install groff
+        run: |
+          pacman -S --noconfirm --needed groff
+
+      - name: install gettext
+        run: |
+          pacman -S --noconfirm --needed gettext
+
+      - name: install texinfo
+        run: |
+          pacman -S --noconfirm --needed texinfo
+
+      - name: clone libiconv
+        run: |
+          export MSYS=winsymlinks:native
+          find /usr/include -name error.h
+          cd deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1
+
+      - name: libiconv autopull.sh
+        run: |
+          export MSYS=winsymlinks:native
+          cd deps ; cd libiconv ; ./autopull.sh --one-time
+
+#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/ROOTFS/lib/pkgconfig:$(pwd)/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; sh ./configure   --prefix=$(pwd)/ROOTFS --enable-static=yes --enable-shared=no'
+#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/ROOTFS/lib/pkgconfig:$(pwd)/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; make --trace'
+
+      - name: check if split program is cached
+        run: |
+          export MSYS=winsymlinks:native
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
+
+      - name: check if build directory is cached
+        run: |
+          export MSYS=winsymlinks:native
+
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-clang--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-gcc--release/rootfs.split.map
+
+          # download the build dir if it exists
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
+          # always download the previous stage's build rootfs
+          mkdir BUILD_RELEASE_GCC
+          mkdir BUILD_RELEASE_GCC/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS
+
+      - name: cmake build deps - Release
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_RELEASE_CLANG
+
+      - name: archive build directory
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
+
+      - name: list files
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm deps - windows msys2 clang - RELEASE"
+          tag: "storage--deps--windows-msys2-clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build.split.*
+            ./rootfs.split.*
+
+  clang_msys2_build_llvm_stage_1:
+    needs: clang_msys2_build_deps
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+
+    runs-on: ${{ matrix.os }}
+
+    name: msys2 llvm stage 1 (clang) - ${{ matrix.name }}
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install clang
+        run: |
+          pacman -S --noconfirm --needed clang
+
+      - name: install makefile
+        run: |
+          pacman -S --noconfirm --needed make
+
+      - name: install cmake
+        run: |
+          pacman -S --noconfirm --needed cmake
+
+      - name: install git
+        run: |
+          pacman -S --noconfirm --needed git
+
+      - name: check if split program is cached
+        run: |
+          export MSYS=winsymlinks:native
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
+
+      - name: check if build directory is cached
+        run: |
+          export MSYS=winsymlinks:native
+
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-clang--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-clang--release/rootfs.split.map
+          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-gcc--release/rootfs.split.map
+
+          # download the build dir if it exists
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
+          # always download the previous stage's build rootfs
+          mkdir BUILD_RELEASE_CLANG/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS
+          # always download the previous stage's build rootfs
+          mkdir BUILD_RELEASE_GCC
+          mkdir BUILD_RELEASE_GCC/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS
+
+      - name: clone llvm-project
+        run: |
+          git clone --depth=1 --recursive https://github.com/llvm/llvm-project
+
+      - name: cmake LLVM STAGE 1 - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;" -DLLVM_ENABLE_RUNTIMES="" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_GCC/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE_CLANG
+
+      - name: cmake LLVM STAGE 1 - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build BUILD_RELEASE_CLANG
+
+      - name: cmake LLVM STAGE 1 - Release - Install
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install BUILD_RELEASE_CLANG
+
+      - name: archive build directory
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
+
+      - name: list files
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage 1 - windows msys2 clang - RELEASE"
+          tag: "storage--llvm-stage-1--windows-msys2-clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build.split.*
+            ./rootfs.split.*
+
+  clang_msys2_build_llvm_stage_2:
+    needs: clang_msys2_build_llvm_stage_1
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+
+    runs-on: ${{ matrix.os }}
+
+    name: msys2 llvm stage 2 (clang) - ${{ matrix.name }}
 
     steps:
 
@@ -945,22 +1492,20 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           chmod +x ./try_get_release.sh
-          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows-msys2   split.exe.tar
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
 
       - name: check if build directory is cached
         run: |
           export MSYS=winsymlinks:native
 
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2--release/build.split.map
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2--release/build.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2-clang--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-clang--release/rootfs.split.map
 
-          if ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE
-            then
-              true;
-            else
-              mkdir BUILD_RELEASE/BUILD_ROOT
-              ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE/BUILD_ROOT/ROOTFS
-          fi
+          # download the build dir if it exists
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
+          # always download the previous stage's build rootfs
+          mkdir BUILD_RELEASE_CLANG/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
@@ -970,17 +1515,17 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE_CLANG
 
       - name: cmake LLVM STAGE 2 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE
+          cmake --build BUILD_RELEASE_CLANG
 
       - name: cmake LLVM STAGE 2 - Release - Install
         run: |
           export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE
+          cmake --install BUILD_RELEASE_CLANG
 
       - name: archive build directory
         run: |
@@ -988,11 +1533,11 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
 
       - name: list files
         run: |
@@ -1002,8 +1547,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage 2 - windows msys2 - RELEASE"
-          tag: "storage--llvm-stage-2--windows-msys2--release"
+          name: "llvm stage 2 - windows msys2 clang - RELEASE"
+          tag: "storage--llvm-stage-2--windows-msys2-clang--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -1014,8 +1559,8 @@ jobs:
             ./build.split.*
             ./rootfs.split.*
 
-  msys2_build_llvm_stage_3:
-    needs: msys2_build_llvm_stage_2
+  clang_msys2_build_llvm_stage_3:
+    needs: clang_msys2_build_llvm_stage_2
     # so we can upload releases
     permissions:
       contents: write
@@ -1031,7 +1576,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 llvm stage 3 - ${{ matrix.name }}
+    name: msys2 llvm stage 3 (clang) - ${{ matrix.name }}
 
     steps:
 
@@ -1072,22 +1617,20 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           chmod +x ./try_get_release.sh
-          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows-msys2   split.exe.tar
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
 
       - name: check if build directory is cached
         run: |
           export MSYS=winsymlinks:native
 
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2--release/build.split.map
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2--release/build.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-clang--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2-clang--release/rootfs.split.map
 
-          if ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE
-            then
-              true;
-            else
-              mkdir BUILD_RELEASE/BUILD_ROOT
-              ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE/BUILD_ROOT/ROOTFS
-          fi
+          # download the build dir if it exists
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
+          # always download the previous stage's build rootfs
+          mkdir BUILD_RELEASE_CLANG/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
@@ -1097,17 +1640,17 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S llvm-project/llvm -B BUILD_RELEASE_CLANG
 
       - name: cmake LLVM STAGE 3 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE
+          cmake --build BUILD_RELEASE_CLANG
 
       - name: cmake LLVM STAGE 3 - Release - Install
         run: |
           export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE
+          cmake --install BUILD_RELEASE_CLANG
 
       - name: archive build directory
         run: |
@@ -1115,11 +1658,11 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
 
       - name: list files
         run: |
@@ -1129,8 +1672,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage 3 - windows msys2 - RELEASE"
-          tag: "storage--llvm-stage-3--windows-msys2--release"
+          name: "llvm stage 3 - windows msys2 clang - RELEASE"
+          tag: "storage--llvm-stage-3--windows-msys2-clang--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
