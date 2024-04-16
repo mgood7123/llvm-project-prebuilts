@@ -1464,10 +1464,6 @@ jobs:
           update: true
           path-type: strict
 
-      - name: we dont know how to build stage 2 and stage 3 yet
-        run: |
-          false
-
       - name: update packages
         run: |
           pacman -Sy
