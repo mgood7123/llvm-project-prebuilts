@@ -111,6 +111,14 @@ jobs:
         run: |
           pacman -S --noconfirm --needed ninja
 
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
+
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
+
       - name: install autotools
         run: |
           pacman -S --noconfirm --needed autotools
@@ -253,6 +261,10 @@ jobs:
       - name: install ninja
         run: |
           pacman -S --noconfirm --needed ninja:p
+
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python:p
 
       - name: install autotools
         run: |
@@ -407,6 +419,10 @@ jobs:
       - name: install ninja
         run: |
           pacman -S --noconfirm --needed ninja:p
+
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python:p
 
       - name: install git
         run: |
@@ -789,6 +805,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed ninja
 
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
+
       - name: install git
         run: |
           pacman -S --noconfirm --needed git
@@ -920,6 +940,10 @@ jobs:
       - name: install ninja
         run: |
           pacman -S --noconfirm --needed ninja
+
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
 
       - name: install git
         run: |
@@ -1053,6 +1077,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed ninja
 
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
+
       - name: install git
         run: |
           pacman -S --noconfirm --needed git
@@ -1185,6 +1213,10 @@ jobs:
       - name: install ninja
         run: |
           pacman -S --noconfirm --needed ninja
+
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
 
       - name: install autotools
         run: |
@@ -1339,6 +1371,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed ninja
 
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
+
       - name: install git
         run: |
           pacman -S --noconfirm --needed git
@@ -1476,6 +1512,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed ninja
 
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
+
       - name: install git
         run: |
           pacman -S --noconfirm --needed git
@@ -1607,6 +1647,10 @@ jobs:
       - name: install ninja
         run: |
           pacman -S --noconfirm --needed ninja
+
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
 
       - name: install git
         run: |
