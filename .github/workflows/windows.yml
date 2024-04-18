@@ -664,19 +664,34 @@ jobs:
 
 
 
-# clang 11 is too old to build iconv, build without iconv then rebuild via clang
+# msys2 clang 11 is too old to build iconv, pre-package system libs into rootfs
+# msys2 clang 11 lacks stdc++ headers, build bootstrap stage 3 with gcc then rebuild real clang via bootstrap clang
 
 # build order:
 #
-#   gcc
-#     clang      + runtimes - stage 1
-#     clang      + runtimes - stage 2
-#     everything + runtimes - stage 3
+# due to ~150 GB space, we cannot install clang from stage 3 as a system and use it to rebuild clang
+# since we must be able to package between stages and we cannot package the root directory /
+# so instead we build with runtimes in each stage so the runtimes persist between each stage
+# while also getting more and more optimized with each subsequent stage
 #
-#   clang stage 3
-#     clang      + runtimes - stage 1
-#     clang      + runtimes - stage 2
-#     everything + runtimes - stage 3
+# due to 65k symbols per-dll PE limitation, we always build with -DCMAKE_BUILD_SHARED_LIBS=ON to build everything
+# as a dll instead of an object archive, until the [hidden] attribute gets implemented for MSYS2/CYGWIN
+#
+# we avoid testing since git main branches are typically unstable and may fail at any time in any test
+# we only care that everything compiles successfully and need not run tests
+#
+#   the gcc stage 1 root fs without runtimes and X86 only target and no plugin exports is 7.4 GB
+#   the gcc stage 1 build without runtimes and X86 only target and no plugin exports is 10 GB
+#
+#   gcc
+#     // build with gcc
+#       clang      + runtimes - stage 1 - DLL everything
+#       clang      + runtimes - stage 2 - DLL everything
+#       everything + runtimes - stage 3 - DLL everything
+#         // build with stage 3 clang that we had just built
+#           clang      + runtimes - stage 1 - DLL everything
+#           clang      + runtimes - stage 2 - DLL everything
+#           everything + runtimes - stage 3 - DLL everything
 
   msys2_prebuilt_bootstrap_msys2_build_deps:
     needs: msys2_build_split
@@ -841,7 +856,6 @@ jobs:
           # download the build dir if it exists
           ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_msys2_prebuilt_bootstrap || true
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT
           ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
@@ -977,7 +991,6 @@ jobs:
           # download the build dir if it exists
           ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_msys2_prebuilt_bootstrap || true
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT
           ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
@@ -1113,7 +1126,6 @@ jobs:
           # download the build dir if it exists
           ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_msys2_prebuilt_bootstrap || true
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT
           ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
@@ -1283,7 +1295,7 @@ jobs:
 
           # download the build dir if it exists
           ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
-          # always download the previous stage's build rootfs
+          # download bootstrap clang
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT
           ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS
@@ -1408,9 +1420,8 @@ jobs:
           # download the build dir if it exists
           ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_CLANG/BUILD_ROOT
           ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS
-          # always download the previous stage's build rootfs
+          # download bootstrap clang
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT
           ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_msys2_prebuilt_bootstrap/BUILD_ROOT/ROOTFS
@@ -1548,7 +1559,6 @@ jobs:
           # download the build dir if it exists
           ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_CLANG/BUILD_ROOT
           ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
@@ -1684,7 +1694,6 @@ jobs:
           # download the build dir if it exists
           ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
           # always download the previous stage's build rootfs
-          mkdir BUILD_RELEASE_CLANG/BUILD_ROOT
           ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
