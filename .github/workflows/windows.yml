@@ -685,10 +685,12 @@ jobs:
 #
 #   gcc
 #     // build with gcc
+#       install required deps into rootfs via pacman and package
 #       clang      + runtimes - stage 1 - DLL everything
 #       clang      + runtimes - stage 2 - DLL everything
 #       everything + runtimes - stage 3 - DLL everything
 #         // build with stage 3 clang that we had just built
+#           build required deps and package
 #           clang      + runtimes - stage 1 - DLL everything
 #           clang      + runtimes - stage 2 - DLL everything
 #           everything + runtimes - stage 3 - DLL everything
@@ -871,7 +873,19 @@ jobs:
       - name: cmake LLVM STAGE 1 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_msys2_prebuilt_bootstrap
+          echo "free space before build:"
+          df -h / || true
+          if cmake --build BUILD_RELEASE_msys2_prebuilt_bootstrap
+            then
+              echo "free space after successful build:"
+              df -h / || true
+              true
+            else
+              # if we fail the build, print how much free space we have
+              echo "free space after failed build:" || true
+              df -h / || true
+              false
+          fi
 
       - name: cmake LLVM STAGE 1 - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1006,7 +1020,19 @@ jobs:
       - name: cmake LLVM STAGE 2 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_msys2_prebuilt_bootstrap
+          echo "free space before build:"
+          df -h / || true
+          if cmake --build BUILD_RELEASE_msys2_prebuilt_bootstrap
+            then
+              echo "free space after successful build:"
+              df -h / || true
+              true
+            else
+              # if we fail the build, print how much free space we have
+              echo "free space after failed build:" || true
+              df -h / || true
+              false
+          fi
 
       - name: cmake LLVM STAGE 2 - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1141,7 +1167,19 @@ jobs:
       - name: cmake LLVM STAGE 3 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_msys2_prebuilt_bootstrap
+          echo "free space before build:"
+          df -h / || true
+          if cmake --build BUILD_RELEASE_msys2_prebuilt_bootstrap
+            then
+              echo "free space after successful build:"
+              df -h / || true
+              true
+            else
+              # if we fail the build, print how much free space we have
+              echo "free space after failed build:" || true
+              df -h / || true
+              false
+          fi
 
       - name: cmake LLVM STAGE 3 - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1439,7 +1477,19 @@ jobs:
       - name: cmake LLVM STAGE 1 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_CLANG
+          echo "free space before build:"
+          df -h / || true
+          if cmake --build BUILD_RELEASE_CLANG
+            then
+              echo "free space after successful build:"
+              df -h / || true
+              true
+            else
+              # if we fail the build, print how much free space we have
+              echo "free space after failed build:" || true
+              df -h / || true
+              false
+          fi
 
       - name: cmake LLVM STAGE 1 - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1574,7 +1624,19 @@ jobs:
       - name: cmake LLVM STAGE 2 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_CLANG
+          echo "free space before build:"
+          df -h / || true
+          if cmake --build BUILD_RELEASE_CLANG
+            then
+              echo "free space after successful build:"
+              df -h / || true
+              true
+            else
+              # if we fail the build, print how much free space we have
+              echo "free space after failed build:" || true
+              df -h / || true
+              false
+          fi
 
       - name: cmake LLVM STAGE 2 - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1709,7 +1771,19 @@ jobs:
       - name: cmake LLVM STAGE 3 - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_CLANG
+          echo "free space before build:"
+          df -h / || true
+          if cmake --build BUILD_RELEASE_CLANG
+            then
+              echo "free space after successful build:"
+              df -h / || true
+              true
+            else
+              # if we fail the build, print how much free space we have
+              echo "free space after failed build:" || true
+              df -h / || true
+              false
+          fi
 
       - name: cmake LLVM STAGE 3 - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
