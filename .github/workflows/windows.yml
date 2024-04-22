@@ -95,8 +95,8 @@ jobs:
         run: |
           pacman -S --noconfirm --needed git gcc make cmake ninja python autotools
 
-#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/ROOTFS/lib/pkgconfig:$(pwd)/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; sh ./configure   --prefix=$(pwd)/ROOTFS --enable-static=yes --enable-shared=no'
-#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/ROOTFS/lib/pkgconfig:$(pwd)/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/ROOTFS/include -L$(pwd)/ROOTFS/lib   -g0 -O3" ; make --trace'
+#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib/pkgconfig:$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/include -L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/include -L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib   -g0 -O3" ; sh ./configure   --prefix=$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --enable-static=yes --enable-shared=no'
+#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib/pkgconfig:$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/include -L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/include -L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib   -g0 -O3" ; make --trace'
 
       - name: check if split program is cached
         run: |
@@ -1024,14 +1024,16 @@ jobs:
 
       - name: install rootfs
         run: |
-          mkdir ROOTFS
-          mkdir ROOTFS/tmp
-          mkdir ROOTFS/var
-          mkdir ROOTFS/var/lib
-          mkdir ROOTFS/var/lib/pacman
-          pacman -Sy --noconfirm --needed --root "$(pwd)/ROOTFS"
-          pacman -S --noconfirm --needed --root "$(pwd)/ROOTFS" bash
-          pacman -S --noconfirm --needed --root "$(pwd)/ROOTFS" libarchive libarchive-devel ncurses ncurses-devel libedit libedit-devel libxml2 libxml2-devel zlib zlib-devel libzstd libzstd-devel liblz4 liblz4-devel liblzma liblzma-devel libxxhash libxxhash-devel libiconv libiconv-devel openssl openssl-devel libexpat libexpat-devel liblzo2 liblzo2-devel
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/tmp
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/var
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/var/lib
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/var/lib/pacman
+          pacman -Sy --noconfirm --needed --root "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          pacman -S --noconfirm --needed --root "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS" bash
+          pacman -S --noconfirm --needed --root "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS" libarchive libarchive-devel ncurses ncurses-devel libedit libedit-devel libxml2 libxml2-devel zlib zlib-devel libzstd libzstd-devel liblz4 liblz4-devel liblzma liblzma-devel libxxhash libxxhash-devel libiconv libiconv-devel openssl openssl-devel libexpat libexpat-devel liblzo2 liblzo2-devel
 
       - name: check if split program is cached
         run: |
@@ -1046,7 +1048,7 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r ROOTFS/usr --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/usr --name rootfs --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1159,7 +1161,7 @@ jobs:
           ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi || true
           ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind || true
           # always download the previous stage's build rootfs
-          ./split_exe/split.exe --join -r $URL7 --out ROOTFS
+          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
@@ -1171,13 +1173,14 @@ jobs:
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export c_compiler=gcc
           export cxx_compiler=g++
-          export rootfs="$(pwd)/ROOTFS"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/llvm"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm"
           export llvm_projects=""
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
@@ -1196,13 +1199,14 @@ jobs:
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export c_compiler=gcc
           export cxx_compiler=g++
-          export rootfs="$(pwd)/ROOTFS"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/clang"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_clang"
           export llvm_projects="clang"
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
@@ -1221,13 +1225,14 @@ jobs:
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export c_compiler=gcc
           export cxx_compiler=g++
-          export rootfs="$(pwd)/ROOTFS"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/compiler-rt"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt"
           export llvm_projects=""
-          export llvm_runtimes="compiler-rt;libcxx;libcxxabi;libunwind"
+          export llvm_runtimes="compiler-rt"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
@@ -1246,13 +1251,14 @@ jobs:
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export c_compiler=gcc
           export cxx_compiler=g++
-          export rootfs="$(pwd)/ROOTFS"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxx"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx"
           export llvm_projects=""
           export llvm_runtimes="libcxx"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
@@ -1271,13 +1277,14 @@ jobs:
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export c_compiler=gcc
           export cxx_compiler=g++
-          export rootfs="$(pwd)/ROOTFS"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxxabi"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi"
           export llvm_projects=""
           export llvm_runtimes="libcxxabi"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
@@ -1296,13 +1303,14 @@ jobs:
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export c_compiler=gcc
           export cxx_compiler=g++
-          export rootfs="$(pwd)/ROOTFS"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libunwind"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind"
           export llvm_projects=""
           export llvm_runtimes="libunwind"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
@@ -1322,7 +1330,7 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
@@ -1447,7 +1455,7 @@ jobs:
           ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi || true
           ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind || true
           # always download the previous stage's build rootfs
-          ./split_exe/split.exe --join -r $URL7 --out ROOTFS
+          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
@@ -1457,15 +1465,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/llvm"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm"
           export llvm_projects=""
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
@@ -1482,15 +1491,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/clang"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_clang"
           export llvm_projects="clang"
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
@@ -1507,15 +1517,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/compiler-rt"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt"
           export llvm_projects=""
-          export llvm_runtimes="compiler-rt;libcxx;libcxxabi;libunwind"
+          export llvm_runtimes="compiler-rt"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
@@ -1532,15 +1543,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxx"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx"
           export llvm_projects=""
           export llvm_runtimes="libcxx"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
@@ -1557,15 +1569,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxxabi"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi"
           export llvm_projects=""
           export llvm_runtimes="libcxxabi"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
@@ -1582,15 +1595,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libunwind"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind"
           export llvm_projects=""
           export llvm_runtimes="libunwind"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
@@ -1610,7 +1624,7 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
@@ -1735,7 +1749,7 @@ jobs:
           ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi || true
           ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind || true
           # always download the previous stage's build rootfs
-          ./split_exe/split.exe --join -r $URL7 --out ROOTFS
+          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
@@ -1745,15 +1759,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/llvm"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm"
           export llvm_projects=""
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
@@ -1770,15 +1785,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/clang"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_clang"
           export llvm_projects="clang"
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
@@ -1795,15 +1811,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/compiler-rt"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt"
           export llvm_projects=""
-          export llvm_runtimes="compiler-rt;libcxx;libcxxabi;libunwind"
+          export llvm_runtimes="compiler-rt"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
@@ -1820,15 +1837,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxx"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx"
           export llvm_projects=""
           export llvm_runtimes="libcxx"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
@@ -1845,15 +1863,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxxabi"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi"
           export llvm_projects=""
           export llvm_runtimes="libcxxabi"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
@@ -1870,15 +1889,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libunwind"
           export build_dir="BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind"
           export llvm_projects=""
           export llvm_runtimes="libunwind"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
@@ -2041,20 +2061,28 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
+          SO=${{ matrix.llvm_stage_old }}
           URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-clang--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
 
           # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_clang_llvm || true
           # download bootstrap clang
-          ./split_exe/split.exe --join -r $URL2 --out ROOTFS
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
 
       - name: cmake build deps - Release
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
-          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_BUILD_ICONV=TRUE -DCMAKE_C_COMPILER=$(pwd)/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S . -B BUILD_RELEASE_CLANG
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export source_dir="."
+          export build_dir="BUILD_RELEASE_clang_llvm"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_BUILD_ICONV=TRUE -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: archive build directory
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2063,11 +2091,11 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang --name build --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2160,23 +2188,6 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-clang--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-clang--release/rootfs.split.map
-          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
-
-          # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
-          # always download the previous stage's build rootfs
-          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS
-          # download bootstrap clang
-          mkdir BUILD_RELEASE_clang
-          mkdir BUILD_RELEASE_clang/BUILD_ROOT
-          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_clang/BUILD_ROOT/ROOTFS
-
-      - name: check if build directory is cached
-        run: |
-          export MSYS=winsymlinks:native
-
           S=${{ matrix.llvm_stage }}
           SO=${{ matrix.llvm_stage_old }}
           URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_llvm.split.map
@@ -2185,7 +2196,8 @@ jobs:
           URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxx.split.map
           URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxxabi.split.map
           URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libunwind.split.map
-          URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-clang--release/rootfs.split.map
+          URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-clang--release/build.split.map
+          URL8=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
 
           # download the build dir if it exists
           ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_clang_llvm || true
@@ -2195,7 +2207,11 @@ jobs:
           ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_clang_libcxxabi || true
           ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_clang_libunwind || true
           # always download the previous stage's build rootfs
-          ./split_exe/split.exe --join -r $URL7 --out ROOTFS
+          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS
+          # download bootstrap clang
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL8 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
@@ -2205,15 +2221,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/llvm"
           export build_dir="BUILD_RELEASE_clang_llvm"
           export llvm_projects=""
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
@@ -2230,15 +2247,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/clang"
           export build_dir="BUILD_RELEASE_clang_clang"
           export llvm_projects="clang"
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
@@ -2255,15 +2273,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/compiler-rt"
           export build_dir="BUILD_RELEASE_clang_compiler_rt"
           export llvm_projects=""
-          export llvm_runtimes="compiler-rt;libcxx;libcxxabi;libunwind"
+          export llvm_runtimes="compiler-rt"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
@@ -2280,15 +2299,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/libcxx"
           export build_dir="BUILD_RELEASE_clang_libcxx"
           export llvm_projects=""
           export llvm_runtimes="libcxx"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
@@ -2305,15 +2325,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/libcxxabi"
           export build_dir="BUILD_RELEASE_clang_libcxxabi"
           export llvm_projects=""
           export llvm_runtimes="libcxxabi"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
@@ -2330,15 +2351,16 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/ROOTFS"
+          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/libunwind"
           export build_dir="BUILD_RELEASE_clang_libunwind"
           export llvm_projects=""
           export llvm_runtimes="libunwind"
           echo "$build_dir" > current_build_dir
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$cxx_compiler" -DCMAKE_CXX_COMPILER="$c_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
@@ -2358,7 +2380,7 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
@@ -2435,10 +2457,6 @@ jobs:
         run: |
           pacman -Sy
 
-      - name: install clang
-        run: |
-          pacman -S --noconfirm --needed clang
-
       - name: install makefile
         run: |
           pacman -S --noconfirm --needed make
@@ -2469,34 +2487,185 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2-clang--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows-msys2-clang--release/rootfs.split.map
+          S=${{ matrix.llvm_stage }}
+          SO=${{ matrix.llvm_stage_old }}
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_llvm.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_clang.split.map
+          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_compiler_rt.split.map
+          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxx.split.map
+          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxxabi.split.map
+          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libunwind.split.map
+          URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S0--windows-msys2-clang--release/rootfs.split.map
 
           # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_clang_llvm || true
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_clang_clang || true
+          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_clang_compiler_rt || true
+          ./split_exe/split.exe --join -r $URL4 --out BUILD_RELEASE_clang_libcxx || true
+          ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_clang_libcxxabi || true
+          ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_clang_libunwind || true
           # always download the previous stage's build rootfs
-          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS
+          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
 
-      - name: cmake LLVM STAGE 2 - Release - Configure
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm  - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE_CLANG
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/llvm"
+          export build_dir="BUILD_RELEASE_clang_llvm"
+          export llvm_projects=""
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
-      - name: cmake LLVM STAGE 2 - Release - Build
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_CLANG
+          cmake --build "$(cat current_build_dir)"
 
-      - name: cmake LLVM STAGE 2 - Release - Install
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE_CLANG
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/clang"
+          export build_dir="BUILD_RELEASE_clang_clang"
+          export llvm_projects="clang"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/compiler-rt"
+          export build_dir="BUILD_RELEASE_clang_compiler_rt"
+          export llvm_projects=""
+          export llvm_runtimes="compiler-rt"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/libcxx"
+          export build_dir="BUILD_RELEASE_clang_libcxx"
+          export llvm_projects=""
+          export llvm_runtimes="libcxx"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/libcxxabi"
+          export build_dir="BUILD_RELEASE_clang_libcxxabi"
+          export llvm_projects=""
+          export llvm_runtimes="libcxxabi"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/libunwind"
+          export build_dir="BUILD_RELEASE_clang_libunwind"
+          export llvm_projects=""
+          export llvm_runtimes="libunwind"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2505,11 +2674,16 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm --name build_llvm --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_clang --name build_clang --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_compiler_rt --name build_compiler_rt --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libcxx --name build_libcxx --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libcxxabi --name build_libcxxabi --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libunwind --name build_libunwind --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2520,8 +2694,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage 2 - windows msys2 clang - RELEASE"
-          tag: "storage--llvm-stage-2--windows-msys2-clang--release"
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-clang--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -2529,7 +2703,12 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./build.split.*
+            ./build_llvm.split.*
+            ./build_clang.split.*
+            ./build_compiler_rt.split.*
+            ./build_libcxx.split.*
+            ./build_libcxxabi.split.*
+            ./build_libunwind.split.*
             ./rootfs.split.*
 
   clang_msys2_build_llvm_stage_3:
@@ -2572,10 +2751,6 @@ jobs:
         run: |
           pacman -Sy
 
-      - name: install clang
-        run: |
-          pacman -S --noconfirm --needed clang
-
       - name: install makefile
         run: |
           pacman -S --noconfirm --needed make
@@ -2606,34 +2781,326 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-clang--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-2--windows-msys2-clang--release/rootfs.split.map
+          S=${{ matrix.llvm_stage }}
+          SO=${{ matrix.llvm_stage_old }}
+          # -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly"
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_llvm.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_clang.split.map
+          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_compiler_rt.split.map
+          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxx.split.map
+          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxxabi.split.map
+          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libunwind.split.map
+          URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_clang_tools_extra.split.map
+          URL8=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_lld.split.map
+          URL9=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_lldb.split.map
+          URL10=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_mlir.split.map
+          URL11=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_polly.split.map
+          URL12=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S0--windows-msys2-clang--release/rootfs.split.map
 
           # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_CLANG || true
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_clang_llvm || true
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_clang_clang || true
+          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_clang_compiler_rt || true
+          ./split_exe/split.exe --join -r $URL4 --out BUILD_RELEASE_clang_libcxx || true
+          ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_clang_libcxxabi || true
+          ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_clang_libunwind || true
+          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_clang_clang_tools_extra || true
+          ./split_exe/split.exe --join -r $URL8 --out BUILD_RELEASE_clang_lld || true
+          ./split_exe/split.exe --join -r $URL9 --out BUILD_RELEASE_clang_lldb || true
+          ./split_exe/split.exe --join -r $URL10 --out BUILD_RELEASE_clang_mlir || true
+          ./split_exe/split.exe --join -r $URL11 --out BUILD_RELEASE_clang_polly || true
           # always download the previous stage's build rootfs
-          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS
+          ./split_exe/split.exe --join -r $URL12 --out BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS
 
       - name: clone llvm-project
         run: |
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
 
-      - name: cmake LLVM STAGE 3 - Release - Configure
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm  - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS/bin/clang -DCMAKE_CXX_COMPILER=$(pwd)/BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS/bin/clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE_CLANG
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/llvm"
+          export build_dir="BUILD_RELEASE_clang_llvm"
+          export llvm_projects=""
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
-      - name: cmake LLVM STAGE 3 - Release - Build
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE_CLANG
+          cmake --build "$(cat current_build_dir)"
 
-      - name: cmake LLVM STAGE 3 - Release - Install
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE_CLANG
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/clang"
+          export build_dir="BUILD_RELEASE_clang_clang"
+          export llvm_projects="clang"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/compiler-rt"
+          export build_dir="BUILD_RELEASE_clang_compiler_rt"
+          export llvm_projects=""
+          export llvm_runtimes="compiler-rt"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/libcxx"
+          export build_dir="BUILD_RELEASE_clang_libcxx"
+          export llvm_projects=""
+          export llvm_runtimes="libcxx"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/libcxxabi"
+          export build_dir="BUILD_RELEASE_clang_libcxxabi"
+          export llvm_projects=""
+          export llvm_runtimes="libcxxabi"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/libunwind"
+          export build_dir="BUILD_RELEASE_clang_libunwind"
+          export llvm_projects=""
+          export llvm_runtimes="libunwind"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/clang-tools-extra"
+          export build_dir="BUILD_RELEASE_clang_clang_tools_extra"
+          export llvm_projects="clang-tools-extra"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/lld"
+          export build_dir="BUILD_RELEASE_clang_lld"
+          export llvm_projects="lld"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/lldb"
+          export build_dir="BUILD_RELEASE_clang_lldb"
+          export llvm_projects="lldb"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/mlir"
+          export build_dir="BUILD_RELEASE_clang_mlir"
+          export llvm_projects="mlir"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/polly"
+          export build_dir="BUILD_RELEASE_clang_polly"
+          export llvm_projects="polly"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --build "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Install
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2642,11 +3109,21 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_CLANG --name build --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm --name build_llvm --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_clang --name build_clang --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_compiler_rt --name build_compiler_rt --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libcxx --name build_libcxx --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libcxxabi --name build_libcxxabi --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libunwind --name build_libunwind --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_clang_tools_extra --name build_clang_tools_extra --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_lld --name build_lld --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_lldb --name build_lldb --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_mlir --name build_mlir --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_polly --name build_polly --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2657,8 +3134,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage 3 - windows msys2 clang - RELEASE"
-          tag: "storage--llvm-stage-3--windows-msys2-clang--release"
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-clang--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -2666,5 +3143,15 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./build.split.*
+            ./build_llvm.split.*
+            ./build_clang.split.*
+            ./build_compiler_rt.split.*
+            ./build_libcxx.split.*
+            ./build_libcxxabi.split.*
+            ./build_libunwind.split.*
+            ./build_clang_tools_extra.split.*
+            ./build_lld.split.*
+            ./build_lldb.split.*
+            ./build_mlir.split.*
+            ./build_polly.split.*
             ./rootfs.split.*
