@@ -170,6 +170,7 @@ jobs:
   # 'libedit not fully ported to win32 yet, lldb will be broken'
   win32_build_deps:
     needs: msys2_build_split
+    if: false
     # so we can upload releases
     permissions:
       contents: write
@@ -231,11 +232,11 @@ jobs:
 
       - name: install ninja
         run: |
-          pacman -S --noconfirm --needed ninja:p
+          pacboy -S --noconfirm --needed ninja:p
 
       - name: install python
         run: |
-          pacman -S --noconfirm --needed python:p
+          pacboy -S --noconfirm --needed python:p
 
       - name: install autotools
         run: |
@@ -390,11 +391,11 @@ jobs:
 
       - name: install ninja
         run: |
-          pacman -S --noconfirm --needed ninja:p
+          pacboy -S --noconfirm --needed ninja:p
 
       - name: install python
         run: |
-          pacman -S --noconfirm --needed python:p
+          pacboy -S --noconfirm --needed python:p
 
       - name: install git
         run: |
@@ -548,11 +549,11 @@ jobs:
 
       - name: install ninja
         run: |
-          pacman -S --noconfirm --needed ninja:p
+          pacboy -S --noconfirm --needed ninja:p
 
       - name: install python
         run: |
-          pacman -S --noconfirm --needed python:p
+          pacboy -S --noconfirm --needed python:p
 
       - name: install git
         run: |
@@ -647,7 +648,6 @@ jobs:
 
   win32_build_llvm_stage_1:
     needs: win32_build_deps
-    if: false
     # so we can upload releases
     permissions:
       contents: write
@@ -706,11 +706,11 @@ jobs:
 
       - name: install ninja
         run: |
-          pacman -S --noconfirm --needed ninja:p
+          pacboy -S --noconfirm --needed ninja:p
 
       - name: install python
         run: |
-          pacman -S --noconfirm --needed python:p
+          pacboy -S --noconfirm --needed python:p
 
       - name: install git
         run: |
