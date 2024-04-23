@@ -95,9 +95,6 @@ jobs:
         run: |
           pacman -S --noconfirm --needed git gcc make cmake ninja python autotools
 
-#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib/pkgconfig:$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/include -L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/include -L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib   -g0 -O3" ; sh ./configure   --prefix=$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --enable-static=yes --enable-shared=no'
-#'sh' '-c' 'export PKG_CONFIG_PATH="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib/pkgconfig:$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/share/pkgconfig:$PKG_CONFIG_PATH" ; export CC="/usr/bin/clang.exe" ; export LDFLAGS="-L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib" ; export CFLAGS="-I$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/include -L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib   -g0 -O3" ; export CXX="/usr/bin/clang++.exe" ; export CXXFLAGS="-I$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/include -L$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/lib   -g0 -O3" ; make --trace'
-
       - name: check if split program is cached
         run: |
           export MSYS=winsymlinks:native
@@ -166,791 +163,6 @@ jobs:
             ./split/split_rootfs.tar.sha512
             ./split.exe.tar
             ./split.exe.tar.sha512
-
-  # 'libedit not fully ported to win32 yet, lldb will be broken'
-  win32_build_deps:
-    needs: msys2_build_split
-    if: false
-    # so we can upload releases
-    permissions:
-      contents: write
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: clang64
-
-    runs-on: ${{ matrix.os }}
-
-    name: win32 deps - ${{ matrix.name }}
-
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          submodules: recursive
-
-      - name: '${{ matrix.icon }} Setup MSYS2'
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{matrix.sys}}
-          update: true
-          path-type: strict
-
-      - name: update packages
-        run: |
-          pacman -Sy
-
-      - name: install pacboy
-        run: |
-          pacman -Syu --noconfirm --needed pactoys
-
-      - name: update packages
-        run: |
-          pacboy -Sy
-
-      - name: install git
-        run: |
-          pacboy -S --noconfirm --needed git
-
-      - name: install findutils
-        run: |
-          pacboy -S --noconfirm --needed findutils
-
-      - name: install clang 17
-        run: |
-          pacboy -S --noconfirm --needed clang:p
-
-      - name: install cmake
-        run: |
-          pacboy -S --noconfirm --needed make:p cmake:p
-
-      - name: install ninja
-        run: |
-          pacboy -S --noconfirm --needed ninja:p
-
-      - name: install python
-        run: |
-          pacboy -S --noconfirm --needed python:p
-
-      - name: install autotools
-        run: |
-          pacboy -S --noconfirm --needed autotools:p
-
-      - name: install patch
-        run: |
-          pacboy -S --noconfirm --needed patch
-
-      - name: install gperf
-        run: |
-          pacboy -S --noconfirm --needed gperf:p
-
-      - name: install groff
-        run: |
-          pacboy -S --noconfirm --needed groff
-
-      - name: install gettext
-        run: |
-          pacboy -S --noconfirm --needed gettext
-
-      - name: install texinfo
-        run: |
-          pacboy -S --noconfirm --needed texinfo
-
-      - name: clone libiconv
-        run: |
-          export MSYS=winsymlinks:native
-          cd deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1
-
-      - name: libiconv autopull.sh
-        run: |
-          export MSYS=winsymlinks:native
-          cd deps ; cd libiconv ; ./autopull.sh --one-time
-
-      - name: check if split program is cached
-        run: |
-          export MSYS=winsymlinks:native
-          chmod +x ./try_get_release.sh
-          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
-
-      - name: check if build directory is cached
-        run: |
-          export MSYS=winsymlinks:native
-
-          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows--release/build.split.map
-          ./split_exe/split.exe --join -r $URL --out BUILD_RELEASE || true
-
-      - name: cmake build deps - Release
-        run: |
-          export MSYS=winsymlinks:native
-          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
-
-          # clang64 provides nanosleep in /clang64/lib/libpthread.a
-          export cf_cv_func_nanosleep=yes
-
-          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S . -B BUILD_RELEASE
-
-      - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        run: |
-          export MSYS=winsymlinks:native
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE --name build --size 750000000
-
-      - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
-        run: |
-          ls -l
-      
-      - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        uses: "ncipollo/release-action@v1"
-        with:
-          name: "llvm deps - windows - RELEASE"
-          tag: "storage--deps--windows--release"
-          makeLatest: true
-          generateReleaseNotes: false
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
-          removeArtifacts: true
-          artifacts: |
-            ./build.split.*
-            ./rootfs.split.*
-
-  # build LLVM but dont build clang and dont build runtimes
-  win32_build_llvm_without_runtimes:
-    needs: win32_build_deps
-    # so we can upload releases
-    permissions:
-      contents: write
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: clang64
-
-    runs-on: ${{ matrix.os }}
-
-    name: win32 llvm + runtimes - ${{ matrix.name }}
-
-    steps:
-
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          # we dont need submodules anymore
-
-      - name: '${{ matrix.icon }} Setup MSYS2'
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{matrix.sys}}
-          update: true
-          path-type: strict
-
-      - name: update packages
-        run: |
-          pacman -Sy
-
-      - name: install pacboy
-        run: |
-          pacman -Syu --noconfirm --needed pactoys
-
-      - name: update packages
-        run: |
-          pacboy -Sy
-
-      - name: install findutils
-        run: |
-          pacboy -S --noconfirm --needed findutils
-
-      - name: install clang 17
-        run: |
-          pacboy -S --noconfirm --needed clang:p
-
-      - name: install cmake
-        run: |
-          pacboy -S --noconfirm --needed make:p cmake:p
-
-      - name: install ninja
-        run: |
-          pacboy -S --noconfirm --needed ninja:p
-
-      - name: install python
-        run: |
-          pacboy -S --noconfirm --needed python:p
-
-      - name: install git
-        run: |
-          pacboy -S --noconfirm --needed git
-
-      - name: install ncurses
-        run: |
-          pacboy -S --noconfirm --needed ncurses ncurses:p ncurses-devel
-
-      - name: install python
-        run: |
-          pacboy -S --noconfirm --needed python-devel
-
-      - name: install swig
-        run: |
-          pacboy -S --noconfirm --needed swig
-
-      - name: check if split program is cached
-        run: |
-          export MSYS=winsymlinks:native
-          chmod +x ./try_get_release.sh
-          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
-
-      - name: check if build directory is cached
-        run: |
-          export MSYS=winsymlinks:native
-
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-without-runtimes--windows--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows--release/rootfs.split.map
-
-          if ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE
-            then
-              true;
-            else
-              mkdir BUILD_RELEASE/BUILD_ROOT
-              ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE/BUILD_ROOT/ROOTFS
-          fi
-
-      - name: clone llvm-project
-        run: |
-          git clone --depth=1 --recursive https://github.com/llvm/llvm-project
-
-      - name: cmake LLVM - Release - Configure
-        run: |
-          export MSYS=winsymlinks:native
-          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="" -DLLVM_ENABLE_RUNTIMES="" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE
-
-      - name: cmake LLVM - Release - Build
-        run: |
-          export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE
-
-      - name: cmake LLVM - Release - Install
-        run: |
-          export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE
-
-      - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        run: |
-          export MSYS=winsymlinks:native
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE --name build --size 750000000
-
-      - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
-        run: |
-          ls -l
-      
-      - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        uses: "ncipollo/release-action@v1"
-        with:
-          name: "llvm without runtimes - windows - RELEASE"
-          tag: "storage--llvm-without-runtimes--windows--release"
-          makeLatest: true
-          generateReleaseNotes: false
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
-          removeArtifacts: true
-          artifacts: |
-            ./build.split.*
-            ./rootfs.split.*
-
-  # build LLVM + runtimes but dont build clang
-  win32_build_llvm_with_runtimes:
-    needs: win32_build_deps
-    # so we can upload releases
-    permissions:
-      contents: write
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: clang64
-
-    runs-on: ${{ matrix.os }}
-
-    name: win32 llvm + runtimes - ${{ matrix.name }}
-
-    steps:
-
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          # we dont need submodules anymore
-
-      - name: '${{ matrix.icon }} Setup MSYS2'
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{matrix.sys}}
-          update: true
-          path-type: strict
-
-      - name: update packages
-        run: |
-          pacman -Sy
-
-      - name: install pacboy
-        run: |
-          pacman -Syu --noconfirm --needed pactoys
-
-      - name: update packages
-        run: |
-          pacboy -Sy
-
-      - name: install findutils
-        run: |
-          pacboy -S --noconfirm --needed findutils
-
-      - name: install clang 17
-        run: |
-          pacboy -S --noconfirm --needed clang:p
-
-      - name: install cmake
-        run: |
-          pacboy -S --noconfirm --needed make:p cmake:p
-
-      - name: install ninja
-        run: |
-          pacboy -S --noconfirm --needed ninja:p
-
-      - name: install python
-        run: |
-          pacboy -S --noconfirm --needed python:p
-
-      - name: install git
-        run: |
-          pacboy -S --noconfirm --needed git
-
-      - name: install ncurses
-        run: |
-          pacboy -S --noconfirm --needed ncurses ncurses:p ncurses-devel
-
-      - name: install python
-        run: |
-          pacboy -S --noconfirm --needed python-devel
-
-      - name: install swig
-        run: |
-          pacboy -S --noconfirm --needed swig
-
-      - name: check if split program is cached
-        run: |
-          export MSYS=winsymlinks:native
-          chmod +x ./try_get_release.sh
-          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
-
-      - name: check if build directory is cached
-        run: |
-          export MSYS=winsymlinks:native
-
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-with-runtimes--windows--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows--release/rootfs.split.map
-
-          if ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE
-            then
-              true;
-            else
-              mkdir BUILD_RELEASE/BUILD_ROOT
-              ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE/BUILD_ROOT/ROOTFS
-          fi
-
-      - name: clone llvm-project
-        run: |
-          git clone --depth=1 --recursive https://github.com/llvm/llvm-project
-
-      - name: cmake LLVM - Release - Configure
-        run: |
-          export MSYS=winsymlinks:native
-          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE
-
-      - name: cmake LLVM - Release - Build
-        run: |
-          export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE
-
-      - name: cmake LLVM - Release - Install
-        run: |
-          export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE
-
-      - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        run: |
-          export MSYS=winsymlinks:native
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE --name build --size 750000000
-
-      - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
-        run: |
-          ls -l
-      
-      - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        uses: "ncipollo/release-action@v1"
-        with:
-          name: "llvm with runtimes - windows - RELEASE"
-          tag: "storage--llvm-with-runtimes--windows--release"
-          makeLatest: true
-          generateReleaseNotes: false
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
-          removeArtifacts: true
-          artifacts: |
-            ./build.split.*
-            ./rootfs.split.*
-
-  win32_build_llvm_stage_1:
-    needs: win32_build_deps
-    # so we can upload releases
-    permissions:
-      contents: write
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: clang64
-
-    runs-on: ${{ matrix.os }}
-
-    name: win32 llvm stage 1 - ${{ matrix.name }}
-
-    steps:
-
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          # we dont need submodules anymore
-
-      - name: '${{ matrix.icon }} Setup MSYS2'
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{matrix.sys}}
-          update: true
-          path-type: strict
-
-      - name: update packages
-        run: |
-          pacman -Sy
-
-      - name: install pacboy
-        run: |
-          pacman -Syu --noconfirm --needed pactoys
-
-      - name: update packages
-        run: |
-          pacboy -Sy
-
-      - name: install findutils
-        run: |
-          pacboy -S --noconfirm --needed findutils
-
-      - name: install clang 17
-        run: |
-          pacboy -S --noconfirm --needed clang:p
-
-      - name: install cmake
-        run: |
-          pacboy -S --noconfirm --needed make:p cmake:p
-
-      - name: install ninja
-        run: |
-          pacboy -S --noconfirm --needed ninja:p
-
-      - name: install python
-        run: |
-          pacboy -S --noconfirm --needed python:p
-
-      - name: install git
-        run: |
-          pacboy -S --noconfirm --needed git
-
-      - name: install ncurses
-        run: |
-          pacboy -S --noconfirm --needed ncurses ncurses:p ncurses-devel
-
-      - name: install python
-        run: |
-          pacboy -S --noconfirm --needed python-devel
-
-      - name: install swig
-        run: |
-          pacboy -S --noconfirm --needed swig
-
-      - name: check if split program is cached
-        run: |
-          export MSYS=winsymlinks:native
-          chmod +x ./try_get_release.sh
-          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
-
-      - name: check if build directory is cached
-        run: |
-          export MSYS=winsymlinks:native
-
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-1--windows--release/build.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows--release/rootfs.split.map
-
-          if ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE
-            then
-              true;
-            else
-              mkdir BUILD_RELEASE/BUILD_ROOT
-              ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE/BUILD_ROOT/ROOTFS
-          fi
-
-      - name: clone llvm-project
-        run: |
-          git clone --depth=1 --recursive https://github.com/llvm/llvm-project
-
-      - name: cmake LLVM STAGE 1 - Release - Configure
-        run: |
-          export MSYS=winsymlinks:native
-          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="clang" -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DLLVM_BUILD_ROOT__ROOTFS="$(pwd)/BUILD_RELEASE/BUILD_ROOT/ROOTFS" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S llvm-project/llvm -B BUILD_RELEASE
-
-      - name: cmake LLVM STAGE 1 - Release - Build
-        run: |
-          export MSYS=winsymlinks:native
-          cmake --build BUILD_RELEASE
-
-      - name: cmake LLVM STAGE 1 - Release - Install
-        run: |
-          export MSYS=winsymlinks:native
-          cmake --install BUILD_RELEASE
-
-      - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        run: |
-          export MSYS=winsymlinks:native
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE --name build --size 750000000
-
-      - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
-        run: |
-          ls -l
-      
-      - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        uses: "ncipollo/release-action@v1"
-        with:
-          name: "llvm stage 1 - windows - RELEASE"
-          tag: "storage--llvm-stage-1--windows--release"
-          makeLatest: true
-          generateReleaseNotes: false
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
-          removeArtifacts: true
-          artifacts: |
-            ./build.split.*
-            ./rootfs.split.*
-
-  win32_build_llvm_stage_2:
-    needs: win32_build_llvm_stage_1
-    # so we can upload releases
-    permissions:
-      contents: write
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: clang64
-
-    runs-on: ${{ matrix.os }}
-
-    name: win32 llvm stage 2 - ${{ matrix.name }}
-
-    steps:
-
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          # we dont need submodules anymore
-
-  win32_build_llvm_stage_3:
-    needs: win32_build_llvm_stage_2
-    # so we can upload releases
-    permissions:
-      contents: write
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: clang64
-
-    runs-on: ${{ matrix.os }}
-
-    name: win32 llvm stage 3 - ${{ matrix.name }}
-
-    steps:
-
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          # we dont need submodules anymore
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # msys2 clang 11 is too old to build iconv, pre-package system libs into rootfs
 # msys2 clang 11 lacks stdc++ headers, build bootstrap stage 3 with gcc then rebuild real clang via bootstrap clang
@@ -1145,12 +357,12 @@ jobs:
           export MSYS=winsymlinks:native
 
           S=${{ matrix.llvm_stage }}
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_llvm.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_clang.split.map
-          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_compiler_rt.split.map
-          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_libcxx.split.map
-          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_libcxxabi.split.map
-          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_libunwind.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_llvm--release/build_llvm.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_clang--release/build_clang.split.map
+          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_compiler_rt--release/build_compiler_rt.split.map
+          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_libcxx--release/build_libcxx.split.map
+          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_libcxxabi--release/build_libcxxabi.split.map
+          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_libunwind--release/build_libunwind.split.map
           URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
 
           # download the build dir if it exists
@@ -1163,6 +375,11 @@ jobs:
           # always download the previous stage's build rootfs
           ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
 
+      - name: set compiler
+        run: |
+          echo "gcc" > c_compiler
+          echo "g++" > cxx_compiler
+
       - name: clone llvm-project
         run: |
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
@@ -1171,8 +388,8 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler=gcc
-          export cxx_compiler=g++
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/llvm"
@@ -1193,12 +410,46 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          mv BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS ROOTFS
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm --name build_llvm --size 750000000
+
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT
+          mv ROOTFS BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_llvm--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_llvm.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler=gcc
-          export cxx_compiler=g++
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/clang"
@@ -1219,12 +470,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_clang --name build_clang --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_clang.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler=gcc
-          export cxx_compiler=g++
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/compiler-rt"
@@ -1245,12 +525,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt --name build_compiler_rt --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - compiler-rt - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_compiler_rt--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_compiler_rt.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler=gcc
-          export cxx_compiler=g++
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxx"
@@ -1271,12 +580,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx --name build_libcxx --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxx - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_libcxx--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxx.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler=gcc
-          export cxx_compiler=g++
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxxabi"
@@ -1297,12 +635,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi --name build_libcxxabi --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxxabi - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_libcxxabi--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxxabi.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler=gcc
-          export cxx_compiler=g++
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/libunwind"
@@ -1330,16 +697,36 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind --name build_libunwind --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libunwind - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_libunwind--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libunwind.split.*
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm --name build_llvm --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_clang --name build_clang --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt --name build_compiler_rt --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx --name build_libcxx --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi --name build_libcxxabi --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind --name build_libunwind --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1359,12 +746,6 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./build_llvm.split.*
-            ./build_clang.split.*
-            ./build_compiler_rt.split.*
-            ./build_libcxx.split.*
-            ./build_libcxxabi.split.*
-            ./build_libunwind.split.*
             ./rootfs.split.*
 
   msys2_prebuilt_bootstrap_msys2_build_llvm_stage_2:
@@ -1439,12 +820,12 @@ jobs:
 
           S=${{ matrix.llvm_stage }}
           SO=${{ matrix.llvm_stage_old }}
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_llvm.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_clang.split.map
-          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_compiler_rt.split.map
-          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_libcxx.split.map
-          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_libcxxabi.split.map
-          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_libunwind.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_llvm--release/build_llvm.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_clang--release/build_clang.split.map
+          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_compiler_rt--release/build_compiler_rt.split.map
+          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_libcxx--release/build_libcxx.split.map
+          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_libcxxabi--release/build_libcxxabi.split.map
+          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_libunwind--release/build_libunwind.split.map
           URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
 
           # download the build dir if it exists
@@ -1457,6 +838,11 @@ jobs:
           # always download the previous stage's build rootfs
           ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
 
+      - name: set compiler
+        run: |
+          echo "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang" > c_compiler
+          echo "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++" > cxx_compiler
+
       - name: clone llvm-project
         run: |
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
@@ -1465,8 +851,8 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/llvm"
@@ -1487,12 +873,46 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          mv BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS ROOTFS
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm --name build_llvm --size 750000000
+
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT
+          mv ROOTFS BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_llvm--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_llvm.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/clang"
@@ -1513,12 +933,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_clang --name build_clang --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_clang.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/compiler-rt"
@@ -1539,12 +988,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt --name build_compiler_rt --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - compiler-rt - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_compiler_rt--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_compiler_rt.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxx"
@@ -1565,12 +1043,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx --name build_libcxx --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxx - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_libcxx--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxx.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxxabi"
@@ -1591,12 +1098,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi --name build_libcxxabi --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxxabi - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_libcxxabi--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxxabi.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/libunwind"
@@ -1624,16 +1160,36 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind --name build_libunwind --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libunwind - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_libunwind--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libunwind.split.*
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm --name build_llvm --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_clang --name build_clang --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt --name build_compiler_rt --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx --name build_libcxx --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi --name build_libcxxabi --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind --name build_libunwind --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1653,12 +1209,6 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./build_llvm.split.*
-            ./build_clang.split.*
-            ./build_compiler_rt.split.*
-            ./build_libcxx.split.*
-            ./build_libcxxabi.split.*
-            ./build_libunwind.split.*
             ./rootfs.split.*
 
   msys2_prebuilt_bootstrap_msys2_build_llvm_stage_3:
@@ -1733,12 +1283,12 @@ jobs:
 
           S=${{ matrix.llvm_stage }}
           SO=${{ matrix.llvm_stage_old }}
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_llvm.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_clang.split.map
-          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_compiler_rt.split.map
-          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_libcxx.split.map
-          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_libcxxabi.split.map
-          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap--release/build_libunwind.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_llvm--release/build_llvm.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_clang--release/build_clang.split.map
+          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_compiler_rt--release/build_compiler_rt.split.map
+          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_libcxx--release/build_libcxx.split.map
+          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_libcxxabi--release/build_libcxxabi.split.map
+          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_libunwind--release/build_libunwind.split.map
           URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
 
           # download the build dir if it exists
@@ -1751,6 +1301,11 @@ jobs:
           # always download the previous stage's build rootfs
           ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
 
+      - name: set compiler
+        run: |
+          echo "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang" > c_compiler
+          echo "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++" > cxx_compiler
+
       - name: clone llvm-project
         run: |
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
@@ -1759,8 +1314,8 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/llvm"
@@ -1781,12 +1336,46 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          mv BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS ROOTFS
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm --name build_llvm --size 750000000
+
+          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT
+          mv ROOTFS BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_llvm--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_llvm.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/clang"
@@ -1807,12 +1396,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_clang --name build_clang --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_clang.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/compiler-rt"
@@ -1833,12 +1451,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt --name build_compiler_rt --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - compiler-rt - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_compiler_rt--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_compiler_rt.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxx"
@@ -1859,12 +1506,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx --name build_libcxx --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxx - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_libcxx--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxx.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxxabi"
@@ -1885,12 +1561,41 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi --name build_libcxxabi --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxxabi - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_libcxxabi--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxxabi.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$rootfs"
           export source_dir="llvm-project/libunwind"
@@ -1918,16 +1623,36 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind --name build_libunwind --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libunwind - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_libunwind--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libunwind.split.*
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm --name build_llvm --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_clang --name build_clang --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt --name build_compiler_rt --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx --name build_libcxx --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi --name build_libcxxabi --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind --name build_libunwind --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1947,12 +1672,6 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./build_llvm.split.*
-            ./build_clang.split.*
-            ./build_compiler_rt.split.*
-            ./build_libcxx.split.*
-            ./build_libcxxabi.split.*
-            ./build_libunwind.split.*
             ./rootfs.split.*
 
 # clang 11 is too old, build via msys2_prebuilt_bootstrap (above) then rebuild with iconv via our build clang
@@ -2190,28 +1909,33 @@ jobs:
 
           S=${{ matrix.llvm_stage }}
           SO=${{ matrix.llvm_stage_old }}
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_llvm.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_clang.split.map
-          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_compiler_rt.split.map
-          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxx.split.map
-          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxxabi.split.map
-          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libunwind.split.map
-          URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-clang--release/build.split.map
-          URL8=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_llvm--release/build_llvm.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_clang--release/build_clang.split.map
+          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_compiler_rt--release/build_compiler_rt.split.map
+          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_libcxx--release/build_libcxx.split.map
+          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_libcxxabi--release/build_libcxxabi.split.map
+          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_libunwind--release/build_libunwind.split.map
+          URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
+          URL8=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-clang--release/build.split.map
 
           # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_clang_llvm || true
-          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_clang_clang || true
-          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_clang_compiler_rt || true
-          ./split_exe/split.exe --join -r $URL4 --out BUILD_RELEASE_clang_libcxx || true
-          ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_clang_libcxxabi || true
-          ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_clang_libunwind || true
-          # always download the previous stage's build rootfs
-          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_msys2_clang_llvm || true
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_msys2_clang_clang || true
+          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_msys2_clang_compiler_rt || true
+          ./split_exe/split.exe --join -r $URL4 --out BUILD_RELEASE_msys2_clang_libcxx || true
+          ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_msys2_clang_libcxxabi || true
+          ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_msys2_clang_libunwind || true
           # download bootstrap clang
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm
           mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT
-          ./split_exe/split.exe --join -r $URL8 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
+          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
+          # always download the previous stage's build rootfs
+          ./split_exe/split.exe --join -r $URL8 --out BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS
+
+      - name: set compiler
+        run: |
+          echo "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang" > c_compiler
+          echo "$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++" > cxx_compiler
 
       - name: clone llvm-project
         run: |
@@ -2221,12 +1945,12 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/llvm"
-          export build_dir="BUILD_RELEASE_clang_llvm"
+          export build_dir="BUILD_RELEASE_msys2_clang_llvm"
           export llvm_projects=""
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
@@ -2243,16 +1967,50 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          mv BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS ROOTFS
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_llvm --name build_llvm --size 750000000
+
+          mkdir BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT
+          mv ROOTFS BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - llvm - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_llvm--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_llvm.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/clang"
-          export build_dir="BUILD_RELEASE_clang_clang"
+          export build_dir="BUILD_RELEASE_msys2_clang_clang"
           export llvm_projects="clang"
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
@@ -2269,16 +2027,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_clang --name build_clang --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_clang.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/compiler-rt"
-          export build_dir="BUILD_RELEASE_clang_compiler_rt"
+          export build_dir="BUILD_RELEASE_msys2_clang_compiler_rt"
           export llvm_projects=""
           export llvm_runtimes="compiler-rt"
           echo "$build_dir" > current_build_dir
@@ -2295,16 +2082,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_compiler_rt --name build_compiler_rt --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - compiler-rt - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_compiler_rt--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_compiler_rt.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxx"
-          export build_dir="BUILD_RELEASE_clang_libcxx"
+          export build_dir="BUILD_RELEASE_msys2_clang_libcxx"
           export llvm_projects=""
           export llvm_runtimes="libcxx"
           echo "$build_dir" > current_build_dir
@@ -2321,16 +2137,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxx --name build_libcxx --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxx - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_libcxx--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxx.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxxabi"
-          export build_dir="BUILD_RELEASE_clang_libcxxabi"
+          export build_dir="BUILD_RELEASE_msys2_clang_libcxxabi"
           export llvm_projects=""
           export llvm_runtimes="libcxxabi"
           echo "$build_dir" > current_build_dir
@@ -2347,16 +2192,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxxabi --name build_libcxxabi --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxxabi - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_libcxxabi--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxxabi.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libunwind"
-          export build_dir="BUILD_RELEASE_clang_libunwind"
+          export build_dir="BUILD_RELEASE_msys2_clang_libunwind"
           export llvm_projects=""
           export llvm_runtimes="libunwind"
           echo "$build_dir" > current_build_dir
@@ -2380,16 +2254,7 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm --name build_llvm --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_clang --name build_clang --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_compiler_rt --name build_compiler_rt --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libcxx --name build_libcxx --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libcxxabi --name build_libcxxabi --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libunwind --name build_libunwind --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libunwind --name build_libunwind --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2400,8 +2265,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage ${{ matrix.llvm_stage }} - windows clang - RELEASE"
-          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-clang--release"
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libunwind - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_libunwind--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -2409,12 +2274,35 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./build_llvm.split.*
-            ./build_clang.split.*
-            ./build_compiler_rt.split.*
-            ./build_libcxx.split.*
-            ./build_libcxxabi.split.*
             ./build_libunwind.split.*
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
             ./rootfs.split.*
 
   clang_msys2_build_llvm_stage_2:
@@ -2489,23 +2377,28 @@ jobs:
 
           S=${{ matrix.llvm_stage }}
           SO=${{ matrix.llvm_stage_old }}
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_llvm.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_clang.split.map
-          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_compiler_rt.split.map
-          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxx.split.map
-          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxxabi.split.map
-          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libunwind.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_llvm--release/build_llvm.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_clang--release/build_clang.split.map
+          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_compiler_rt--release/build_compiler_rt.split.map
+          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_libcxx--release/build_libcxx.split.map
+          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_libcxxabi--release/build_libcxxabi.split.map
+          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_libunwind--release/build_libunwind.split.map
           URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S0--windows-msys2-clang--release/rootfs.split.map
 
           # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_clang_llvm || true
-          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_clang_clang || true
-          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_clang_compiler_rt || true
-          ./split_exe/split.exe --join -r $URL4 --out BUILD_RELEASE_clang_libcxx || true
-          ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_clang_libcxxabi || true
-          ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_clang_libunwind || true
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_msys2_clang_llvm || true
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_msys2_clang_clang || true
+          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_msys2_clang_compiler_rt || true
+          ./split_exe/split.exe --join -r $URL4 --out BUILD_RELEASE_msys2_clang_libcxx || true
+          ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_msys2_clang_libcxxabi || true
+          ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_msys2_clang_libunwind || true
           # always download the previous stage's build rootfs
-          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS
+          ./split_exe/split.exe --join -r $URL8 --out BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS
+
+      - name: set compiler
+        run: |
+          echo "$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang" > c_compiler
+          echo "$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++" > cxx_compiler
 
       - name: clone llvm-project
         run: |
@@ -2515,12 +2408,12 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/llvm"
-          export build_dir="BUILD_RELEASE_clang_llvm"
+          export build_dir="BUILD_RELEASE_msys2_clang_llvm"
           export llvm_projects=""
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
@@ -2537,16 +2430,50 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          mv BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS ROOTFS
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_llvm --name build_llvm --size 750000000
+
+          mkdir BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT
+          mv ROOTFS BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - llvm - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_llvm--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_llvm.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/clang"
-          export build_dir="BUILD_RELEASE_clang_clang"
+          export build_dir="BUILD_RELEASE_msys2_clang_clang"
           export llvm_projects="clang"
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
@@ -2563,16 +2490,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_clang --name build_clang --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_clang.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/compiler-rt"
-          export build_dir="BUILD_RELEASE_clang_compiler_rt"
+          export build_dir="BUILD_RELEASE_msys2_clang_compiler_rt"
           export llvm_projects=""
           export llvm_runtimes="compiler-rt"
           echo "$build_dir" > current_build_dir
@@ -2589,16 +2545,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_compiler_rt --name build_compiler_rt --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - compiler-rt - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_compiler_rt--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_compiler_rt.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxx"
-          export build_dir="BUILD_RELEASE_clang_libcxx"
+          export build_dir="BUILD_RELEASE_msys2_clang_libcxx"
           export llvm_projects=""
           export llvm_runtimes="libcxx"
           echo "$build_dir" > current_build_dir
@@ -2615,16 +2600,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxx --name build_libcxx --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxx - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_libcxx--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxx.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxxabi"
-          export build_dir="BUILD_RELEASE_clang_libcxxabi"
+          export build_dir="BUILD_RELEASE_msys2_clang_libcxxabi"
           export llvm_projects=""
           export llvm_runtimes="libcxxabi"
           echo "$build_dir" > current_build_dir
@@ -2641,16 +2655,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxxabi --name build_libcxxabi --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxxabi - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_libcxxabi--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxxabi.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libunwind"
-          export build_dir="BUILD_RELEASE_clang_libunwind"
+          export build_dir="BUILD_RELEASE_msys2_clang_libunwind"
           export llvm_projects=""
           export llvm_runtimes="libunwind"
           echo "$build_dir" > current_build_dir
@@ -2674,16 +2717,7 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm --name build_llvm --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_clang --name build_clang --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_compiler_rt --name build_compiler_rt --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libcxx --name build_libcxx --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libcxxabi --name build_libcxxabi --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libunwind --name build_libunwind --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libunwind --name build_libunwind --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2694,8 +2728,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage ${{ matrix.llvm_stage }} - windows clang - RELEASE"
-          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-clang--release"
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libunwind - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_libunwind--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -2703,12 +2737,35 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./build_llvm.split.*
-            ./build_clang.split.*
-            ./build_compiler_rt.split.*
-            ./build_libcxx.split.*
-            ./build_libcxxabi.split.*
             ./build_libunwind.split.*
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
             ./rootfs.split.*
 
   clang_msys2_build_llvm_stage_3:
@@ -2777,40 +2834,47 @@ jobs:
           chmod +x ./try_get_release.sh
           ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
 
+
+
+
       - name: check if build directory is cached
         run: |
           export MSYS=winsymlinks:native
 
           S=${{ matrix.llvm_stage }}
           SO=${{ matrix.llvm_stage_old }}
-          # -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;mlir;polly"
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_llvm.split.map
-          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_clang.split.map
-          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_compiler_rt.split.map
-          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxx.split.map
-          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libcxxabi.split.map
-          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_libunwind.split.map
-          URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_clang_tools_extra.split.map
-          URL8=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_lld.split.map
-          URL9=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_lldb.split.map
-          URL10=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_mlir.split.map
-          URL11=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang--release/build_polly.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_llvm--release/build_llvm.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_clang--release/build_clang.split.map
+          URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_compiler_rt--release/build_compiler_rt.split.map
+          URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_libcxx--release/build_libcxx.split.map
+          URL5=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_libcxxabi--release/build_libcxxabi.split.map
+          URL6=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_libunwind--release/build_libunwind.split.map
+          URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_clang_tools_extra--release/build_clang_tools_extra.split.map
+          URL8=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_lld--release/build_lld.split.map
+          URL9=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_lldb--release/build_lldb.split.map
+          URL10=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_mlir--release/build_mlir.split.map
+          URL11=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-clang_polly--release/build_polly.split.map
           URL12=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S0--windows-msys2-clang--release/rootfs.split.map
 
           # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_clang_llvm || true
-          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_clang_clang || true
-          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_clang_compiler_rt || true
-          ./split_exe/split.exe --join -r $URL4 --out BUILD_RELEASE_clang_libcxx || true
-          ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_clang_libcxxabi || true
-          ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_clang_libunwind || true
-          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_clang_clang_tools_extra || true
-          ./split_exe/split.exe --join -r $URL8 --out BUILD_RELEASE_clang_lld || true
-          ./split_exe/split.exe --join -r $URL9 --out BUILD_RELEASE_clang_lldb || true
-          ./split_exe/split.exe --join -r $URL10 --out BUILD_RELEASE_clang_mlir || true
-          ./split_exe/split.exe --join -r $URL11 --out BUILD_RELEASE_clang_polly || true
+          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_msys2_clang_llvm || true
+          ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_msys2_clang_clang || true
+          ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_msys2_clang_compiler_rt || true
+          ./split_exe/split.exe --join -r $URL4 --out BUILD_RELEASE_msys2_clang_libcxx || true
+          ./split_exe/split.exe --join -r $URL5 --out BUILD_RELEASE_msys2_clang_libcxxabi || true
+          ./split_exe/split.exe --join -r $URL6 --out BUILD_RELEASE_msys2_clang_libunwind || true
+          ./split_exe/split.exe --join -r $URL7 --out BUILD_RELEASE_msys2_clang_clang_tools_extra || true
+          ./split_exe/split.exe --join -r $URL8 --out BUILD_RELEASE_msys2_clang_lld || true
+          ./split_exe/split.exe --join -r $URL9 --out BUILD_RELEASE_msys2_clang_lldb || true
+          ./split_exe/split.exe --join -r $URL10 --out BUILD_RELEASE_msys2_clang_mlir || true
+          ./split_exe/split.exe --join -r $URL11 --out BUILD_RELEASE_msys2_clang_polly || true
           # always download the previous stage's build rootfs
-          ./split_exe/split.exe --join -r $URL12 --out BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS
+          ./split_exe/split.exe --join -r $URL12 --out BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS
+
+      - name: set compiler
+        run: |
+          echo "$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang" > c_compiler
+          echo "$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++" > cxx_compiler
 
       - name: clone llvm-project
         run: |
@@ -2820,12 +2884,12 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/llvm"
-          export build_dir="BUILD_RELEASE_clang_llvm"
+          export build_dir="BUILD_RELEASE_msys2_clang_llvm"
           export llvm_projects=""
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
@@ -2842,16 +2906,50 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          mv BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS ROOTFS
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_llvm --name build_llvm --size 750000000
+
+          mkdir BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT
+          mv ROOTFS BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - llvm - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_llvm--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_llvm.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/clang"
-          export build_dir="BUILD_RELEASE_clang_clang"
+          export build_dir="BUILD_RELEASE_msys2_clang_clang"
           export llvm_projects="clang"
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
@@ -2868,16 +2966,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_clang --name build_clang --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_clang.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/compiler-rt"
-          export build_dir="BUILD_RELEASE_clang_compiler_rt"
+          export build_dir="BUILD_RELEASE_msys2_clang_compiler_rt"
           export llvm_projects=""
           export llvm_runtimes="compiler-rt"
           echo "$build_dir" > current_build_dir
@@ -2894,16 +3021,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_compiler_rt --name build_compiler_rt --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - compiler-rt - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_compiler_rt--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_compiler_rt.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxx"
-          export build_dir="BUILD_RELEASE_clang_libcxx"
+          export build_dir="BUILD_RELEASE_msys2_clang_libcxx"
           export llvm_projects=""
           export llvm_runtimes="libcxx"
           echo "$build_dir" > current_build_dir
@@ -2920,16 +3076,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxx --name build_libcxx --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxx - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_libcxx--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxx.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libcxxabi"
-          export build_dir="BUILD_RELEASE_clang_libcxxabi"
+          export build_dir="BUILD_RELEASE_msys2_clang_libcxxabi"
           export llvm_projects=""
           export llvm_runtimes="libcxxabi"
           echo "$build_dir" > current_build_dir
@@ -2946,16 +3131,45 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxxabi --name build_libcxxabi --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxxabi - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_libcxxabi--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libcxxabi.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
-          export rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
-          export install_rootfs="$(pwd)/BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
           export source_dir="llvm-project/libunwind"
-          export build_dir="BUILD_RELEASE_clang_libunwind"
+          export build_dir="BUILD_RELEASE_msys2_clang_libunwind"
           export llvm_projects=""
           export llvm_runtimes="libunwind"
           echo "$build_dir" > current_build_dir
@@ -2971,6 +3185,35 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libunwind --name build_libunwind --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libunwind - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_libunwind--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_libunwind.split.*
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Configure
         run: |
@@ -2998,6 +3241,35 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_clang_tools_extra --name build_clang_tools_extra --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - clang-tools-extra - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_clang_tools_extra--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_clang_tools_extra.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Configure
         run: |
           export MSYS=winsymlinks:native
@@ -3023,6 +3295,35 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_lld --name build_lld --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - lld - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_lld--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_lld.split.*
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Configure
         run: |
@@ -3050,6 +3351,35 @@ jobs:
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_lldb --name build_lldb --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - lldb - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_lldb--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_lldb.split.*
+
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Configure
         run: |
           export MSYS=winsymlinks:native
@@ -3075,6 +3405,35 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_mlir --name build_mlir --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - mlir - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_mlir--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build_mlir.split.*
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Configure
         run: |
@@ -3109,21 +3468,7 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_llvm --name build_llvm --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_clang --name build_clang --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_compiler_rt --name build_compiler_rt --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libcxx --name build_libcxx --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libcxxabi --name build_libcxxabi --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_libunwind --name build_libunwind --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_clang_tools_extra --name build_clang_tools_extra --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_lld --name build_lld --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_lldb --name build_lldb --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_mlir --name build_mlir --size 750000000
-          ./split_exe/split.exe --split -r BUILD_RELEASE_clang_polly --name build_polly --size 750000000
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_polly --name build_polly --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3134,8 +3479,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage ${{ matrix.llvm_stage }} - windows clang - RELEASE"
-          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-clang--release"
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - polly - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_polly--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -3143,15 +3488,33 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./build_llvm.split.*
-            ./build_clang.split.*
-            ./build_compiler_rt.split.*
-            ./build_libcxx.split.*
-            ./build_libcxxabi.split.*
-            ./build_libunwind.split.*
-            ./build_clang_tools_extra.split.*
-            ./build_lld.split.*
-            ./build_lldb.split.*
-            ./build_mlir.split.*
             ./build_polly.split.*
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
             ./rootfs.split.*
