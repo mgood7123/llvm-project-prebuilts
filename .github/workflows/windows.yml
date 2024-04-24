@@ -470,7 +470,48 @@ jobs:
           export CCACHE_STATSLOG="$CCACHE_DIR/ccache_statslog.txt"
           export CCACHE_SLOPPINESS="file_stat_matches_ctime,include_file_ctime,include_file_mtime,time_macros"
           ccache -s -vv -x --show-config
+
+      - name: list cache dir
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          export PATH="$(pwd)/ccache_bin:$PATH"
+          export CCACHE_DIR="$(cat current_cache_dir)"
+          export CCACHE_DEBUG=true
+          export CCACHE_COMMENTS=true
+          export CCACHE_LOGFILE="$CCACHE_DIR/ccache_log.txt"
+          export CCACHE_STATSLOG="$CCACHE_DIR/ccache_statslog.txt"
+          export CCACHE_SLOPPINESS="file_stat_matches_ctime,include_file_ctime,include_file_mtime,time_macros"
           ls -l "$CCACHE_DIR"
+
+      - name: show cache log
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          export PATH="$(pwd)/ccache_bin:$PATH"
+          export CCACHE_DIR="$(cat current_cache_dir)"
+          export CCACHE_DEBUG=true
+          export CCACHE_COMMENTS=true
+          export CCACHE_LOGFILE="$CCACHE_DIR/ccache_log.txt"
+          export CCACHE_STATSLOG="$CCACHE_DIR/ccache_statslog.txt"
+          export CCACHE_SLOPPINESS="file_stat_matches_ctime,include_file_ctime,include_file_mtime,time_macros"
+          cat "$CCACHE_LOGFILE" || true
+
+      - name: show cache stats log
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          export PATH="$(pwd)/ccache_bin:$PATH"
+          export CCACHE_DIR="$(cat current_cache_dir)"
+          export CCACHE_DEBUG=true
+          export CCACHE_COMMENTS=true
+          export CCACHE_LOGFILE="$CCACHE_DIR/ccache_log.txt"
+          export CCACHE_STATSLOG="$CCACHE_DIR/ccache_statslog.txt"
+          export CCACHE_SLOPPINESS="file_stat_matches_ctime,include_file_ctime,include_file_mtime,time_macros"
+          cat "$CCACHE_STATSLOG" || true
 
       - name: archive build directory
         if: success() # if we cancel during the upload, wait for it to complete
