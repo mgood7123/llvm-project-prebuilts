@@ -440,8 +440,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 ccache_llvm - llvm - RELEASE"
-          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-ccache_llvm--release"
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_llvm--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
