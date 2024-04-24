@@ -402,6 +402,7 @@ jobs:
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
           echo "$(pwd)/cache_llvm" > current_cache_dir
+
           # setup ccache
           rm -rf ccache_bin || true
           mkdir ccache_bin
