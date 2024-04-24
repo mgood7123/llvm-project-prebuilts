@@ -470,6 +470,7 @@ jobs:
           export CCACHE_STATSLOG="$CCACHE_DIR/ccache_statslog.txt"
           export CCACHE_SLOPPINESS="file_stat_matches_ctime,include_file_ctime,include_file_mtime,time_macros"
           ccache -s -vv -x --show-config
+          ls -l "$CCACHE_DIR"
 
       - name: archive build directory
         if: success() # if we cancel during the upload, wait for it to complete
