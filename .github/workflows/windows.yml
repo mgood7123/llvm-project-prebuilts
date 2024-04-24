@@ -326,6 +326,10 @@ jobs:
         run: |
           pacman -S --noconfirm --needed gcc
 
+      - name: install ccache
+        run: |
+          pacman -S --noconfirm --needed ccache
+
       - name: install makefile
         run: |
           pacman -S --noconfirm --needed make
@@ -357,7 +361,7 @@ jobs:
           export MSYS=winsymlinks:native
 
           S=${{ matrix.llvm_stage }}
-          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_llvm--release/build_llvm.split.map
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_llvm--release/ccache_llvm.split.map
           URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_clang--release/build_clang.split.map
           URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_compiler_rt--release/build_compiler_rt.split.map
           URL4=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_libcxx--release/build_libcxx.split.map
@@ -366,7 +370,7 @@ jobs:
           URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
 
           # download the build dir if it exists
-          ./split_exe/split.exe --join -r $URL1 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm || true
+          ./split_exe/split.exe --join -r $URL1 --out ccache_llvm || true
           ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_clang || true
           ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt || true
           ./split_exe/split.exe --join -r $URL4 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx || true
@@ -397,6 +401,14 @@ jobs:
           export llvm_projects=""
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
+          # setup ccache
+          rm -rf ccache_bin || true
+          mkdir ccache_bin
+          cd ccache_bin
+          ln -s $(which ccache) gcc
+          ln -s $(which ccache) g++
+          export PATH="$(pwd)/ccache_bin:$PATH"
+          export CCACHE_DIR="$(pwd)/ccache_llvm"
           cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
@@ -415,14 +427,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          mv BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS ROOTFS
-
           # 750 mb
           #
-          ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm --name build_llvm --size 750000000
-
-          mkdir BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT
-          mv ROOTFS BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
+          ./split_exe/split.exe --split -r ccache_llvm --name ccache_llvm --size 750000000
 
       - name: list files
         if: success() # if we cancel during the upload, wait for it to complete
@@ -433,8 +440,8 @@ jobs:
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm - RELEASE"
-          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_llvm--release"
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 ccache_llvm - llvm - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-ccache_llvm--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
@@ -442,7 +449,7 @@ jobs:
           replacesArtifacts: true
           removeArtifacts: true
           artifacts: |
-            ./build_llvm.split.*
+            ./ccache_llvm.split.*
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
         run: |
