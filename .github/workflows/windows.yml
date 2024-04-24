@@ -446,16 +446,6 @@ jobs:
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
         run: |
-          echo "does BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/include/clang/AST/Attrs.inc exist"
-          ls -l BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/include/clang/AST/Attrs.inc || true
-          echo "does BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/clang/include/clang/AST/Attrs.inc exist"
-          ls -l BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/clang/include/clang/AST/Attrs.inc || true
-          echo "does llvm/include/clang/AST/Attrs.inc exist"
-          ls -l llvm/include/clang/AST/Attrs.inc || true
-          echo "does llvm/clang/include/clang/AST/Attrs.inc exist"
-          ls -l llvm/clang/include/clang/AST/Attrs.inc || true
-          echo "find Attrs.inc"
-          find . -name "Attrs.inc" || true
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
           export c_compiler="$(cat c_compiler)"
