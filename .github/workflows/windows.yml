@@ -396,11 +396,11 @@ jobs:
             then
               cp ../llvm_commits/llvm_commit_current ../llvm_commits/llvm_commit_last
           fi
-          git log $(cat ../last_llvm_commit)..$(cat ../current_llvm_commit) --pretty=format:'%H' > ../llvm_commits/llvm_commit_diff
-          git log $(cat ../last_llvm_commit)..$(cat ../current_llvm_commit) --date=relative > ../llvm_commits/llvm_commit_diff_verbose
-          git log $(cat ../last_llvm_commit)..$(cat ../current_llvm_commit) --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
-          git log $(cat ../last_llvm_commit)..$(cat ../current_llvm_commit) --date=relative -p > ../llvm_commits/llvm_commit_diff_verbose_changes
-          git log $(cat ../last_llvm_commit)..$(cat ../current_llvm_commit) --date=relative -p --color > ../llvm_commits/llvm_commit_diff_verbose_changes_color
+          git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --pretty=format:'%H' > ../llvm_commits/llvm_commit_diff
+          git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --date=relative > ../llvm_commits/llvm_commit_diff_verbose
+          git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
+          git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --date=relative -p > ../llvm_commits/llvm_commit_diff_verbose_changes
+          git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --date=relative -p --color > ../llvm_commits/llvm_commit_diff_verbose_changes_color
           NEW_COMMITS=$(cat ../llvm_commits/llvm_commit_diff | wc -w)
           if [[ "$NEW_COMMITS" == "0" ]]
             then
