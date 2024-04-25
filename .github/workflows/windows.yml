@@ -409,11 +409,10 @@ jobs:
               if [[ "$NEW_COMMITS" == "1" ]]
                 then
                   echo "$NEW_COMMITS new commit has arrived"
-                  cat ../llvm_commits/llvm_commit_diff_verbose_color
                 else
                   echo "$NEW_COMMITS new commits have arrived"
-                  cat ../llvm_commits/llvm_commit_diff_verbose_color
               fi
+              cat ../llvm_commits/llvm_commit_diff_verbose_color
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm  - Release - Configure
