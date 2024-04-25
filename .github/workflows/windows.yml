@@ -395,9 +395,15 @@ jobs:
           ls -l ..
           ls -l ../llvm_commits
           git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
+          ls -l ..
+          ls -l ../llvm_commits
           if [[ ! -e ../llvm_commits/llvm_commit_last ]]
             then
-              cp ../llvm_commits/llvm_commit_current ../llvm_commits/llvm_commit_last
+              echo "last commit does not exist"
+              echo "setting current commit as last commit"
+              cp -v ../llvm_commits/llvm_commit_current ../llvm_commits/llvm_commit_last
+            else
+              echo "last commit exists"
           fi
           git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --pretty=format:'%H' > ../llvm_commits/llvm_commit_diff
           git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --date=relative > ../llvm_commits/llvm_commit_diff_verbose
