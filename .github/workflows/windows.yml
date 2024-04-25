@@ -409,7 +409,7 @@ jobs:
           echo "packing llvm repo"
           # 750 mb
           #
-          ./split_exe/split.exe --split llvm-project --name llvm_project --size 750000000
+          ./split_exe/split.exe --split llvm-project --name llvm_git --size 750000000
           echo "packed llvm repo"
           cd llvm-project
           echo "cuurrent commit:"
