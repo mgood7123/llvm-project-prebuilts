@@ -392,11 +392,7 @@ jobs:
           set -v
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
           cd llvm-project
-          ls -l ..
-          ls -l ../llvm_commits
           git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
-          ls -l ..
-          ls -l ../llvm_commits
           if [[ ! -e ../llvm_commits/llvm_commit_last ]]
             then
               echo "last commit does not exist"
@@ -405,11 +401,11 @@ jobs:
             else
               echo "last commit exists"
           fi
-          git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --pretty=format:'%H' > ../llvm_commits/llvm_commit_diff
-          git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --date=relative > ../llvm_commits/llvm_commit_diff_verbose
-          git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
-          git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --date=relative -p > ../llvm_commits/llvm_commit_diff_verbose_changes
-          git log $(cat ../llvm_commits/last_llvm_commit)..$(cat ../llvm_commits/current_llvm_commit) --date=relative -p --color > ../llvm_commits/llvm_commit_diff_verbose_changes_color
+          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --pretty=format:'%H' > ../llvm_commits/llvm_commit_diff
+          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative > ../llvm_commits/llvm_commit_diff_verbose
+          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
+          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p > ../llvm_commits/llvm_commit_diff_verbose_changes
+          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p --color > ../llvm_commits/llvm_commit_diff_verbose_changes_color
           NEW_COMMITS=$(cat ../llvm_commits/llvm_commit_diff | wc -w)
           if [[ "$NEW_COMMITS" == "0" ]]
             then
