@@ -393,7 +393,6 @@ jobs:
           git clone --recursive https://github.com/llvm/llvm-project
           cd llvm-project
           echo "cuurrent commit:"
-          rm ../llvm_commits/tmp
           git log --date=relative --color -n 1 > ../llvm_commits/tmp
           cat ../llvm_commits/tmp
           rm ../llvm_commits/tmp
