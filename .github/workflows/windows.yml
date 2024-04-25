@@ -389,6 +389,7 @@ jobs:
 
       - name: clone llvm-project
         run: |
+          # no way to clone specific commit, we must clone entire commit history, which sucks but we dont have many other options
           git clone --recursive https://github.com/llvm/llvm-project
           cd llvm-project
           echo "cuurrent commit:"
