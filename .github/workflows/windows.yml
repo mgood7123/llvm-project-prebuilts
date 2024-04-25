@@ -550,38 +550,6 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          rm llvm_commits/llvm_commit_last
-          cp llvm_commits/llvm_commit_current llvm_commits/llvm_commit_last
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r llvm_commits --name llvm_commits --size 750000000
-
-      - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
-        run: |
-          ls -l
-
-      - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        uses: "ncipollo/release-action@v1"
-        with:
-          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm commits - RELEASE"
-          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_llvm_commits--release"
-          makeLatest: true
-          generateReleaseNotes: false
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
-          removeArtifacts: true
-          artifacts: |
-            ./llvm_commits.split.*
-
-      - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
-        run: |
-          export MSYS=winsymlinks:native
-
           # 750 mb
           #
           ./split_exe/split.exe --split -r ccache_llvm --name ccache_llvm --size 750000000
@@ -909,6 +877,38 @@ jobs:
           removeArtifacts: true
           artifacts: |
             ./rootfs.split.*
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          rm llvm_commits/llvm_commit_last
+          cp llvm_commits/llvm_commit_current llvm_commits/llvm_commit_last
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r llvm_commits --name llvm_commits --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm commits - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_llvm_commits--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./llvm_commits.split.*
 
   msys2_prebuilt_bootstrap_msys2_build_llvm_stage_2:
     needs: msys2_prebuilt_bootstrap_msys2_build_llvm_stage_1
