@@ -389,8 +389,11 @@ jobs:
 
       - name: clone llvm-project
         run: |
+          set -v
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
           cd llvm-project
+          ls -l ..
+          ls -l ../llvm_commits
           git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
           if [[ ! -e ../llvm_commits/llvm_commit_last ]]
             then
