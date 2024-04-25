@@ -361,6 +361,8 @@ jobs:
           export MSYS=winsymlinks:native
 
           S=${{ matrix.llvm_stage }}
+
+          URL0=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_llvm_commits--release/llvm_commits.split.map
           URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_llvm--release/ccache_llvm.split.map
           URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_clang--release/build_clang.split.map
           URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_compiler_rt--release/build_compiler_rt.split.map
@@ -370,6 +372,7 @@ jobs:
           URL7=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-msys2_prebuilt_bootstrap--release/rootfs.split.map
 
           # download the build dir if it exists
+          ./split_exe/split.exe --join -r $URL0 --out llvm_commits || true
           ./split_exe/split.exe --join -r $URL1 --out ccache_llvm || true
           ./split_exe/split.exe --join -r $URL2 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_clang || true
           ./split_exe/split.exe --join -r $URL3 --out BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt || true
@@ -387,6 +390,31 @@ jobs:
       - name: clone llvm-project
         run: |
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
+          cd llvm-project
+          git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
+          if [[ ! -e ../llvm_commits/llvm_commit_last ]]
+            then
+              cp ../llvm_commits/llvm_commit_current ../llvm_commits/llvm_commit_last
+          fi
+          git log $(cat ../last_llvm_commit)..$(cat ../current_llvm_commit) --pretty=format:'%H' > ../llvm_commits/llvm_commit_diff
+          git log $(cat ../last_llvm_commit)..$(cat ../current_llvm_commit) --date=relative > ../llvm_commits/llvm_commit_diff_verbose
+          git log $(cat ../last_llvm_commit)..$(cat ../current_llvm_commit) --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
+          git log $(cat ../last_llvm_commit)..$(cat ../current_llvm_commit) --date=relative -p > ../llvm_commits/llvm_commit_diff_verbose_changes
+          git log $(cat ../last_llvm_commit)..$(cat ../current_llvm_commit) --date=relative -p --color > ../llvm_commits/llvm_commit_diff_verbose_changes_color
+          NEW_COMMITS=$(cat ../llvm_commits/llvm_commit_diff | wc -w)
+          if [[ "$NEW_COMMITS" == "0" ]]
+            then
+              echo "no new commits"
+            else
+              if [[ "$NEW_COMMITS" == "1" ]]
+                then
+                  echo "$NEW_COMMITS new commit has arrived"
+                  cat ../llvm_commits/llvm_commit_diff_verbose_color
+                else
+                  echo "$NEW_COMMITS new commits have arrived"
+                  cat ../llvm_commits/llvm_commit_diff_verbose_color
+              fi
+          fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm  - Release - Configure
         run: |
@@ -519,14 +547,37 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          export PATH="$(pwd)/ccache_bin:$PATH"
-          export CCACHE_DIR="$(cat current_cache_dir)"
-          export CCACHE_DEBUG=true
-          export CCACHE_COMMENTS=true
-          export CCACHE_LOGFILE="$CCACHE_DIR/ccache_log.txt"
-          export CCACHE_STATSLOG="$CCACHE_DIR/ccache_statslog.txt"
-          export CCACHE_SLOPPINESS="file_stat_matches_ctime,include_file_ctime,include_file_mtime,time_macros"
-          ccache -s -vv -x --show-config
+          rm llvm_commits/llvm_commit_last
+          cp llvm_commits/llvm_commit_current llvm_commits/llvm_commit_last
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r llvm_commits --name llvm_commits --size 750000000
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+
+      - name: upload build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm commits - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_llvm_commits--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./llvm_commits.split.*
+
+      - name: archive build directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
 
           # 750 mb
           #

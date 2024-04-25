@@ -7,9 +7,6 @@
 # note we may have a backup cache somewhere   latest or prev1 or prev2 or ...
 #
 
-set -v
-set -x
-
 TAG=$3
 FILE=$4
 URL=https://github.com/$1/$2/releases/download/$TAG/$FILE

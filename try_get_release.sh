@@ -3,9 +3,6 @@
 # response=$? # 0=match, -1=corrupt, -2=missing
 #
 
-set -v
-set -x
-
 FILE=$4
 TAG=$3
 URL=https://github.com/$1/$2/releases/download/$TAG/$FILE
@@ -27,13 +24,13 @@ if [[ ("$R" = "200" || "$R" = "302") && ("$RSHA" == "200" || "$RSHA" == "302") ]
                 exit 0
             else
                 echo 'build directory cache corrupted, rebuilding'
-                mkdir BUILD_DEBUG
+                mkdir BUILD_DEBUG || true
                 rm $FILE
                 rm $FILE.sha512
                 exit -1
         fi
     else
         echo 'build directory does not exist in cache'
-        mkdir BUILD_DEBUG
+        mkdir BUILD_DEBUG || true
         exit -2
 fi
