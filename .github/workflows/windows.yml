@@ -392,6 +392,7 @@ jobs:
           git clone --depth=1 --recursive https://github.com/llvm/llvm-project
           cd llvm-project
           git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
+          git log --pretty=format:'%H' -n 1 --color > ../llvm_commits/llvm_commit_current_color
           if [[ ! -e ../llvm_commits/llvm_commit_last ]]
             then
               echo "last commit does not exist"
@@ -405,6 +406,11 @@ jobs:
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p > ../llvm_commits/llvm_commit_diff_verbose_changes
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p --color > ../llvm_commits/llvm_commit_diff_verbose_changes_color
+          echo "cuurrent commit:"
+          rm ../llvm_commits/tmp
+          git log --date=relative --color -n 1 > ../llvm_commits/tmp
+          cat ../llvm_commits/tmp
+          rm ../llvm_commits/tmp
           NEW_COMMITS=$(cat ../llvm_commits/llvm_commit_diff | wc -w)
           if [[ "$NEW_COMMITS" == "0" ]]
             then
