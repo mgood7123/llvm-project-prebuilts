@@ -442,7 +442,7 @@ jobs:
           export CCACHE_STATSLOG="$CCACHE_DIR/ccache_statslog.txt"
           export CCACHE_SLOPPINESS="file_stat_matches_ctime,include_file_ctime,include_file_mtime,time_macros"
           ccache -s -vv -x --show-config
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -570,7 +570,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -625,7 +625,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -680,7 +680,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -735,7 +735,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -790,7 +790,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -973,7 +973,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1033,7 +1033,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1088,7 +1088,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1143,7 +1143,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1198,7 +1198,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1253,7 +1253,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1436,7 +1436,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1496,7 +1496,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1551,7 +1551,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1606,7 +1606,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1661,7 +1661,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -1716,7 +1716,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2067,7 +2067,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2127,7 +2127,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2182,7 +2182,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2237,7 +2237,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2292,7 +2292,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2347,7 +2347,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2530,7 +2530,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2590,7 +2590,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2645,7 +2645,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2700,7 +2700,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2755,7 +2755,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -2810,7 +2810,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3006,7 +3006,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3066,7 +3066,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3121,7 +3121,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3176,7 +3176,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3231,7 +3231,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3286,7 +3286,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3341,7 +3341,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3396,7 +3396,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3451,7 +3451,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3506,7 +3506,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
@@ -3561,7 +3561,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          cmake --build "$(cat current_build_dir)"
+          cmake --build "$(cat current_build_dir)" -v
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Install
         if: success() # if we cancel during the upload, wait for it to complete
