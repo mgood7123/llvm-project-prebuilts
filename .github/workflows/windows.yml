@@ -389,8 +389,28 @@ jobs:
 
       - name: clone llvm-project
         run: |
-          # no way to clone specific commit, we must clone entire commit history, which sucks but we dont have many other options
-          git clone --recursive https://github.com/llvm/llvm-project
+
+          URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--windows-llvm_git--release/llvm_git.split.map
+          ./split_exe/split.exe --join -r $URL_LLVM --out llvm-project || (
+           # the repo does not exist yet, clone it now
+           rm -rf llvm-project || true
+           # no way to clone specific commit, we must clone entire commit history, which sucks but we dont have many other options
+           echo "cloning llvm-project"
+           git clone --recursive https://github.com/llvm/llvm-project
+          )
+          # update repo
+          (
+           cd llvm-project
+           echo "executing git fetch"
+           git fetch -v --progress
+           echo "executing git pull"
+           git pull -v --progress
+          )
+          echo "packing llvm repo"
+          # 750 mb
+          #
+          ./split_exe/split.exe --split llvm-project --name llvm_project --size 750000000
+          echo "packed llvm repo"
           cd llvm-project
           echo "cuurrent commit:"
           git log --date=relative --color -n 1 > ../llvm_commits/tmp
@@ -424,6 +444,30 @@ jobs:
               fi
               cat ../llvm_commits/llvm_commit_diff_verbose_color
           fi
+
+      - name: list files
+        if: success() # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+
+      - name: upload llvm repo directory
+        if: success() # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm-project git repo"
+          tag: "storage--windows-llvm_git--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./llvm_git.split.*
+
+      - name: remove llvm repo split files after upload
+        run: |
+          rm -rfv llvm_git.split.*
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm  - Release - Configure
         run: |
