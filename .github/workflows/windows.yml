@@ -389,7 +389,6 @@ jobs:
 
       - name: clone llvm-project
         run: |
-
           URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--windows-llvm_git--release/llvm_git.split.map
           ./split_exe/split.exe --join -r $URL_LLVM --out llvm-project || (
            # the repo does not exist yet, clone it now
@@ -398,32 +397,34 @@ jobs:
            echo "cloning llvm-project"
            git clone --recursive https://github.com/llvm/llvm-project
           )
+
+      - name: update llvm-project
+        run: |
           # update repo
-          (
-           cd llvm-project
-           echo "executing git fetch"
-           git fetch -v --progress --no-tags
-           echo "executing git pull"
-           git pull -v --progress
-          )
+          cd llvm-project
+          echo "executing git fetch"
+          git fetch -v --progress --no-tags
+          echo "executing git pull"
+          git pull -v --progress
+
+      - name: pack llvm-project
+        run: |
           echo "packing llvm repo"
           # 750 mb
           #
           ./split_exe/split.exe --split llvm-project --name llvm_git --size 750000000
           echo "packed llvm repo"
+
+      - name: update llvm-project commit info
+        run: |
           cd llvm-project
-          echo "cuurrent commit:"
-          git log --stat --date=relative --color -n 1 > ../llvm_commits/tmp
-          cat ../llvm_commits/tmp
-          rm ../llvm_commits/tmp
           git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
+          git log --stat --date=relative --color -n 1 > ../llvm_commits/llvm_commit_current_verbose
           if [[ ! -e ../llvm_commits/llvm_commit_last ]]
             then
               echo "last commit does not exist"
               echo "setting current commit as last commit"
               cp -v ../llvm_commits/llvm_commit_current ../llvm_commits/llvm_commit_last
-            else
-              echo "last commit exists"
           fi
           git diff $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative > ../llvm_commits/llvm_commit_changed_files
           git diff $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative --color > ../llvm_commits/llvm_commit_changed_files_color
@@ -433,10 +434,15 @@ jobs:
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p > ../llvm_commits/llvm_commit_diff_verbose_changes
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p --color > ../llvm_commits/llvm_commit_diff_verbose_changes_color
 
+      - name: list commit current
+        run: |
+          echo "current commit:"
+          cat llvm_commits/llvm_commit_current_verbose
+
       - name: list commit summary
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
-          NEW_COMMITS=$(cat ../llvm_commits/llvm_commit_diff | wc -w)
+          NEW_COMMITS=$(cat llvm_commits/llvm_commit_diff | wc -w)
           if [[ "$NEW_COMMITS" == "0" ]]
             then
               echo "no new commits"
@@ -450,13 +456,13 @@ jobs:
               echo
               echo
               echo "summary:"
-              cat ../llvm_commits/llvm_commit_changed_files_color
+              cat llvm_commits/llvm_commit_changed_files_color
           fi
 
       - name: list commit diff
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
-          NEW_COMMITS=$(cat ../llvm_commits/llvm_commit_diff | wc -w)
+          NEW_COMMITS=$(cat llvm_commits/llvm_commit_diff | wc -w)
           if [[ "$NEW_COMMITS" == "0" ]]
             then
               echo "no new commits"
@@ -470,7 +476,7 @@ jobs:
               echo
               echo
               echo "diff:"
-              cat ../llvm_commits/llvm_commit_diff_verbose_color
+              cat llvm_commits/llvm_commit_diff_verbose_color
           fi
 
       - name: list files
