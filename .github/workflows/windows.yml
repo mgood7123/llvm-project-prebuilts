@@ -693,9 +693,10 @@ jobs:
             else
               echo "build failed"
               echo "find Attrs.inc"
-              find -name "*Attrs.inc*" | grep --color "Attrs.inc"
+              find -name "*Attrs.inc*" | grep --color=always "Attrs.inc"
+              cat $(find -name "*Attrs.inc*")
               echo "find tblgen"
-              find -name "*tblgen*" | grep --color tblgen
+              find -name "*tblgen*" | grep --color=always tblgen
               false
           fi
 
