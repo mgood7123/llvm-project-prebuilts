@@ -417,7 +417,6 @@ jobs:
           cat ../llvm_commits/tmp
           rm ../llvm_commits/tmp
           git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
-          git log --pretty=format:'%H' -n 1 --color > ../llvm_commits/llvm_commit_current_color
           if [[ ! -e ../llvm_commits/llvm_commit_last ]]
             then
               echo "last commit does not exist"
