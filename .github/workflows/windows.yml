@@ -655,6 +655,8 @@ jobs:
               true
             else
               echo "build failed"
+              echo "find Attrs.inc"
+              find -name "Attrs.inc"
               false
           fi
 
