@@ -145,7 +145,7 @@ jobs:
           ls -l
       
       - name: upload split build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "split"
@@ -254,7 +254,7 @@ jobs:
           ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -263,12 +263,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/usr --name rootfs --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm deps - windows msys2 msys2_prebuilt_bootstrap - RELEASE"
@@ -446,7 +446,7 @@ jobs:
           fi
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
 
@@ -536,7 +536,7 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           export PATH="$(pwd)/ccache_bin:$PATH"
@@ -550,7 +550,7 @@ jobs:
           cmake --install "$(cat current_build_dir)"
 
       - name: show cache state
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -564,7 +564,7 @@ jobs:
           ccache -s -vv -x --show-config
 
       - name: list cache dir
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -578,7 +578,7 @@ jobs:
           ls -l "$CCACHE_DIR"
 
       - name: show cache log
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -592,7 +592,7 @@ jobs:
           cat "$CCACHE_LOGFILE" || true
 
       - name: show cache stats log
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -606,7 +606,7 @@ jobs:
           cat "$CCACHE_STATSLOG" || true
 
       - name: archive ccache directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -615,12 +615,12 @@ jobs:
           ./split_exe/split.exe --split -r ccache_llvm --name ccache_llvm --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
 
       - name: upload ccache directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm - RELEASE"
@@ -664,13 +664,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -679,12 +679,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_clang --name build_clang --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - clang - RELEASE"
@@ -726,13 +726,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -741,12 +741,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt --name build_compiler_rt --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - compiler-rt - RELEASE"
@@ -788,13 +788,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -803,12 +803,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx --name build_libcxx --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxx - RELEASE"
@@ -850,13 +850,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -865,12 +865,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi --name build_libcxxabi --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxxabi - RELEASE"
@@ -912,13 +912,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -927,12 +927,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind --name build_libunwind --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libunwind - RELEASE"
@@ -947,7 +947,7 @@ jobs:
             ./build_libunwind.split.*
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -956,12 +956,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - RELEASE"
@@ -976,7 +976,7 @@ jobs:
             ./rootfs.split.*
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -988,12 +988,12 @@ jobs:
           ./split_exe/split.exe --split -r llvm_commits --name llvm_commits --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
 
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm commits - RELEASE"
@@ -1134,13 +1134,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1154,12 +1154,12 @@ jobs:
           mv ROOTFS BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm - RELEASE"
@@ -1201,13 +1201,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1216,12 +1216,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_clang --name build_clang --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - clang - RELEASE"
@@ -1263,13 +1263,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1278,12 +1278,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt --name build_compiler_rt --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - compiler-rt - RELEASE"
@@ -1325,13 +1325,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1340,12 +1340,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx --name build_libcxx --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxx - RELEASE"
@@ -1387,13 +1387,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1402,12 +1402,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi --name build_libcxxabi --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxxabi - RELEASE"
@@ -1449,13 +1449,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1464,12 +1464,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind --name build_libunwind --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libunwind - RELEASE"
@@ -1484,7 +1484,7 @@ jobs:
             ./build_libunwind.split.*
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1493,12 +1493,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - RELEASE"
@@ -1639,13 +1639,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1659,12 +1659,12 @@ jobs:
           mv ROOTFS BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm - RELEASE"
@@ -1706,13 +1706,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1721,12 +1721,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_clang --name build_clang --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - clang - RELEASE"
@@ -1768,13 +1768,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1783,12 +1783,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_compiler_rt --name build_compiler_rt --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - compiler-rt - RELEASE"
@@ -1830,13 +1830,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1845,12 +1845,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxx --name build_libcxx --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxx - RELEASE"
@@ -1892,13 +1892,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1907,12 +1907,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libcxxabi --name build_libcxxabi --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libcxxabi - RELEASE"
@@ -1954,13 +1954,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1969,12 +1969,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_libunwind --name build_libunwind --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - libunwind - RELEASE"
@@ -1989,7 +1989,7 @@ jobs:
             ./build_libunwind.split.*
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -1998,12 +1998,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - RELEASE"
@@ -2147,7 +2147,7 @@ jobs:
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_BUILD_ICONV=TRUE -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-g0 -O3" -DCMAKE_CXX_FLAGS="-g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2160,12 +2160,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_clang --name build --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm deps - windows msys2 clang - RELEASE"
@@ -2312,13 +2312,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2332,12 +2332,12 @@ jobs:
           mv ROOTFS BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - llvm - RELEASE"
@@ -2379,13 +2379,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2394,12 +2394,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_clang --name build_clang --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - clang - RELEASE"
@@ -2441,13 +2441,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2456,12 +2456,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_compiler_rt --name build_compiler_rt --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - compiler-rt - RELEASE"
@@ -2503,13 +2503,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2518,12 +2518,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxx --name build_libcxx --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxx - RELEASE"
@@ -2565,13 +2565,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2580,12 +2580,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxxabi --name build_libcxxabi --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxxabi - RELEASE"
@@ -2627,13 +2627,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2642,12 +2642,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libunwind --name build_libunwind --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libunwind - RELEASE"
@@ -2662,7 +2662,7 @@ jobs:
             ./build_libunwind.split.*
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2671,12 +2671,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - RELEASE"
@@ -2817,13 +2817,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2837,12 +2837,12 @@ jobs:
           mv ROOTFS BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - llvm - RELEASE"
@@ -2884,13 +2884,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2899,12 +2899,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_clang --name build_clang --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - clang - RELEASE"
@@ -2946,13 +2946,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -2961,12 +2961,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_compiler_rt --name build_compiler_rt --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - compiler-rt - RELEASE"
@@ -3008,13 +3008,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3023,12 +3023,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxx --name build_libcxx --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxx - RELEASE"
@@ -3070,13 +3070,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3085,12 +3085,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxxabi --name build_libcxxabi --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxxabi - RELEASE"
@@ -3132,13 +3132,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3147,12 +3147,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libunwind --name build_libunwind --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libunwind - RELEASE"
@@ -3167,7 +3167,7 @@ jobs:
             ./build_libunwind.split.*
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3176,12 +3176,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - RELEASE"
@@ -3335,13 +3335,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3355,12 +3355,12 @@ jobs:
           mv ROOTFS BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - llvm - RELEASE"
@@ -3402,13 +3402,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3417,12 +3417,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_clang --name build_clang --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - clang - RELEASE"
@@ -3464,13 +3464,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3479,12 +3479,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_compiler_rt --name build_compiler_rt --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - compiler-rt - RELEASE"
@@ -3526,13 +3526,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3541,12 +3541,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxx --name build_libcxx --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxx - RELEASE"
@@ -3588,13 +3588,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3603,12 +3603,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libcxxabi --name build_libcxxabi --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libcxxabi - RELEASE"
@@ -3650,13 +3650,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3665,12 +3665,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_libunwind --name build_libunwind --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - libunwind - RELEASE"
@@ -3712,13 +3712,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3727,12 +3727,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_clang_tools_extra --name build_clang_tools_extra --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - clang-tools-extra - RELEASE"
@@ -3774,13 +3774,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3789,12 +3789,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_lld --name build_lld --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - lld - RELEASE"
@@ -3836,13 +3836,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3851,12 +3851,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_lldb --name build_lldb --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - lldb - RELEASE"
@@ -3898,13 +3898,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3913,12 +3913,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_mlir --name build_mlir --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - mlir - RELEASE"
@@ -3960,13 +3960,13 @@ jobs:
           fi
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Install
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
           cmake --install "$(cat current_build_dir)"
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -3975,12 +3975,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_polly --name build_polly --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - polly - RELEASE"
@@ -3995,7 +3995,7 @@ jobs:
             ./build_polly.split.*
 
       - name: archive build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
 
@@ -4004,12 +4004,12 @@ jobs:
           ./split_exe/split.exe --split -r BUILD_RELEASE_msys2_clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
 
       - name: list files
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           ls -l
       
       - name: upload build directory
-        if: success() # if we cancel during the upload, wait for it to complete
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - RELEASE"
