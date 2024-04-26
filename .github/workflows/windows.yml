@@ -691,6 +691,7 @@ jobs:
               echo "build success"
               true
             else
+              set -v
               echo "build failed"
               echo "find Attrs.inc"
               find -name "*Attrs.inc*" | grep --color=always "Attrs.inc"
