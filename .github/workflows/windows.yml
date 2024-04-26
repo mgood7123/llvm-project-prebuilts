@@ -660,6 +660,8 @@ jobs:
               echo "build failed"
               echo "find Attrs.inc"
               find -name "Attrs.inc"
+              echo "find tblgen"
+              find -name "tblgen"
               false
           fi
 
