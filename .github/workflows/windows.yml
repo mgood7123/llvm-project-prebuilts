@@ -698,6 +698,11 @@ jobs:
               cat $(find -name "*Attrs.inc*")
               echo "find tblgen"
               find -name "*tblgen*" | grep --color=always tblgen
+              pacman -S gdb
+              #./BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/include/clang/AST/CMakeFiles/Attrs.inc-af0f6b2.sh
+              set -e
+              cd /d/a/llvm-project-prebuilts/llvm-project-prebuilts/BUILD_RELEASE_msys2_prebuilt_bootstrap_clang
+              gdb -ex "r" -ex "bt" -ex "q" --args /d/a/llvm-project-prebuilts/llvm-project-prebuilts/BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/bin/clang-tblgen.exe -gen-clang-attr-classes -I /d/a/llvm-project-prebuilts/llvm-project-prebuilts/llvm-project/clang/include/clang/AST -I/d/a/llvm-project-prebuilts/llvm-project-prebuilts/llvm-project/clang/include -I/d/a/llvm-project-prebuilts/llvm-project-prebuilts/BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/include -I/d/a/llvm-project-prebuilts/llvm-project-prebuilts/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/include /d/a/llvm-project-prebuilts/llvm-project-prebuilts/llvm-project/clang/include/clang/AST/../Basic/Attr.td --write-if-changed -o include/clang/AST/Attrs.inc -d include/clang/AST/Attrs.inc.d
               false
           fi
 
