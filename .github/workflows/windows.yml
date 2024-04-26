@@ -433,6 +433,10 @@ jobs:
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p > ../llvm_commits/llvm_commit_diff_verbose_changes
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p --color > ../llvm_commits/llvm_commit_diff_verbose_changes_color
+
+      - name: list commit summary
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
           NEW_COMMITS=$(cat ../llvm_commits/llvm_commit_diff | wc -w)
           if [[ "$NEW_COMMITS" == "0" ]]
             then
@@ -448,6 +452,22 @@ jobs:
               echo
               echo "summary:"
               cat ../llvm_commits/llvm_commit_changed_files_color
+          fi
+
+      - name: list commit diff
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          NEW_COMMITS=$(cat ../llvm_commits/llvm_commit_diff | wc -w)
+          if [[ "$NEW_COMMITS" == "0" ]]
+            then
+              echo "no new commits"
+            else
+              if [[ "$NEW_COMMITS" == "1" ]]
+                then
+                  echo "$NEW_COMMITS new commit has arrived"
+                else
+                  echo "$NEW_COMMITS new commits have arrived"
+              fi
               echo
               echo
               echo "diff:"
