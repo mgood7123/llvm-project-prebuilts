@@ -413,7 +413,7 @@ jobs:
           echo "packed llvm repo"
           cd llvm-project
           echo "cuurrent commit:"
-          git log --date=relative --color -n 1 > ../llvm_commits/tmp
+          git log --stat --date=relative --color -n 1 > ../llvm_commits/tmp
           cat ../llvm_commits/tmp
           rm ../llvm_commits/tmp
           git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
@@ -427,8 +427,8 @@ jobs:
               echo "last commit exists"
           fi
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --pretty=format:'%H' > ../llvm_commits/llvm_commit_diff
-          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative > ../llvm_commits/llvm_commit_diff_verbose
-          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
+          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative > ../llvm_commits/llvm_commit_diff_verbose
+          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p > ../llvm_commits/llvm_commit_diff_verbose_changes
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p --color > ../llvm_commits/llvm_commit_diff_verbose_changes_color
           NEW_COMMITS=$(cat ../llvm_commits/llvm_commit_diff | wc -w)
