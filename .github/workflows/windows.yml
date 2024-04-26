@@ -402,7 +402,7 @@ jobs:
           (
            cd llvm-project
            echo "executing git fetch"
-           git fetch -v --progress
+           git fetch -v --progress --no-tags
            echo "executing git pull"
            git pull -v --progress
           )
@@ -602,7 +602,7 @@ jobs:
           export CCACHE_SLOPPINESS="file_stat_matches_ctime,include_file_ctime,include_file_mtime,time_macros"
           cat "$CCACHE_STATSLOG" || true
 
-      - name: archive build directory
+      - name: archive ccache directory
         if: success() # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
@@ -616,7 +616,7 @@ jobs:
         run: |
           ls -l
 
-      - name: upload build directory
+      - name: upload ccache directory
         if: success() # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
