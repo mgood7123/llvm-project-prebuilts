@@ -76,6 +76,12 @@ find_package_handle_standard_args(OpenSSL
 mark_as_advanced(OPENSSL_INCLUDE_DIRS OPENSSL_LIBRARIES)
 mark_as_advanced(OPENSSL_CRYPTO_INCLUDE_DIRS OPENSSL_CRYPTO_LIBRARIES)
 
+message(STATUS "OpenSSL: found :        ${OPENSSL_FOUND}")
+message(STATUS "OpenSSL: include_dirs : ${OPENSSL_INCLUDE_DIRS}")
+message(STATUS "OpenSSL: lib :          ${OPENSSL_LIBRARIES}")
+message(STATUS "OpenSSL: crypto lib :   ${OPENSSL_CRYPTO_LIBRARIES}")
+message(STATUS "OpenSSL: version :      ${OPENSSL_VERSION_STRING}")
+
 if (OPENSSL_FOUND AND NOT TARGET LLVM_STATIC_OPENSSL)
   add_library(OpenSSL::SSL UNKNOWN IMPORTED)
   set_target_properties(OpenSSL::SSL PROPERTIES
