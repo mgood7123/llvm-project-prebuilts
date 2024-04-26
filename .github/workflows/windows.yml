@@ -362,7 +362,7 @@ jobs:
 
           S=${{ matrix.llvm_stage }}
 
-          URL0=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_llvm_commits--release/llvm_commits.split.map
+          URL0=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--windows-llvm_commits--release/llvm_commits.split.map
           URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_llvm--release/ccache_llvm.split.map
           URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_clang--release/build_clang.split.map
           URL3=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S--windows-msys2-msys2_prebuilt_bootstrap_compiler_rt--release/build_compiler_rt.split.map
@@ -426,6 +426,8 @@ jobs:
             else
               echo "last commit exists"
           fi
+          git diff $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative > ../llvm_commits/llvm_commit_changed_files
+          git diff $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative --color > ../llvm_commits/llvm_commit_changed_files_color
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --pretty=format:'%H' > ../llvm_commits/llvm_commit_diff
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative > ../llvm_commits/llvm_commit_diff_verbose
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
@@ -442,6 +444,13 @@ jobs:
                 else
                   echo "$NEW_COMMITS new commits have arrived"
               fi
+              echo
+              echo
+              echo "summary:"
+              cat ../llvm_commits/llvm_commit_changed_files_color
+              echo
+              echo
+              echo "diff:"
               cat ../llvm_commits/llvm_commit_diff_verbose_color
           fi
 
@@ -977,7 +986,7 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-      - name: archive build directory
+      - name: archive llvm commits directory
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
           export MSYS=winsymlinks:native
@@ -994,12 +1003,12 @@ jobs:
         run: |
           ls -l
 
-      - name: upload build directory
+      - name: upload llvm commits directory
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         uses: "ncipollo/release-action@v1"
         with:
-          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 msys2_prebuilt_bootstrap - llvm commits - RELEASE"
-          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-msys2_prebuilt_bootstrap_llvm_commits--release"
+          name: "windows - llvm commits - RELEASE"
+          tag: "storage--windows-llvm_commits--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
