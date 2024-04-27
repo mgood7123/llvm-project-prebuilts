@@ -307,6 +307,18 @@ jobs:
            git clone --recursive https://github.com/llvm/llvm-project
           )
 
+      - name: pre-update llvm-project commit info
+        run: |
+          cd llvm-project
+          if [[ ! -e ../llvm_commits/llvm_commit_last ]]
+            then
+              echo "last commit does not exist"
+              echo "setting current commit as last commit"
+              git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
+              git log --stat --date=relative --color -n 1 > ../llvm_commits/llvm_commit_current_verbose
+              cp -v ../llvm_commits/llvm_commit_current ../llvm_commits/llvm_commit_last
+          fi
+
       - name: update llvm-project
         run: |
           # update repo
@@ -329,12 +341,6 @@ jobs:
           cd llvm-project
           git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
           git log --stat --date=relative --color -n 1 > ../llvm_commits/llvm_commit_current_verbose
-          if [[ ! -e ../llvm_commits/llvm_commit_last ]]
-            then
-              echo "last commit does not exist"
-              echo "setting current commit as last commit"
-              cp -v ../llvm_commits/llvm_commit_current ../llvm_commits/llvm_commit_last
-          fi
           git diff $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative > ../llvm_commits/llvm_commit_changed_files
           git diff $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative --color > ../llvm_commits/llvm_commit_changed_files_color
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --pretty=format:'%H' > ../llvm_commits/llvm_commit_diff
