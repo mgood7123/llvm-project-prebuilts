@@ -464,7 +464,7 @@ jobs:
 
   bootstrap_deps:
     needs: prepare_llvm_repo
-    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -552,8 +552,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_llvm_stage_1:
-    needs: bootstrap_deps
-    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    needs: [prepare_llvm_repo, bootstrap_deps]
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -893,8 +893,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_llvm_stage_2:
-    needs: bootstrap_llvm_stage_1
-    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    needs: [prepare_llvm_repo, bootstrap_llvm_stage_1]
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1231,8 +1231,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_llvm_stage_3:
-    needs: bootstrap_llvm_stage_2
-    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    needs: [prepare_llvm_repo, bootstrap_llvm_stage_2]
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1571,8 +1571,8 @@ jobs:
 # clang 11 is too old, build via msys2_bootstrap (above) then rebuild with iconv via our build clang
 
   bootstrap_clang_build_deps:
-    needs: bootstrap_llvm_stage_3
-    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    needs: [prepare_llvm_repo, bootstrap_llvm_stage_3]
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1733,8 +1733,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_clang_build_llvm_stage_1:
-    needs: bootstrap_clang_build_deps
-    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    needs: [prepare_llvm_repo, bootstrap_clang_build_deps]
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -2111,8 +2111,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_clang_build_llvm_stage_2:
-    needs: bootstrap_clang_build_llvm_stage_1
-    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    needs: [prepare_llvm_repo, bootstrap_clang_build_llvm_stage_1]
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -2450,8 +2450,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_clang_build_llvm_stage_3:
-    needs: bootstrap_clang_build_llvm_stage_2
-    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    needs: [prepare_llvm_repo, bootstrap_clang_build_llvm_stage_2]
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
