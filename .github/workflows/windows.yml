@@ -469,7 +469,7 @@ jobs:
           artifacts: |
             ./llvm_commits.split.*
 
-  bootstrap_deps1:
+  must_bootstrap:
     needs: prepare_llvm_repo
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
@@ -477,216 +477,54 @@ jobs:
         include:
           - os: windows-latest
             name: windows
-            sys: MSYS
-            llvm_stage: 0
-            llvm_stage_old: 0
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
+    name: must pre-bootstrap - ${{ matrix.name }}
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          submodules: recursive
+      - name: complete
+        run: |
+          true
 
-  bootstrap_deps2:
-    needs: prepare_llvm_repo
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'false' }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: MSYS
-            llvm_stage: 0
-            llvm_stage_old: 0
-
-    runs-on: ${{ matrix.os }}
-
-    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
-
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          submodules: recursive
-
-  bootstrap_deps3:
-    needs: prepare_llvm_repo
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == '1' }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: MSYS
-            llvm_stage: 0
-            llvm_stage_old: 0
-
-    runs-on: ${{ matrix.os }}
-
-    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
-
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          submodules: recursive
-
-  bootstrap_deps4:
-    needs: prepare_llvm_repo
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == '0' }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: MSYS
-            llvm_stage: 0
-            llvm_stage_old: 0
-
-    runs-on: ${{ matrix.os }}
-
-    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
-
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          submodules: recursive
-
-  bootstrap_deps_1a:
-    needs: prepare_llvm_repo
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: MSYS
-            llvm_stage: 0
-            llvm_stage_old: 0
-
-    runs-on: ${{ matrix.os }}
-
-    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
-
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          submodules: recursive
-
-  bootstrap_deps_1b:
-    needs: prepare_llvm_repo
-    if: ${{ ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: MSYS
-            llvm_stage: 0
-            llvm_stage_old: 0
-
-    runs-on: ${{ matrix.os }}
-
-    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
-
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          submodules: recursive
-
-  bootstrap_deps_2a:
+  use_prebuilt_bootstrap_clang_stage_3:
     needs: prepare_llvm_repo
     if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: false
     strategy:
       matrix:
         include:
           - os: windows-latest
             name: windows
-            sys: MSYS
-            llvm_stage: 0
-            llvm_stage_old: 0
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
+    name: must bootstrap - ${{ matrix.name }}
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          submodules: recursive
+      - name: complete
+        run: |
+          true
 
-  bootstrap_deps_2b:
+  use_prebuilt_clang_stage_3:
     needs: prepare_llvm_repo
-    if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: false
+    if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap && ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
       matrix:
         include:
           - os: windows-latest
             name: windows
-            sys: MSYS
-            llvm_stage: 0
-            llvm_stage_old: 0
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
+    name: use prebuilt clang stage 3 - ${{ matrix.name }}
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          submodules: recursive
-
-  bootstrap_deps_finish:
-    needs: [prepare_llvm_repo,bootstrap_deps1,bootstrap_deps2,bootstrap_deps3,bootstrap_deps4,bootstrap_deps_1a,bootstrap_deps_2a,bootstrap_deps_1b,bootstrap_deps_2b]
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: false
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: windows
-            sys: MSYS
-            llvm_stage: 0
-            llvm_stage_old: 0
-
-    runs-on: ${{ matrix.os }}
-
-    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
-
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{needs.should_run.outputs.output1}}
-          submodules: recursive
+      - name: complete
+        run: |
+          true
 
   bootstrap_deps:
-    needs: [prepare_llvm_repo,bootstrap_deps_finish]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    needs: must_bootstrap
     # so we can upload releases
     permissions:
       contents: write
@@ -774,8 +612,7 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_llvm_stage_1:
-    needs: [prepare_llvm_repo, bootstrap_deps]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    needs: bootstrap_deps
     # so we can upload releases
     permissions:
       contents: write
@@ -1115,8 +952,7 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_llvm_stage_2:
-    needs: [prepare_llvm_repo, bootstrap_llvm_stage_1]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    needs: bootstrap_llvm_stage_1
     # so we can upload releases
     permissions:
       contents: write
@@ -1453,8 +1289,7 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_llvm_stage_3:
-    needs: [prepare_llvm_repo, bootstrap_llvm_stage_2]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    needs: bootstrap_llvm_stage_2
     # so we can upload releases
     permissions:
       contents: write
@@ -1790,11 +1625,8 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-# clang 11 is too old, build via msys2_bootstrap (above) then rebuild with iconv via our build clang
-
   bootstrap_clang_build_deps:
-    needs: [prepare_llvm_repo, bootstrap_llvm_stage_3]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    needs: bootstrap_llvm_stage_3
     # so we can upload releases
     permissions:
       contents: write
@@ -1955,8 +1787,7 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_clang_build_llvm_stage_1:
-    needs: [prepare_llvm_repo, bootstrap_clang_build_deps]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    needs: bootstrap_clang_build_deps
     # so we can upload releases
     permissions:
       contents: write
@@ -2333,8 +2164,7 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_clang_build_llvm_stage_2:
-    needs: [prepare_llvm_repo, bootstrap_clang_build_llvm_stage_1]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    needs: bootstrap_clang_build_llvm_stage_1
     # so we can upload releases
     permissions:
       contents: write
@@ -2672,8 +2502,7 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_clang_build_llvm_stage_3:
-    needs: [prepare_llvm_repo, bootstrap_clang_build_llvm_stage_2]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    needs: bootstrap_clang_build_llvm_stage_2
     # so we can upload releases
     permissions:
       contents: write
