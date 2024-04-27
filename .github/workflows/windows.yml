@@ -487,7 +487,7 @@ jobs:
           true
 
   new_gcc_clang:
-    needs: build_clang_clang_with
+    needs: [prepare_llvm_repo,build_clang_clang_with]
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
       matrix:
@@ -505,7 +505,7 @@ jobs:
           true
 
   prebuilt_gcc_clang:
-    needs: build_clang_clang_with
+    needs: [prepare_llvm_repo,build_clang_clang_with]
     if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap }}
     strategy:
       matrix:
@@ -523,7 +523,7 @@ jobs:
           true
 
   clang_clang:
-    needs: build_clang_clang_with
+    needs: [prepare_llvm_repo,build_clang_clang_with]
     if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap && ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
       matrix:
