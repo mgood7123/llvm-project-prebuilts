@@ -425,7 +425,6 @@ jobs:
           fi
 
       - name: check if we need to bootstrap clang
-        id: "must_bootstrap"
         run: |
           echo "0" > must_pre_bootstrap
           echo "0" > must_bootstrap
