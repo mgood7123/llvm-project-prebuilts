@@ -4582,3 +4582,21 @@ jobs:
           removeArtifacts: true
           artifacts: |
             ./llvm_commits.split.*
+
+  s1_final_built:
+    needs: s1_final_llvm_stage_3
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+
+    runs-on: ${{ matrix.os }}
+
+    name: final clang stage 3 built - ${{ matrix.name }}
+
+    steps:
+      - name: complete
+        shell: bash {0}
+        run: |
+          true
