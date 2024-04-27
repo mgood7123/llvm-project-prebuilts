@@ -540,7 +540,7 @@ jobs:
         run: |
           true
 
-  s1_deps:
+  s1_gcc_deps:
     needs: new_gcc_clang
     # so we can upload releases
     permissions:
@@ -628,8 +628,8 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  s1_llvm_stage_1:
-    needs: s1_deps
+  s1_gcc_llvm_stage_1:
+    needs: s1_gcc_deps
     # so we can upload releases
     permissions:
       contents: write
@@ -968,8 +968,8 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  s1_llvm_stage_2:
-    needs: s1_llvm_stage_1
+  s1_gcc_llvm_stage_2:
+    needs: s1_gcc_llvm_stage_1
     # so we can upload releases
     permissions:
       contents: write
@@ -1305,8 +1305,8 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  s1_llvm_stage_3:
-    needs: s1_llvm_stage_2
+  s1_gcc_llvm_stage_3:
+    needs: s1_gcc_llvm_stage_2
     # so we can upload releases
     permissions:
       contents: write
@@ -1643,7 +1643,7 @@ jobs:
             ./rootfs.split.*
 
   s1_clang_deps:
-    needs: s1_llvm_stage_3
+    needs: s1_gcc_llvm_stage_3
     # so we can upload releases
     permissions:
       contents: write
