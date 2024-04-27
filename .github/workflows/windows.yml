@@ -244,6 +244,7 @@ jobs:
       contents: write
     outputs:
       must_bootstrap: ${{ steps.needs_bootstrap.outputs.needs_bootstrap }}
+      must_pre_bootstrap: ${{ steps.needs_bootstrap.outputs.needs_pre_bootstrap }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
@@ -253,12 +254,10 @@ jobs:
           - os: windows-latest
             name: windows
             sys: MSYS
-            llvm_stage: 1
-            llvm_stage_old: 0
 
     runs-on: ${{ matrix.os }}
 
-    name: bootstrap llvm stage ${{ matrix.llvm_stage }} - ${{ matrix.name }}
+    name: setup llvm-project - ${{ matrix.name }}
 
     steps:
 
@@ -392,22 +391,25 @@ jobs:
       - name: check if we need to bootstrap clang
         id: "needs_bootstrap"
         run: |
+          needs_pre_bootstrap=0
           needs_bootstrap=0
           rm llvm_commits/must_bootstrap || true
           URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-clang--release/rootfs.split.map
           if ./split_exe/split.exe --ls $URL_LLVM
             then
+              echo "final clang exists"
               true
             else
-              # final clang does not exists
+              echo "final clang does not exist"
               URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2_bootstrap--release/rootfs.split.map
               if ./split_exe/split.exe --ls $URL_LLVM
                 then
-                  # bootstrap clang exists
+                  echo "bootstrap clang exists"
+                  needs_bootstrap=1
                   true
                 else
-                  # bootstrap clang does not exists
-                  needs_bootstrap=1
+                  echo "bootstrap clang does not exists"
+                  needs_pre_bootstrap=1
                   true
               fi
               true
@@ -465,7 +467,7 @@ jobs:
 
   bootstrap_deps:
     needs: prepare_llvm_repo
-    if: ${{ needs.prepare_llvm_repo.outputs.needs_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -554,7 +556,7 @@ jobs:
 
   bootstrap_llvm_stage_1:
     needs: [prepare_llvm_repo, bootstrap_deps]
-    if: ${{ needs.prepare_llvm_repo.outputs.needs_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -895,7 +897,7 @@ jobs:
 
   bootstrap_llvm_stage_2:
     needs: [prepare_llvm_repo, bootstrap_llvm_stage_1]
-    if: ${{ needs.prepare_llvm_repo.outputs.needs_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1233,7 +1235,7 @@ jobs:
 
   bootstrap_llvm_stage_3:
     needs: [prepare_llvm_repo, bootstrap_llvm_stage_2]
-    if: ${{ needs.prepare_llvm_repo.outputs.needs_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1573,7 +1575,7 @@ jobs:
 
   bootstrap_clang_build_deps:
     needs: [prepare_llvm_repo, bootstrap_llvm_stage_3]
-    if: ${{ needs.prepare_llvm_repo.outputs.needs_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1735,7 +1737,7 @@ jobs:
 
   bootstrap_clang_build_llvm_stage_1:
     needs: [prepare_llvm_repo, bootstrap_clang_build_deps]
-    if: ${{ needs.prepare_llvm_repo.outputs.needs_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -2113,7 +2115,7 @@ jobs:
 
   bootstrap_clang_build_llvm_stage_2:
     needs: [prepare_llvm_repo, bootstrap_clang_build_llvm_stage_1]
-    if: ${{ needs.prepare_llvm_repo.outputs.needs_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -2452,7 +2454,7 @@ jobs:
 
   bootstrap_clang_build_llvm_stage_3:
     needs: [prepare_llvm_repo, bootstrap_clang_build_llvm_stage_2]
-    if: ${{ needs.prepare_llvm_repo.outputs.needs_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
