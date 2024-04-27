@@ -471,7 +471,7 @@ jobs:
 
   bootstrap_deps1:
     needs: prepare_llvm_repo
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
@@ -703,8 +703,8 @@ jobs:
           submodules: recursive
 
   bootstrap_deps:
-    needs: prepare_llvm_repo
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    needs: [prepare_llvm_repo,bootstrap_deps_finish]
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     # so we can upload releases
     permissions:
       contents: write
@@ -793,7 +793,7 @@ jobs:
 
   bootstrap_llvm_stage_1:
     needs: [prepare_llvm_repo, bootstrap_deps]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1134,7 +1134,7 @@ jobs:
 
   bootstrap_llvm_stage_2:
     needs: [prepare_llvm_repo, bootstrap_llvm_stage_1]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1472,7 +1472,7 @@ jobs:
 
   bootstrap_llvm_stage_3:
     needs: [prepare_llvm_repo, bootstrap_llvm_stage_2]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1812,7 +1812,7 @@ jobs:
 
   bootstrap_clang_build_deps:
     needs: [prepare_llvm_repo, bootstrap_llvm_stage_3]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1974,7 +1974,7 @@ jobs:
 
   bootstrap_clang_build_llvm_stage_1:
     needs: [prepare_llvm_repo, bootstrap_clang_build_deps]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -2352,7 +2352,7 @@ jobs:
 
   bootstrap_clang_build_llvm_stage_2:
     needs: [prepare_llvm_repo, bootstrap_clang_build_llvm_stage_1]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -2691,7 +2691,7 @@ jobs:
 
   bootstrap_clang_build_llvm_stage_3:
     needs: [prepare_llvm_repo, bootstrap_clang_build_llvm_stage_2]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
