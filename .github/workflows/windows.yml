@@ -469,7 +469,7 @@ jobs:
           artifacts: |
             ./llvm_commits.split.*
 
-  must_bootstrap:
+  build_gcc_clang__build_clang_clang:
     needs: prepare_llvm_repo
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
@@ -487,7 +487,7 @@ jobs:
         run: |
           true
 
-  use_prebuilt_bootstrap_clang_stage_3:
+  build_clang_clang_using_gcc_clang:
     needs: prepare_llvm_repo
     if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap }}
     strategy:
@@ -505,7 +505,7 @@ jobs:
         run: |
           true
 
-  use_prebuilt_clang_stage_3:
+  build_clang_clang_using_clang_clang:
     needs: prepare_llvm_repo
     if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap && ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
@@ -524,7 +524,7 @@ jobs:
           true
 
   s1_deps:
-    needs: must_bootstrap
+    needs: build_gcc_clang__build_clang_clang
     # so we can upload releases
     permissions:
       contents: write
