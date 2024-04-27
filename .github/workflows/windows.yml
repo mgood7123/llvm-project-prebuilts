@@ -1813,7 +1813,7 @@ jobs:
         run: |
           true
 
-  s1_clang_build:
+  s1_clang_deps:
     needs: s1_gcc_clang_built
     # so we can upload releases
     permissions:
