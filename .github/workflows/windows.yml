@@ -523,7 +523,7 @@ jobs:
         run: |
           true
 
-  bootstrap_deps:
+  s1_deps:
     needs: must_bootstrap
     # so we can upload releases
     permissions:
@@ -611,8 +611,8 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  bootstrap_llvm_stage_1:
-    needs: bootstrap_deps
+  s1_llvm_stage_1:
+    needs: s1_deps
     # so we can upload releases
     permissions:
       contents: write
@@ -951,8 +951,8 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  bootstrap_llvm_stage_2:
-    needs: bootstrap_llvm_stage_1
+  s1_llvm_stage_2:
+    needs: s1_llvm_stage_1
     # so we can upload releases
     permissions:
       contents: write
@@ -1288,8 +1288,8 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  bootstrap_llvm_stage_3:
-    needs: bootstrap_llvm_stage_2
+  s1_llvm_stage_3:
+    needs: s1_llvm_stage_2
     # so we can upload releases
     permissions:
       contents: write
@@ -1625,8 +1625,8 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  bootstrap_clang_build_deps:
-    needs: bootstrap_llvm_stage_3
+  s1_clang_deps:
+    needs: s1_llvm_stage_3
     # so we can upload releases
     permissions:
       contents: write
@@ -1786,8 +1786,8 @@ jobs:
             ./build.split.*
             ./rootfs.split.*
 
-  bootstrap_clang_build_llvm_stage_1:
-    needs: bootstrap_clang_build_deps
+  s1_clang_llvm_stage_1:
+    needs: s1_clang_deps
     # so we can upload releases
     permissions:
       contents: write
@@ -2163,8 +2163,8 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  bootstrap_clang_build_llvm_stage_2:
-    needs: bootstrap_clang_build_llvm_stage_1
+  s1_clang_llvm_stage_2:
+    needs: s1_clang_llvm_stage_1
     # so we can upload releases
     permissions:
       contents: write
@@ -2501,8 +2501,8 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  bootstrap_clang_build_llvm_stage_3:
-    needs: bootstrap_clang_build_llvm_stage_2
+  s1_clang_llvm_stage_3:
+    needs: s1_clang_llvm_stage_2
     # so we can upload releases
     permissions:
       contents: write
