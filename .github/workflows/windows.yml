@@ -657,6 +657,42 @@ jobs:
         run: |
           true
 
+  s2_clang_deps:
+    needs: s2_clang
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+
+    runs-on: ${{ matrix.os }}
+
+    name: build clang stage 3 with prebuilt gcc clang - ${{ matrix.name }}
+
+    steps:
+      - name: complete
+        shell: bash {0}
+        run: |
+          true
+
+  s3_clang_deps:
+    needs: s3_clang
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+
+    runs-on: ${{ matrix.os }}
+
+    name: build final with clang stage 3 - ${{ matrix.name }}
+
+    steps:
+      - name: complete
+        shell: bash {0}
+        run: |
+          true
+
   s1_gcc_deps:
     needs: s1_clang
     # so we can upload releases
