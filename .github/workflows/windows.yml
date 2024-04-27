@@ -505,6 +505,7 @@ jobs:
 
     steps:
       - name: complete
+        shell: bash {0}
         run: |
           true
 
@@ -523,6 +524,7 @@ jobs:
 
     steps:
       - name: complete
+        shell: bash {0}
         run: |
           true
 
@@ -541,6 +543,7 @@ jobs:
 
     steps:
       - name: complete
+        shell: bash {0}
         run: |
           true
 
@@ -555,10 +558,11 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: build_final_with prebuilt clang stage 3 - ${{ matrix.name }}
+    name: build final with prebuilt clang stage 3 - ${{ matrix.name }}
 
     steps:
       - name: complete
+        shell: bash {0}
         run: |
           true
 
