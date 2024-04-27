@@ -269,8 +269,8 @@ jobs:
     permissions:
       contents: write
     outputs:
-      must_pre_bootstrap: ${{ steps.needs_bootstrap.outputs.needs_pre_bootstrap }}
-      must_bootstrap:     ${{ steps.needs_bootstrap.outputs.needs_bootstrap }}
+      must_pre_bootstrap: ${{ steps.must_bootstrap.outputs.must_pre_bootstrap }}
+      must_bootstrap:     ${{ steps.must_bootstrap.outputs.must_bootstrap }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
@@ -425,11 +425,10 @@ jobs:
           fi
 
       - name: check if we need to bootstrap clang
-        id: "needs_bootstrap"
+        id: "must_bootstrap"
         run: |
-          needs_pre_bootstrap=0
-          needs_bootstrap=0
-          rm llvm_commits/must_bootstrap || true
+          must_pre_bootstrap=0
+          must_bootstrap=0
           URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-clang--release/rootfs.split.map
           if ./split_exe/split.exe --ls $URL_LLVM
             then
@@ -440,15 +439,15 @@ jobs:
               if ./split_exe/split.exe --ls $URL_LLVM
                 then
                   echo "bootstrap clang exists"
-                  needs_bootstrap=1
+                  must_bootstrap=1
                 else
                   echo "bootstrap clang does not exists"
-                  needs_pre_bootstrap=1
+                  must_pre_bootstrap=1
               fi
           fi
           set -x
-          echo "needs_pre_bootstrap=$needs_pre_bootstrap" >> "$GITHUB_OUTPUT"
-          echo "needs_bootstrap=$needs_bootstrap" >> "$GITHUB_OUTPUT"
+          echo "must_pre_bootstrap=$must_pre_bootstrap" >> "$GITHUB_OUTPUT"
+          echo "must_bootstrap=$must_bootstrap" >> "$GITHUB_OUTPUT"
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -498,20 +497,6 @@ jobs:
           removeArtifacts: true
           artifacts: |
             ./llvm_commits.split.*
-
-      - name: archive llvm commits directory if initial download
-        if: ${{ steps.pre_commit.outputs.init }}
-        run: |
-          export MSYS=winsymlinks:native
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r llvm_commits --name llvm_commits --size 750000000
-
-      - name: list files if initial download
-        if: ${{ steps.pre_commit.outputs.init }}
-        run: |
-          ls -l
 
       - name: upload llvm commits directory if initial download
         if: ${{ steps.pre_commit.outputs.init }}
