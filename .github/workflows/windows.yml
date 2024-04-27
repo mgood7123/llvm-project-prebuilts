@@ -398,7 +398,6 @@ jobs:
           if ./split_exe/split.exe --ls $URL_LLVM
             then
               echo "final clang exists"
-              true
             else
               echo "final clang does not exist"
               URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2_bootstrap--release/rootfs.split.map
@@ -406,15 +405,13 @@ jobs:
                 then
                   echo "bootstrap clang exists"
                   needs_bootstrap=1
-                  true
                 else
                   echo "bootstrap clang does not exists"
                   needs_pre_bootstrap=1
-                  true
               fi
-              true
           fi
-          true
+          echo "needs_pre_bootstrap=$needs_pre_bootstrap" >> "$GITHUB_OUTPUT"
+          echo "needs_bootstrap=$needs_bootstrap" >> "$GITHUB_OUTPUT"
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -467,7 +464,7 @@ jobs:
 
   bootstrap_deps:
     needs: prepare_llvm_repo
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -555,8 +552,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_llvm_stage_1:
-    needs: [prepare_llvm_repo, bootstrap_deps]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    needs: bootstrap_deps
+    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -896,8 +893,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_llvm_stage_2:
-    needs: [prepare_llvm_repo, bootstrap_llvm_stage_1]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    needs: bootstrap_llvm_stage_1
+    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1234,8 +1231,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_llvm_stage_3:
-    needs: [prepare_llvm_repo, bootstrap_llvm_stage_2]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    needs: bootstrap_llvm_stage_2
+    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1574,8 +1571,8 @@ jobs:
 # clang 11 is too old, build via msys2_bootstrap (above) then rebuild with iconv via our build clang
 
   bootstrap_clang_build_deps:
-    needs: [prepare_llvm_repo, bootstrap_llvm_stage_3]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
+    needs: bootstrap_llvm_stage_3
+    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -1736,8 +1733,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_clang_build_llvm_stage_1:
-    needs: [prepare_llvm_repo, bootstrap_clang_build_deps]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    needs: bootstrap_clang_build_deps
+    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -2114,8 +2111,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_clang_build_llvm_stage_2:
-    needs: [prepare_llvm_repo, bootstrap_clang_build_llvm_stage_1]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    needs: bootstrap_clang_build_llvm_stage_1
+    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
@@ -2453,8 +2450,8 @@ jobs:
             ./rootfs.split.*
 
   bootstrap_clang_build_llvm_stage_3:
-    needs: [prepare_llvm_repo, bootstrap_clang_build_llvm_stage_2]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || needs.prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
+    needs: bootstrap_clang_build_llvm_stage_2
+    if: ${{ prepare_llvm_repo.outputs.must_pre_bootstrap == 'true' || prepare_llvm_repo.outputs.must_bootstrap == 'true' }}
     # so we can upload releases
     permissions:
       contents: write
