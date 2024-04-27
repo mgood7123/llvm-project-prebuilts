@@ -236,6 +236,28 @@ jobs:
 #           clang      + runtimes - stage 1 - DLL everything
 #           clang      + runtimes - stage 2 - DLL everything
 #           everything + runtimes - stage 3 - DLL everything
+#             // build with stage 3 clang that we had just built
+#               build required deps and package
+#               clang      + runtimes - stage 1 - DLL everything
+#               clang      + runtimes - stage 2 - DLL everything
+#               everything + runtimes - stage 3 - DLL everything
+#   prebuilt-gcc
+#         // build with stage 3 clang that we had just built
+#           build required deps and package
+#           clang      + runtimes - stage 1 - DLL everything
+#           clang      + runtimes - stage 2 - DLL everything
+#           everything + runtimes - stage 3 - DLL everything
+#             // build with stage 3 clang that we had just built
+#               build required deps and package
+#               clang      + runtimes - stage 1 - DLL everything
+#               clang      + runtimes - stage 2 - DLL everything
+#               everything + runtimes - stage 3 - DLL everything
+#   prebuilt-clang
+#             // build with stage 3 clang that we had just built
+#               build required deps and package
+#               clang      + runtimes - stage 1 - DLL everything
+#               clang      + runtimes - stage 2 - DLL everything
+#               everything + runtimes - stage 3 - DLL everything
 
   prepare_llvm_repo:
     needs: msys2_build_split
@@ -469,7 +491,7 @@ jobs:
           artifacts: |
             ./llvm_commits.split.*
 
-  build_clang_clang_with:
+  build_final_with:
     needs: prepare_llvm_repo
     strategy:
       matrix:
@@ -487,7 +509,7 @@ jobs:
           true
 
   new_gcc_clang:
-    needs: [prepare_llvm_repo,build_clang_clang_with]
+    needs: [prepare_llvm_repo,build_final_with]
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
       matrix:
@@ -505,7 +527,7 @@ jobs:
           true
 
   prebuilt_gcc_clang:
-    needs: [prepare_llvm_repo,build_clang_clang_with]
+    needs: [prepare_llvm_repo,build_final_with]
     if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap }}
     strategy:
       matrix:
@@ -522,8 +544,8 @@ jobs:
         run: |
           true
 
-  clang_clang:
-    needs: [prepare_llvm_repo,build_clang_clang_with]
+  final:
+    needs: [prepare_llvm_repo,build_final_with]
     if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap && ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
       matrix:
@@ -533,7 +555,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: build_clang_clang_with prebuilt clang stage 3 - ${{ matrix.name }}
+    name: build_final_with prebuilt clang stage 3 - ${{ matrix.name }}
 
     steps:
       - name: complete
@@ -1780,7 +1802,7 @@ jobs:
 
           # 750 mb
           #
-          ./split_exe/split.exe --split -r clang --name build --size 750000000
+          ./split_exe/split.exe --split -r clang_llvm --name build --size 750000000
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -1936,40 +1958,6 @@ jobs:
           mkdir "$(cat current_build_dir)"
           mkdir "$(cat current_build_dir)/BUILD_ROOT"
           mv ROOTFS "$(cat current_build_dir)/BUILD_ROOT"
-
-      - name: archive build directory
-        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
-        run: |
-          export MSYS=winsymlinks:native
-
-          mv clang_llvm/BUILD_ROOT/ROOTFS ROOTFS
-
-          # 750 mb
-          #
-          ./split_exe/split.exe --split -r clang_llvm --name build_llvm --size 750000000
-
-          mkdir clang_llvm/BUILD_ROOT
-          mv ROOTFS clang_llvm/BUILD_ROOT/ROOTFS
-
-      - name: list files
-        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
-        run: |
-          ls -l
-      
-      - name: upload build directory
-        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
-        uses: "ncipollo/release-action@v1"
-        with:
-          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - llvm - RELEASE"
-          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang_llvm--release"
-          makeLatest: true
-          generateReleaseNotes: false
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
-          removeArtifacts: true
-          artifacts: |
-            ./build_llvm.split.*
 
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
         run: |
@@ -2251,7 +2239,7 @@ jobs:
           export MSYS=winsymlinks:native
 
           SO=${{ matrix.llvm_stage_old }}
-          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S0--windows-msys2-clang--release/rootfs.split.map
+          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-clang--release/rootfs.split.map
 
           # always download the previous stage's build rootfs
           mkdir clang_llvm
@@ -2589,7 +2577,7 @@ jobs:
           export MSYS=winsymlinks:native
 
           SO=${{ matrix.llvm_stage_old }}
-          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$S0--windows-msys2-clang--release/rootfs.split.map
+          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-clang--release/rootfs.split.map
 
           # always download the previous stage's build rootfs
           mkdir clang_llvm
@@ -2831,12 +2819,12 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/clang-tools-extra"
-          export build_dir="clang_clang_tools_extra"
+          export build_dir="final_tools_extra"
           export llvm_projects="clang-tools-extra"
           export llvm_runtimes=""
           echo "$build_dir" > current_build_dir
@@ -2867,8 +2855,8 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/lld"
@@ -2903,8 +2891,8 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/lldb"
@@ -2939,8 +2927,8 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/mlir"
@@ -2975,8 +2963,8 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
           export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
-          export c_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
-          export cxx_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
           export rootfs="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS"
           export install_rootfs="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS"
           export source_dir="llvm-project/polly"
@@ -3027,6 +3015,1366 @@ jobs:
         with:
           name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 clang - RELEASE"
           tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-clang--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./rootfs.split.*
+
+  s1_final_deps:
+    needs: s1_clang_llvm_stage_3
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+            llvm_stage: 0
+            llvm_stage_old: 3
+
+    runs-on: ${{ matrix.os }}
+
+    name: msys2 deps (clang) - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install git
+        run: |
+          pacman -S --noconfirm --needed git
+
+      - name: install makefile
+        run: |
+          pacman -S --noconfirm --needed make
+
+      - name: install cmake
+        run: |
+          pacman -S --noconfirm --needed cmake
+
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
+
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
+
+      - name: install autotools
+        run: |
+          pacman -S --noconfirm --needed autotools
+
+      - name: install patch
+        run: |
+          pacman -S --noconfirm --needed patch
+
+      - name: install gperf
+        run: |
+          pacman -S --noconfirm --needed gperf
+
+      - name: install groff
+        run: |
+          pacman -S --noconfirm --needed groff
+
+      - name: install gettext
+        run: |
+          pacman -S --noconfirm --needed gettext
+
+      - name: install texinfo
+        run: |
+          pacman -S --noconfirm --needed texinfo
+
+      - name: clone libiconv
+        run: |
+          export MSYS=winsymlinks:native
+          find /usr/include -name error.h
+          cd deps ; git clone git://git.savannah.gnu.org/libiconv.git libiconv --recursive --depth=1
+
+      - name: libiconv autopull.sh
+        run: |
+          export MSYS=winsymlinks:native
+          cd deps ; cd libiconv ; ./autopull.sh --one-time
+
+      - name: check if split program is cached
+        run: |
+          export MSYS=winsymlinks:native
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
+
+      - name: check if build directory is cached
+        run: |
+          export MSYS=winsymlinks:native
+
+          SO=${{ matrix.llvm_stage_old }}
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-final--release/build.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-clang--release/rootfs.split.map
+
+          # download the build dir if it exists
+          ./split_exe/split.exe --join -r $URL1 --out clang_llvm || true
+          # download stage 3 clang
+          mkdir final_llvm
+          mkdir final_llvm/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out final_llvm/BUILD_ROOT/ROOTFS
+
+      - name: cmake build deps - Release
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+          export c_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang"
+          export cxx_compiler="$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++"
+          export source_dir="."
+          export build_dir="final_llvm"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_BUILD_ICONV=TRUE -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: archive build directory
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r final_llvm --name build --size 750000000
+
+      - name: list files
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload build directory
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm deps - windows msys2 final - RELEASE"
+          tag: "storage--deps--windows-msys2-final--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./build.split.*
+            ./rootfs.split.*
+
+  s1_final_llvm_stage_1:
+    needs: s1_final_deps
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+            llvm_stage: 1
+            llvm_stage_old: 0
+
+    runs-on: ${{ matrix.os }}
+
+    name: llvm stage ${{ matrix.llvm_stage }} (clang) - ${{ matrix.name }}
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install makefile
+        run: |
+          pacman -S --noconfirm --needed make
+
+      - name: install cmake
+        run: |
+          pacman -S --noconfirm --needed cmake
+
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
+
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
+
+      - name: install git
+        run: |
+          pacman -S --noconfirm --needed git
+
+      - name: check if split program is cached
+        run: |
+          export MSYS=winsymlinks:native
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
+
+      - name: download deps and bootstrap stage 3 rootfs
+        run: |
+          export MSYS=winsymlinks:native
+
+          SO=${{ matrix.llvm_stage_old }}
+          URL1=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--deps--windows-msys2-final--release/rootfs.split.map
+          URL2=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-clang--release/rootfs.split.map
+
+          # download bootstrap deps
+          mkdir final_llvm
+          mkdir final_llvm/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL1 --out final_llvm || true
+          # download bootstrap clang
+          mkdir clang_llvm
+          mkdir clang_llvm/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL2 --out clang_llvm/BUILD_ROOT/ROOTFS
+
+      - name: set compiler
+        run: |
+          echo "$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang" > c_compiler
+          echo "$(pwd)/clang_llvm/BUILD_ROOT/ROOTFS/bin/clang++" > cxx_compiler
+
+      - name: download pre-cloned llvm-project
+        run: |
+          URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--windows-llvm_git--release/llvm_git.split.map
+          ./split_exe/split.exe --join -r $URL_LLVM --out llvm-project
+          mkdir next_bin
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm  - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/llvm"
+          export build_dir="final_llvm"
+          export llvm_projects=""
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          mv "$(cat current_build_dir)/BUILD_ROOT/ROOTFS" .
+          rm -rf "$(cat current_build_dir)"
+          mkdir "$(cat current_build_dir)"
+          mkdir "$(cat current_build_dir)/BUILD_ROOT"
+          mv ROOTFS "$(cat current_build_dir)/BUILD_ROOT"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/clang"
+          export build_dir="final_clang"
+          export llvm_projects="clang"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/compiler-rt"
+          export build_dir="final_compiler_rt"
+          export llvm_projects=""
+          export llvm_runtimes="compiler-rt"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/libcxx"
+          export build_dir="final_libcxx"
+          export llvm_projects=""
+          export llvm_runtimes="libcxx"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/libcxxabi"
+          export build_dir="final_libcxxabi"
+          export llvm_projects=""
+          export llvm_runtimes="libcxxabi"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/libunwind"
+          export build_dir="final_libunwind"
+          export llvm_projects=""
+          export llvm_runtimes="libunwind"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: archive rootfs directory
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+      - name: list files
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload rootfs directory
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 final - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-final--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./rootfs.split.*
+
+  s1_final_llvm_stage_2:
+    needs: s1_final_llvm_stage_1
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+            llvm_stage: 2
+            llvm_stage_old: 1
+
+    runs-on: ${{ matrix.os }}
+
+    name: llvm stage ${{ matrix.llvm_stage }} (clang) - ${{ matrix.name }}
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install makefile
+        run: |
+          pacman -S --noconfirm --needed make
+
+      - name: install cmake
+        run: |
+          pacman -S --noconfirm --needed cmake
+
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
+
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
+
+      - name: install git
+        run: |
+          pacman -S --noconfirm --needed git
+
+      - name: check if split program is cached
+        run: |
+          export MSYS=winsymlinks:native
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
+
+      - name: bootstrap stage ${{ matrix.llvm_stage_old }} rootfs
+        run: |
+          export MSYS=winsymlinks:native
+
+          SO=${{ matrix.llvm_stage_old }}
+          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-final--release/rootfs.split.map
+
+          # always download the previous stage's build rootfs
+          mkdir final_llvm
+          mkdir final_llvm/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL --out final_llvm/BUILD_ROOT/ROOTFS
+
+      - name: set compiler
+        run: |
+          echo "$(pwd)/final_llvm/BUILD_ROOT/ROOTFS/bin/clang" > c_compiler
+          echo "$(pwd)/final_llvm/BUILD_ROOT/ROOTFS/bin/clang++" > cxx_compiler
+
+      - name: download pre-cloned llvm-project
+        run: |
+          URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--windows-llvm_git--release/llvm_git.split.map
+          ./split_exe/split.exe --join -r $URL_LLVM --out llvm-project
+          mkdir next_bin
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm  - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/llvm"
+          export build_dir="final_llvm"
+          export llvm_projects=""
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          mv "$(cat current_build_dir)/BUILD_ROOT/ROOTFS" .
+          rm -rf "$(cat current_build_dir)"
+          mkdir "$(cat current_build_dir)"
+          mkdir "$(cat current_build_dir)/BUILD_ROOT"
+          mv ROOTFS "$(cat current_build_dir)/BUILD_ROOT"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/clang"
+          export build_dir="final_clang"
+          export llvm_projects="clang"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/compiler-rt"
+          export build_dir="final_compiler_rt"
+          export llvm_projects=""
+          export llvm_runtimes="compiler-rt"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/libcxx"
+          export build_dir="final_libcxx"
+          export llvm_projects=""
+          export llvm_runtimes="libcxx"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/libcxxabi"
+          export build_dir="final_libcxxabi"
+          export llvm_projects=""
+          export llvm_runtimes="libcxxabi"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/libunwind"
+          export build_dir="final_libunwind"
+          export llvm_projects=""
+          export llvm_runtimes="libunwind"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: archive rootfs directory
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+      - name: list files
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload rootfs directory
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 final - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-final--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./rootfs.split.*
+
+  s1_final_llvm_stage_3:
+    needs: s1_final_llvm_stage_2
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+            llvm_stage: 3
+            llvm_stage_old: 2
+
+    runs-on: ${{ matrix.os }}
+
+    name: llvm stage ${{ matrix.llvm_stage }} (clang) - ${{ matrix.name }}
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          # we dont need submodules anymore
+
+      - name: '${{ matrix.icon }} Setup MSYS2'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          path-type: strict
+
+      - name: update packages
+        run: |
+          pacman -Sy
+
+      - name: install makefile
+        run: |
+          pacman -S --noconfirm --needed make
+
+      - name: install cmake
+        run: |
+          pacman -S --noconfirm --needed cmake
+
+      - name: install ninja
+        run: |
+          pacman -S --noconfirm --needed ninja
+
+      - name: install python
+        run: |
+          pacman -S --noconfirm --needed python
+
+      - name: install git
+        run: |
+          pacman -S --noconfirm --needed git
+
+      - name: check if split program is cached
+        run: |
+          export MSYS=winsymlinks:native
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   mgood7123   llvm-project-prebuilts   storage--split--windows   split.exe.tar
+
+      - name: bootstrap stage ${{ matrix.llvm_stage_old }} rootfs
+        run: |
+          export MSYS=winsymlinks:native
+
+          SO=${{ matrix.llvm_stage_old }}
+          URL=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-$SO--windows-msys2-final--release/rootfs.split.map
+
+          # always download the previous stage's build rootfs
+          mkdir final_llvm
+          mkdir final_llvm/BUILD_ROOT
+          ./split_exe/split.exe --join -r $URL --out final_llvm/BUILD_ROOT/ROOTFS
+
+      - name: set compiler
+        run: |
+          echo "$(pwd)/final_llvm/BUILD_ROOT/ROOTFS/bin/clang" > c_compiler
+          echo "$(pwd)/final_llvm/BUILD_ROOT/ROOTFS/bin/clang++" > cxx_compiler
+
+      - name: download pre-cloned llvm-project
+        run: |
+          URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--windows-llvm_git--release/llvm_git.split.map
+          ./split_exe/split.exe --join -r $URL_LLVM --out llvm-project
+          mkdir next_bin
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm  - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/llvm"
+          export build_dir="final_llvm"
+          export llvm_projects=""
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          mv "$(cat current_build_dir)/BUILD_ROOT/ROOTFS" .
+          rm -rf "$(cat current_build_dir)"
+          mkdir "$(cat current_build_dir)"
+          mkdir "$(cat current_build_dir)/BUILD_ROOT"
+          mv ROOTFS "$(cat current_build_dir)/BUILD_ROOT"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang  - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/clang"
+          export build_dir="final_clang"
+          export llvm_projects="clang"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/compiler-rt"
+          export build_dir="final_compiler_rt"
+          export llvm_projects=""
+          export llvm_runtimes="compiler-rt"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/libcxx"
+          export build_dir="final_libcxx"
+          export llvm_projects=""
+          export llvm_runtimes="libcxx"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/libcxxabi"
+          export build_dir="final_libcxxabi"
+          export llvm_projects=""
+          export llvm_runtimes="libcxxabi"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$rootfs"
+          export source_dir="llvm-project/libunwind"
+          export build_dir="final_libunwind"
+          export llvm_projects=""
+          export llvm_runtimes="libunwind"
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/clang-tools-extra"
+          export build_dir="final_tools_extra"
+          export llvm_projects="clang-tools-extra"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/lld"
+          export build_dir="final_lld"
+          export llvm_projects="lld"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/lldb"
+          export build_dir="final_lldb"
+          export llvm_projects="lldb"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/mlir"
+          export build_dir="final_mlir"
+          export llvm_projects="mlir"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Configure
+        run: |
+          export MSYS=winsymlinks:native
+          export ACLOCAL_PATH=D:/a/_temp/msys64/usr/share/aclocal
+          export c_compiler="$(cat c_compiler)"
+          export cxx_compiler="$(cat cxx_compiler)"
+          export rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export install_rootfs="$(pwd)/final_llvm/BUILD_ROOT/ROOTFS"
+          export source_dir="llvm-project/polly"
+          export build_dir="final_polly"
+          export llvm_projects="polly"
+          export llvm_runtimes=""
+          echo "$build_dir" > current_build_dir
+          cmake -G "Ninja" -DLLVM_ENABLE_PROJECTS="$llvm_projects" -DLLVM_ENABLE_RUNTIMES="$llvm_runtimes" -DBUILD_SHARED_LIBS=ON -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_ASSERTIONS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_COMPILE_JOBS=$(nproc) -DLLVM_PARALLEL_LINK_JOBS=$(nproc) -DLLVM_PARALLEL_TABLEGEN_JOBS=$(nproc) -DLLVM_LIT_ARGS="-j $(nproc)" -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_BINDINGS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_MODULE_PATH="$(pwd)/cmake/packages" -DCMAKE_INSTALL_PREFIX="$install_rootfs" -DLLVM_BUILD_ROOT__ROOTFS="$rootfs" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$c_compiler" -DCMAKE_CXX_COMPILER="$cxx_compiler" -DCMAKE_C_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_CXX_FLAGS="-D__POSIX_VISIBLE=200809 -g0 -O3" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -DCMAKE_VERBOSE_MAKEFILE=TRUE -S "$source_dir" -B "$build_dir"
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Build
+        run: |
+          export MSYS=winsymlinks:native
+          mv next_bin $(cat current_build_dir)/bin
+          if cmake --build "$(cat current_build_dir)" -v
+            then
+              echo "build success"
+              true
+            else
+              echo "build failed"
+              false
+          fi
+
+      - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Install
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+          cmake --install "$(cat current_build_dir)"
+          mv $(cat current_build_dir)/bin next_bin
+          rm -rf "$(cat current_build_dir)"
+
+      - name: archive rootfs directory
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          export MSYS=winsymlinks:native
+
+          # 750 mb
+          #
+          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+
+      - name: list files
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+      
+      - name: upload rootfs directory
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "llvm stage ${{ matrix.llvm_stage }} - windows msys2 final - RELEASE"
+          tag: "storage--llvm-stage-${{ matrix.llvm_stage }}--windows-msys2-final--release"
           makeLatest: true
           generateReleaseNotes: false
           allowUpdates: true
