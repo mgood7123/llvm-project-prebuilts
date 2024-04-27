@@ -469,8 +469,25 @@ jobs:
           artifacts: |
             ./llvm_commits.split.*
 
-  build_gcc_clang__build_clang_clang:
+  build_clang_clang_with:
     needs: prepare_llvm_repo
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+
+    runs-on: ${{ matrix.os }}
+
+    name: build clang clang with - ${{ matrix.name }}
+
+    steps:
+      - name: complete
+        run: |
+          true
+
+  new_gcc_clang:
+    needs: build_clang_clang_with
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
       matrix:
@@ -480,15 +497,15 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: must pre-bootstrap - ${{ matrix.name }}
+    name: build clang clang with new gcc clang - ${{ matrix.name }}
 
     steps:
       - name: complete
         run: |
           true
 
-  build_clang_clang_using_gcc_clang:
-    needs: prepare_llvm_repo
+  prebuilt_gcc_clang:
+    needs: build_clang_clang_with
     if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap }}
     strategy:
       matrix:
@@ -498,15 +515,15 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: must bootstrap - ${{ matrix.name }}
+    name: build clang clang with prebuilt gcc clang - ${{ matrix.name }}
 
     steps:
       - name: complete
         run: |
           true
 
-  build_clang_clang_using_clang_clang:
-    needs: prepare_llvm_repo
+  clang_clang:
+    needs: build_clang_clang_with
     if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap && ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
       matrix:
@@ -516,7 +533,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: use prebuilt clang stage 3 - ${{ matrix.name }}
+    name: build_clang_clang_with prebuilt clang stage 3 - ${{ matrix.name }}
 
     steps:
       - name: complete
@@ -524,7 +541,7 @@ jobs:
           true
 
   s1_deps:
-    needs: build_gcc_clang__build_clang_clang
+    needs: new_gcc_clang
     # so we can upload releases
     permissions:
       contents: write
