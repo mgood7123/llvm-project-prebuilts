@@ -426,8 +426,8 @@ jobs:
 
       - name: check if we need to bootstrap clang
         run: |
-          echo "0" > must_pre_bootstrap
-          echo "0" > must_bootstrap
+          echo "1" > must_pre_bootstrap
+          echo "1" > must_bootstrap
           URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-clang--release/rootfs.split.map
           if ./split_exe/split.exe --ls $URL_LLVM
             then
@@ -438,10 +438,10 @@ jobs:
               if ./split_exe/split.exe --ls $URL_LLVM
                 then
                   echo "bootstrap clang exists"
-                  echo "1" > must_bootstrap
+                  echo "2" > must_bootstrap
                 else
                   echo "bootstrap clang does not exists"
-                  echo "1" > must_pre_bootstrap
+                  echo "2" > must_pre_bootstrap
               fi
           fi
 
@@ -541,7 +541,7 @@ jobs:
 
   s1_new_gcc_clang:
     needs: [prepare_llvm_repo,build_final_with]
-    if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap && needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap == '1' && needs.prepare_llvm_repo.outputs.must_pre_bootstrap == '2' }}
     strategy:
       matrix:
         include:
@@ -560,7 +560,7 @@ jobs:
 
   s2_prebuilt_gcc_clang:
     needs: [prepare_llvm_repo,build_final_with]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap && ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap == '2' && needs.prepare_llvm_repo.outputs.must_pre_bootstrap == '1' }}
     strategy:
       matrix:
         include:
@@ -579,7 +579,7 @@ jobs:
 
   s3_final:
     needs: [prepare_llvm_repo,build_final_with]
-    if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap && ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap == '1' && needs.prepare_llvm_repo.outputs.must_pre_bootstrap == '1' }}
     strategy:
       matrix:
         include:
