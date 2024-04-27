@@ -573,9 +573,87 @@ jobs:
           ref: ${{needs.should_run.outputs.output1}}
           submodules: recursive
 
-  bootstrap_deps5:
+  bootstrap_deps_1a:
     needs: prepare_llvm_repo
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+            llvm_stage: 0
+            llvm_stage_old: 0
+
+    runs-on: ${{ matrix.os }}
+
+    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+
+  bootstrap_deps_1b:
+    needs: prepare_llvm_repo
+    if: ${{ ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+            llvm_stage: 0
+            llvm_stage_old: 0
+
+    runs-on: ${{ matrix.os }}
+
+    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+
+  bootstrap_deps_2a:
+    needs: prepare_llvm_repo
+    if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+            sys: MSYS
+            llvm_stage: 0
+            llvm_stage_old: 0
+
+    runs-on: ${{ matrix.os }}
+
+    name: msys2 deps (msys2_bootstrap) - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+
+  bootstrap_deps_2b:
+    needs: prepare_llvm_repo
+    if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
