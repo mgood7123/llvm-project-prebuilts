@@ -548,7 +548,7 @@ jobs:
 
   s1_new_gcc_clang:
     needs: [prepare_llvm_repo,build_final_with]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
+    if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap && needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
       matrix:
         include:
@@ -557,7 +557,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: build clang clang with new gcc clang - ${{ matrix.name }}
+    name: build final with new gcc clang - ${{ matrix.name }}
 
     steps:
       - name: complete
@@ -567,7 +567,7 @@ jobs:
 
   s2_prebuilt_gcc_clang:
     needs: [prepare_llvm_repo,build_final_with]
-    if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap }}
+    if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap && ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
       matrix:
         include:
@@ -576,7 +576,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: build clang clang with prebuilt gcc clang - ${{ matrix.name }}
+    name: build final with prebuilt gcc clang - ${{ matrix.name }}
 
     steps:
       - name: complete
@@ -649,7 +649,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: build final with clang stage 3 - ${{ matrix.name }}
+    name: build final with prebuilt clang stage 3 - ${{ matrix.name }}
 
     steps:
       - name: complete
@@ -1795,8 +1795,26 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  s1_clang_deps:
+  s1_gcc_clang_built:
     needs: s1_gcc_llvm_stage_3
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+
+    runs-on: ${{ matrix.os }}
+
+    name: build clang stage 3 with gcc clang we built - ${{ matrix.name }}
+
+    steps:
+      - name: complete
+        shell: bash {0}
+        run: |
+          true
+
+  s1_clang_build:
+    needs: s1_gcc_clang_built
     # so we can upload releases
     permissions:
       contents: write
@@ -3155,8 +3173,26 @@ jobs:
           artifacts: |
             ./rootfs.split.*
 
-  s1_final_deps:
+  s1_clang_stage_3_built:
     needs: s1_clang_llvm_stage_3
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+
+    runs-on: ${{ matrix.os }}
+
+    name: build final with clang stage 3 we built - ${{ matrix.name }}
+
+    steps:
+      - name: complete
+        shell: bash {0}
+        run: |
+          true
+
+  s1_final_deps:
+    needs: s1_clang_stage_3_built
     # so we can upload releases
     permissions:
       contents: write
