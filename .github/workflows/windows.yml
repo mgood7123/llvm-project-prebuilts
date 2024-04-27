@@ -546,7 +546,7 @@ jobs:
         run: |
           true
 
-  new_gcc_clang:
+  s1_new_gcc_clang:
     needs: [prepare_llvm_repo,build_final_with]
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
@@ -565,7 +565,7 @@ jobs:
         run: |
           true
 
-  prebuilt_gcc_clang:
+  s2_prebuilt_gcc_clang:
     needs: [prepare_llvm_repo,build_final_with]
     if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap }}
     strategy:
@@ -584,7 +584,7 @@ jobs:
         run: |
           true
 
-  final:
+  s3_final:
     needs: [prepare_llvm_repo,build_final_with]
     if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap && ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
     strategy:
@@ -604,7 +604,7 @@ jobs:
           true
 
   s1_clang:
-    needs: new_gcc_clang
+    needs: s1_new_gcc_clang
     strategy:
       matrix:
         include:
@@ -622,7 +622,7 @@ jobs:
           true
 
   s2_clang:
-    needs: prebuilt_gcc_clang
+    needs: s2_prebuilt_gcc_clang
     strategy:
       matrix:
         include:
@@ -640,7 +640,7 @@ jobs:
           true
 
   s3_clang:
-    needs: final
+    needs: s3_final
     strategy:
       matrix:
         include:
