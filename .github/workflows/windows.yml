@@ -563,9 +563,17 @@ jobs:
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
+              ls -l "$(cat current_build_dir)" || true
+              ls -l "$(cat current_build_dir)/bin" || true
+              ls -l "$(cat current_build_dir)/lib" || true
+              mkdir clang_deps_bin || true
+              cp -v $(cat current_build_dir)/bin/*.dll clang_deps_bin
               true
             else
               echo "build failed"
+              ls -l "$(cat current_build_dir)" || true
+              ls -l "$(cat current_build_dir)/bin" || true
+              ls -l "$(cat current_build_dir)/lib" || true
               false
           fi
 
@@ -686,25 +694,19 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
+          mkdir "$(cat current_build_dir)/bin" || true
+          cp -v clang_deps_bin/*.dll $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
+              ls -l "$(cat current_build_dir)" || true
+              ls -l "$(cat current_build_dir)/bin" || true
               true
             else
-              set -v
               echo "build failed"
-              echo "find Attrs.inc"
-              find -name "*Attrs.inc*" | grep --color=always "Attrs.inc"
-              cat $(find -name "*Attrs.inc*")
-              echo "find tblgen"
-              find -name "*tblgen*" | grep --color=always tblgen
-              pacman -S --noconfirm --needed gdb
-              #./BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/include/clang/AST/CMakeFiles/Attrs.inc-af0f6b2.sh
-              set -e
-              cd /d/a/llvm-project-prebuilts/llvm-project-prebuilts/BUILD_RELEASE_msys2_prebuilt_bootstrap_clang
-              gdb -ex "r" -ex "bt" -ex "q" --args /d/a/llvm-project-prebuilts/llvm-project-prebuilts/BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/bin/clang-tblgen.exe -gen-clang-attr-classes -I /d/a/llvm-project-prebuilts/llvm-project-prebuilts/llvm-project/clang/include/clang/AST -I/d/a/llvm-project-prebuilts/llvm-project-prebuilts/llvm-project/clang/include -I/d/a/llvm-project-prebuilts/llvm-project-prebuilts/BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/include -I/d/a/llvm-project-prebuilts/llvm-project-prebuilts/BUILD_RELEASE_msys2_prebuilt_bootstrap_llvm/BUILD_ROOT/ROOTFS/include /d/a/llvm-project-prebuilts/llvm-project-prebuilts/llvm-project/clang/include/clang/AST/../Basic/Attr.td --write-if-changed -o include/clang/AST/Attrs.inc -d include/clang/AST/Attrs.inc.d
-              ldd /d/a/llvm-project-prebuilts/llvm-project-prebuilts/BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/bin/clang-tblgen.exe
-              ls -l /d/a/llvm-project-prebuilts/llvm-project-prebuilts/BUILD_RELEASE_msys2_prebuilt_bootstrap_clang/bin
+              ls -l "$(cat current_build_dir)" || true
+              ls -l "$(cat current_build_dir)/bin" || true
+              ldd "$(cat current_build_dir)/bin/clang-tblgen.exe"
               false
           fi
 
