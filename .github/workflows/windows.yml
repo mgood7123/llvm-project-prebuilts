@@ -269,7 +269,7 @@ jobs:
     permissions:
       contents: write
     outputs:
-      must_pre_bootstrap: ${{ steps.must_bootstrap.outputs.must_pre_bootstrap }}
+      must_pre_bootstrap: ${{ steps.must_pre_bootstrap.outputs.must_pre_bootstrap }}
       must_bootstrap:     ${{ steps.must_bootstrap.outputs.must_bootstrap }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -427,8 +427,8 @@ jobs:
       - name: check if we need to bootstrap clang
         id: "must_bootstrap"
         run: |
-          must_pre_bootstrap=0
-          must_bootstrap=0
+          echo "0" > must_pre_bootstrap
+          echo "0" > must_bootstrap
           URL_LLVM=https://github.com/mgood7123/llvm-project-prebuilts/releases/download/storage--llvm-stage-3--windows-msys2-clang--release/rootfs.split.map
           if ./split_exe/split.exe --ls $URL_LLVM
             then
@@ -439,15 +439,24 @@ jobs:
               if ./split_exe/split.exe --ls $URL_LLVM
                 then
                   echo "bootstrap clang exists"
-                  must_bootstrap=1
+                  echo "1" > must_bootstrap
                 else
                   echo "bootstrap clang does not exists"
-                  must_pre_bootstrap=1
+                  echo "1" > must_pre_bootstrap
               fi
           fi
+
+      - name: set output must_pre_bootstrap
+        id: "must_pre_bootstrap"
+        run: |
           set -x
-          echo "must_pre_bootstrap=$must_pre_bootstrap" >> "$GITHUB_OUTPUT"
-          echo "must_bootstrap=$must_bootstrap" >> "$GITHUB_OUTPUT"
+          echo "must_pre_bootstrap=$(cat must_pre_bootstrap)" >> "$GITHUB_OUTPUT"
+
+      - name: set output must_bootstrap
+        id: "must_bootstrap"
+        run: |
+          set -x
+          echo "must_bootstrap=$(cat must_bootstrap)" >> "$GITHUB_OUTPUT"
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
