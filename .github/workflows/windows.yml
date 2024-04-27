@@ -472,9 +472,6 @@ jobs:
   bootstrap_deps1:
     needs: prepare_llvm_repo
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
     strategy:
       matrix:
         include:
@@ -498,9 +495,6 @@ jobs:
   bootstrap_deps2:
     needs: prepare_llvm_repo
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == 'false' }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
     strategy:
       matrix:
         include:
@@ -524,9 +518,6 @@ jobs:
   bootstrap_deps3:
     needs: prepare_llvm_repo
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == '1' }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
     strategy:
       matrix:
         include:
@@ -550,9 +541,6 @@ jobs:
   bootstrap_deps4:
     needs: prepare_llvm_repo
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap == '0' }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
     strategy:
       matrix:
         include:
@@ -576,9 +564,6 @@ jobs:
   bootstrap_deps_1a:
     needs: prepare_llvm_repo
     if: ${{ needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
     strategy:
       matrix:
         include:
@@ -602,9 +587,6 @@ jobs:
   bootstrap_deps_1b:
     needs: prepare_llvm_repo
     if: ${{ ! needs.prepare_llvm_repo.outputs.must_pre_bootstrap }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
     strategy:
       matrix:
         include:
@@ -630,7 +612,7 @@ jobs:
     if: ${{ needs.prepare_llvm_repo.outputs.must_bootstrap }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     strategy:
       matrix:
         include:
@@ -656,7 +638,7 @@ jobs:
     if: ${{ ! needs.prepare_llvm_repo.outputs.must_bootstrap }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     strategy:
       matrix:
         include:
@@ -681,7 +663,7 @@ jobs:
     needs: [prepare_llvm_repo,bootstrap_deps1,bootstrap_deps2,bootstrap_deps3,bootstrap_deps4,bootstrap_deps_1a,bootstrap_deps_2a,bootstrap_deps_1b,bootstrap_deps_2b]
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     strategy:
       matrix:
         include:
