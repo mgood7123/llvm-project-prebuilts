@@ -366,7 +366,7 @@ jobs:
           cd llvm-project
           git config --global color.ui always
           echo "executing git pull"
-          git pull --progress -v > ../llvm_commits/llvm_commit_pull_color
+          git pull > ../llvm_commits/llvm_commit_pull_color
           cat ../llvm_commits/llvm_commit_pull_color
 
       - name: pack llvm-project
