@@ -336,7 +336,7 @@ jobs:
       - name: pre-update llvm-project commit info
         id: "pre_commit"
         run: |
-          init=0
+          init=1
           cd llvm-project
           if [[ ! -e ../llvm_commits/llvm_commit_last ]]
             then
@@ -345,7 +345,7 @@ jobs:
               git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
               git log --stat --date=relative --color -n 1 > ../llvm_commits/llvm_commit_current_verbose
               cp -v ../llvm_commits/llvm_commit_current ../llvm_commits/llvm_commit_last
-              init=1
+              init=2
           fi
           echo "init=$init" >> $GITHUB_OUTPUT
 
@@ -507,7 +507,7 @@ jobs:
             ./llvm_commits.split.*
 
       - name: upload llvm commits directory if initial download
-        if: ${{ steps.pre_commit.outputs.init }}
+        if: ${{ steps.pre_commit.outputs.init == '2' }}
         uses: "ncipollo/release-action@v1"
         with:
           name: "windows - llvm commits - RELEASE"
