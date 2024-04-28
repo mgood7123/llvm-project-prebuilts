@@ -351,7 +351,7 @@ jobs:
           git config --global color.ui always
           echo "init=$init" >> $GITHUB_OUTPUT
 
-      - name: update llvm-project
+      - name: update llvm-project - fetch
         run: |
           # update repo
           cd llvm-project
@@ -359,6 +359,12 @@ jobs:
           echo "executing git fetch"
           git fetch > ../llvm_commits/llvm_commit_fetch_color
           cat ../llvm_commits/llvm_commit_fetch_color
+
+      - name: update llvm-project - pull
+        run: |
+          # update repo
+          cd llvm-project
+          git config --global color.ui always
           echo "executing git pull"
           git pull --progress -v > ../llvm_commits/llvm_commit_pull_color
           cat ../llvm_commits/llvm_commit_pull_color
