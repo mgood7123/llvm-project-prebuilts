@@ -354,9 +354,9 @@ jobs:
           # update repo
           cd llvm-project
           echo "executing git fetch"
-          git fetch -v --progress --no-tags
+          git fetch
           echo "executing git pull"
-          git pull -v --progress
+          git pull
 
       - name: pack llvm-project
         run: |
