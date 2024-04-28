@@ -338,6 +338,7 @@ jobs:
         run: |
           init=1
           cd llvm-project
+          git config --global color.ui false
           if [[ ! -e ../llvm_commits/llvm_commit_last ]]
             then
               echo "last commit does not exist"
@@ -347,16 +348,20 @@ jobs:
               cp -v ../llvm_commits/llvm_commit_current ../llvm_commits/llvm_commit_last
               init=2
           fi
+          git config --global color.ui true
           echo "init=$init" >> $GITHUB_OUTPUT
 
       - name: update llvm-project
         run: |
           # update repo
           cd llvm-project
+          git config --global color.ui true
           echo "executing git fetch"
-          git fetch
+          git fetch > ../llvm_commits/llvm_commit_fetch_color
+          cat ../llvm_commits/llvm_commit_fetch_color
           echo "executing git pull"
-          git pull --progress -v
+          git pull --progress -v > ../llvm_commits/llvm_commit_pull_color
+          cat ../llvm_commits/llvm_commit_pull_color
 
       - name: pack llvm-project
         run: |
@@ -369,14 +374,16 @@ jobs:
       - name: update llvm-project commit info
         run: |
           cd llvm-project
+          git config --global color.ui false
           git log --pretty=format:'%H' -n 1 > ../llvm_commits/llvm_commit_current
           git log --stat --date=relative --color -n 1 > ../llvm_commits/llvm_commit_current_verbose
           git diff $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative > ../llvm_commits/llvm_commit_changed_files
-          git diff $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative --color > ../llvm_commits/llvm_commit_changed_files_color
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --pretty=format:'%H' > ../llvm_commits/llvm_commit_diff
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative > ../llvm_commits/llvm_commit_diff_verbose
-          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p > ../llvm_commits/llvm_commit_diff_verbose_changes
+          git config --global color.ui true
+          git diff $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative --color > ../llvm_commits/llvm_commit_changed_files_color
+          git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --stat --date=relative --color > ../llvm_commits/llvm_commit_diff_verbose_color
           git log $(cat ../llvm_commits/llvm_commit_last)..$(cat ../llvm_commits/llvm_commit_current) --date=relative -p --color > ../llvm_commits/llvm_commit_diff_verbose_changes_color
 
       - name: list commit current
