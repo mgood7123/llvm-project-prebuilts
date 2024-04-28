@@ -495,9 +495,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r llvm_commits --name llvm_commits --size 750000000
+          ./split_exe/split.exe --split -r llvm_commits --name llvm_commits --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -763,9 +763,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r bootstrap_llvm/BUILD_ROOT/ROOTFS/usr --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r bootstrap_llvm/BUILD_ROOT/ROOTFS/usr --name rootfs --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -1103,9 +1103,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -1440,9 +1440,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -1777,9 +1777,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r bootstrap_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -1951,13 +1951,13 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r clang_llvm --name build --size 750000000
+          ./split_exe/split.exe --split -r clang_llvm --name build --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -2299,9 +2299,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -2637,9 +2637,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -3155,9 +3155,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r clang_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -3329,13 +3329,13 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r final_llvm --name build --size 750000000
+          ./split_exe/split.exe --split -r final_llvm --name build --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -3677,9 +3677,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -4015,9 +4015,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -4533,9 +4533,9 @@ jobs:
         run: |
           export MSYS=winsymlinks:native
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size 750000000
+          ./split_exe/split.exe --split -r final_llvm/BUILD_ROOT/ROOTFS --name rootfs --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -4565,9 +4565,9 @@ jobs:
           rm llvm_commits/llvm_commit_last
           cp llvm_commits/llvm_commit_current llvm_commits/llvm_commit_last
 
-          # 750 mb
+          # 500 mb
           #
-          ./split_exe/split.exe --split -r llvm_commits --name llvm_commits --size 750000000
+          ./split_exe/split.exe --split -r llvm_commits --name llvm_commits --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
