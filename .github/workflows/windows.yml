@@ -896,7 +896,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -940,7 +940,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -980,7 +980,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1020,7 +1020,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1060,7 +1060,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1100,7 +1100,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1257,7 +1257,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1301,7 +1301,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1341,7 +1341,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1381,7 +1381,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1421,7 +1421,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1461,7 +1461,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1618,7 +1618,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1662,7 +1662,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1702,7 +1702,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1742,7 +1742,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1782,7 +1782,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -1822,7 +1822,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2164,7 +2164,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2208,7 +2208,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2248,7 +2248,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2288,7 +2288,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2328,7 +2328,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2368,7 +2368,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2526,7 +2526,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2570,7 +2570,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2610,7 +2610,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2650,7 +2650,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2690,7 +2690,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2730,7 +2730,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2888,7 +2888,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2932,7 +2932,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -2972,7 +2972,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3012,7 +3012,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3052,7 +3052,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3092,7 +3092,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3132,7 +3132,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3172,7 +3172,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3212,7 +3212,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3252,7 +3252,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3292,7 +3292,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3634,7 +3634,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3678,7 +3678,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3718,7 +3718,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3758,7 +3758,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3798,7 +3798,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3838,7 +3838,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -3996,7 +3996,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4040,7 +4040,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4080,7 +4080,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4120,7 +4120,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4160,7 +4160,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4200,7 +4200,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4358,7 +4358,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} llvm - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4402,7 +4402,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4442,7 +4442,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} compiler-rt - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4482,7 +4482,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxx - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4522,7 +4522,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libcxxabi - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4562,7 +4562,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} libunwind - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4602,7 +4602,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} clang-tools-extra - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4642,7 +4642,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lld - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4682,7 +4682,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} lldb - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4722,7 +4722,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} mlir - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
@@ -4762,7 +4762,7 @@ jobs:
       - name: cmake LLVM STAGE ${{ matrix.llvm_stage }} polly - Release - Build
         run: |
           export MSYS=winsymlinks:native
-          mv -v next_bin $(cat current_build_dir)/bin
+          rm -rfv $(cat current_build_dir)/bin ; mv -v next_bin $(cat current_build_dir)/bin
           if cmake --build "$(cat current_build_dir)" -v
             then
               echo "build success"
