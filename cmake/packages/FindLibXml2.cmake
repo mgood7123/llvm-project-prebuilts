@@ -123,6 +123,19 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibXml2
 
 mark_as_advanced(LIBXML2_INCLUDE_DIR LIBXML2_INCLUDE_DIRS LIBXML2_LIBRARY LIBXML2_LIBRARIES LIBXML2_XMLLINT_EXECUTABLE)
 
+if(LIBXML2_FOUND)
+    if (ANDROID)
+      # libxml2 depends on glob
+      find_package(GLOB REQUIRED)
+    endif()
+    # libxml2 depends on iconv
+    # libxml2 depends on lzma
+    # libxml2 depends on zlib
+    find_package(ICONV REQUIRED)
+    find_package(LibLZMA REQUIRED)
+    find_package(ZLIB REQUIRED)
+endif()
+
 message(STATUS "LibXml2: found :        ${LIBXML2_FOUND}")
 message(STATUS "LibXml2: include_dirs : ${LIBXML2_INCLUDE_DIRS}")
 message(STATUS "LibXml2: lib :          ${LIBXML2_LIBRARIES}")
@@ -137,38 +150,17 @@ if(LibXml2_FOUND AND NOT TARGET LLVM_STATIC_LibXml2::LibXml2)
   set(LLVM_STATIC_LibXml2_____LIBS m)
   if (ANDROID)
       # libxml2 depends on glob
-      find_package(GLOB)
-      if (GLOB_FOUND)
-          set(LLVM_STATIC_LibXml2_____LIBS ${GLOB_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
-      endif()
+      set(LLVM_STATIC_LibXml2_____LIBS ${GLOB_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
   endif()
 
-  # libxml2 depends on iconv
-  find_package(ICONV)
-  if (ICONV_FOUND)
-      set(LLVM_STATIC_LibXml2_____LIBS ${ICONV_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
-  endif()
-  # libxml2 depends on lzma
-  find_package(LibLZMA)
-  if (LIBLZMA_FOUND)
-      set(LLVM_STATIC_LibXml2_____LIBS ${LIBLZMA_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
-  endif()
-  # libxml2 depends on zlib
-  find_package(ZLIB)
-  if (ZLIB_FOUND)
-      set(LLVM_STATIC_LibXml2_____LIBS ${ZLIB_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
-  endif()
+  set(LLVM_STATIC_LibXml2_____LIBS ${ICONV_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
+  set(LLVM_STATIC_LibXml2_____LIBS ${LIBLZMA_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
+  set(LLVM_STATIC_LibXml2_____LIBS ${ZLIB_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
   set_target_properties(LLVM_STATIC_LibXml2::LibXml2 PROPERTIES INTERFACE_LINK_LIBRARIES "${LLVM_STATIC_LibXml2_____LIBS}")
   set_target_properties(LLVM_STATIC_LibXml2::LibXml2 PROPERTIES INTERFACE_COMPILE_DEFINITIONS "LIBXML_STATIC")
   unset(LLVM_STATIC_LibXml2_____LIBS)
   unset(LLVM_STATIC_LibXml2_____LIBS CACHE)
   set(LIBXML2_TARGET LLVM_STATIC_LibXml2::LibXml2)
-endif()
-
-if(LIBXML2_XMLLINT_EXECUTABLE AND NOT TARGET LLVM_STATIC_LibXml2::xmllint)
-  add_executable(LLVM_STATIC_LibXml2::xmllint IMPORTED)
-  set_target_properties(LLVM_STATIC_LibXml2::xmllint PROPERTIES IMPORTED_LOCATION "${LIBXML2_XMLLINT_EXECUTABLE}")
-  set(LIBXML2_LINT_TARGET LLVM_STATIC_LibXml2::xmllint)
 endif()
 
 if(LibXml2_FOUND AND NOT TARGET LibXml2::LibXml2)
@@ -181,31 +173,25 @@ if(LibXml2_FOUND AND NOT TARGET LibXml2::LibXml2)
   if (ANDROID)
       # libxml2 depends on glob
       find_package(GLOB)
-      if (GLOB_FOUND)
-          set(LLVM_STATIC_LibXml2_____LIBS ${GLOB_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
-      endif()
+      set(LLVM_STATIC_LibXml2_____LIBS ${GLOB_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
   endif()
 
   # libxml2 depends on iconv
-  find_package(ICONV)
-  if (ICONV_FOUND)
-      set(LLVM_STATIC_LibXml2_____LIBS ${ICONV_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
-  endif()
   # libxml2 depends on lzma
-  find_package(LibLZMA)
-  if (LZMA_FOUND)
-      set(LLVM_STATIC_LibXml2_____LIBS ${LIBLZMA_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
-  endif()
   # libxml2 depends on zlib
-  find_package(ZLIB)
-  if (ZLIB_FOUND)
-      set(LLVM_STATIC_LibXml2_____LIBS ${ZLIB_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
-  endif()
-  message(STATUS "LibXml2: INTERFACE_LINK_LIBRARIES :          ${LLVM_STATIC_LibXml2_____LIBS}")
+  set(LLVM_STATIC_LibXml2_____LIBS ${ICONV_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
+  set(LLVM_STATIC_LibXml2_____LIBS ${LIBLZMA_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
+  set(LLVM_STATIC_LibXml2_____LIBS ${ZLIB_TARGET};${LLVM_STATIC_LibXml2_____LIBS})
   set_target_properties(LibXml2::LibXml2 PROPERTIES INTERFACE_LINK_LIBRARIES "${LLVM_STATIC_LibXml2_____LIBS}")
   set_target_properties(LibXml2::LibXml2 PROPERTIES INTERFACE_COMPILE_DEFINITIONS "LIBXML_STATIC")
   unset(LLVM_STATIC_LibXml2_____LIBS)
   unset(LLVM_STATIC_LibXml2_____LIBS CACHE)
+endif()
+
+if(LIBXML2_XMLLINT_EXECUTABLE AND NOT TARGET LLVM_STATIC_LibXml2::xmllint)
+  add_executable(LLVM_STATIC_LibXml2::xmllint IMPORTED)
+  set_target_properties(LLVM_STATIC_LibXml2::xmllint PROPERTIES IMPORTED_LOCATION "${LIBXML2_XMLLINT_EXECUTABLE}")
+  set(LIBXML2_LINT_TARGET LLVM_STATIC_LibXml2::xmllint)
 endif()
 
 if(LIBXML2_XMLLINT_EXECUTABLE AND NOT TARGET LibXml2::xmllint)
