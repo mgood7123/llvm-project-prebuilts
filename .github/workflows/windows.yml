@@ -29,7 +29,7 @@
 #
 # unfortunately this does not appear to work even tho https://man7.org/linux/man-pages/man3/strnlen.3.html
 #
-# llvm-project/clang/lib/Lex/HeaderMap.cpp:158:18: error: ‘strnlen’ was not declared in this scope; did you mean ‘strlen’?
+# llvm-project/clang/lib/Lex/HeaderMap.cpp:158:18: error: â€˜strnlenâ€™ was not declared in this scope; did you mean â€˜strlenâ€™?
 #
 #    158 |   unsigned Len = strnlen(Data, MaxLen);
 #
@@ -73,8 +73,8 @@
 # 4
 # 
 # $ g++ -D_GNU_SOURCE test.cpp -o test && ./test.exe ; echo $?
-# test.cpp: In function ‘int main()’:
-# test.cpp:4:12: error: ‘strnlen’ was not declared in this scope; did you mean ‘strlen’?
+# test.cpp: In function â€˜int main()â€™:
+# test.cpp:4:12: error: â€˜strnlenâ€™ was not declared in this scope; did you mean â€˜strlenâ€™?
 #     4 |     return strnlen("abcd", 5);
 #       |            ^~~~~~~
 #       |            strlen
@@ -83,7 +83,7 @@
 #
 # unfortunately this breaks std::tuple
 #
-# error: no matching function for call to ‘std::tuple<int, char [4096]>::tuple(const int&, const char [4096])’
+# error: no matching function for call to â€˜std::tuple<int, char [4096]>::tuple(const int&, const char [4096])â€™
 #
 # another workaround is to set `-DCMAKE_C_EXTENSIONS=ON -DCMAKE_CXX_EXTENSIONS=ON` in `cmake` flags
 
