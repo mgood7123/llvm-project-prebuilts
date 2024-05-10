@@ -63,7 +63,7 @@ jobs:
         shell: msys2 {0}
         run: |
           export MSYS=winsymlinks:native
-          df -h /
+          df -h
 
   spec_test_linux:
     strategy:
@@ -91,7 +91,7 @@ jobs:
 
       - name: check free space
         run: |
-          df -h /
+          df -h
 
   spec_test_macos:
     strategy:
@@ -121,4 +121,4 @@ jobs:
 
       - name: check free space
         run: |
-          df -h /
+          df -h
